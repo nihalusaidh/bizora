@@ -6,7 +6,6 @@ import { Menu } from "lucide-react";
 import { NotificationBell } from "@/components/notifications/notification-bell";
 import { GlobalSearch } from "@/components/search/global-search";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
-import { LanguageToggle } from "@/components/ui/language-toggle";
 
 const pageTitles: Record<string, string> = {
   "/dashboard": "Home",
@@ -51,7 +50,6 @@ export function Topbar({ onMenuToggle }: TopbarProps) {
       <div className="ml-auto flex items-center gap-0.5">
         <GlobalSearch />
         <ThemeToggle />
-        <LanguageToggle />
         <NotificationBell />
       </div>
     </header>

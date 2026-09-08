@@ -39,7 +39,7 @@ export async function middleware(request: NextRequest) {
 
   const isOnboardingPage = pathname.startsWith("/onboarding");
 
-  const isPublicPage = pathname === "/" || isAuthPage || isOnboardingPage || pathname.startsWith("/shop");
+  const isPublicPage = pathname === "/" || isAuthPage || isOnboardingPage || pathname.startsWith("/shop") || pathname.startsWith("/pricing") || pathname.startsWith("/download") || pathname.startsWith("/faq") || pathname.startsWith("/security");
 
   // Redirect unauthenticated users to login
   if (!user && !isPublicPage) {
