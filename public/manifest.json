@@ -1,7 +1,7 @@
 {
   "name": "BIZORA - AI Business Operating System",
   "short_name": "BIZORA",
-  "description": "AI-powered business management for small & medium businesses in India",
+  "description": "AI-powered billing, inventory & business management for Indian shops",
   "start_url": "/dashboard",
   "scope": "/",
   "display": "standalone",
@@ -9,6 +9,49 @@
   "theme_color": "#1a7a4c",
   "orientation": "portrait-primary",
   "categories": ["business", "finance", "productivity"],
+  "id": "/",
+  "shortcuts": [
+    {
+      "name": "New Bill",
+      "short_name": "Bill",
+      "url": "/billing",
+      "icons": [{ "src": "/icons/icon-192.svg", "sizes": "192x192" }]
+    },
+    {
+      "name": "Inventory",
+      "short_name": "Inventory",
+      "url": "/inventory",
+      "icons": [{ "src": "/icons/icon-192.svg", "sizes": "192x192" }]
+    },
+    {
+      "name": "Customers",
+      "short_name": "Customers",
+      "url": "/customers",
+      "icons": [{ "src": "/icons/icon-192.svg", "sizes": "192x192" }]
+    },
+    {
+      "name": "Dashboard",
+      "short_name": "Home",
+      "url": "/dashboard",
+      "icons": [{ "src": "/icons/icon-192.svg", "sizes": "192x192" }]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/icons/icon-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "form_factor": "wide",
+      "label": "BIZORA Dashboard"
+    },
+    {
+      "src": "/icons/icon-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "form_factor": "narrow",
+      "label": "BIZORA Mobile"
+    }
+  ],
   "icons": [
     {
       "src": "/icons/icon-192.svg",
