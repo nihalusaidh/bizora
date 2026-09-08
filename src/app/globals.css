@@ -99,13 +99,13 @@
   --chart-5: #DC2626;
 
   /* ── Sidebar ── */
-  --sidebar: #0a0a0a;
-  --sidebar-foreground: #fafafa;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #0a0a0a;
   --sidebar-primary: #DC2626;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #1a1a1a;
-  --sidebar-accent-foreground: #fafafa;
-  --sidebar-border: #262626;
+  --sidebar-accent: #f5f5f5;
+  --sidebar-accent-foreground: #0a0a0a;
+  --sidebar-border: #e5e5e5;
   --sidebar-ring: #DC2626;
 
   /* ── Semantic ── */

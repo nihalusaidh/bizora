@@ -68,11 +68,11 @@ export function MobileNav({ open, onClose, bottomNav }: MobileNavProps) {
 
   return (
     <Sheet open={open} onOpenChange={onClose}>
-      <SheetContent side="left" className="w-64 p-0 bg-[#0a0a0a] border-[#262626]">
+      <SheetContent side="left" className="w-64 p-0 bg-sidebar text-sidebar-foreground border-sidebar-border">
         <div className="flex h-full flex-col">
-          <div className="flex h-16 items-center justify-between px-6">
-            <span className="text-lg font-bold tracking-tight text-white">BIZORA</span>
-            <button onClick={onClose} className="text-[#737373] hover:text-white">
+          <div className="flex h-16 items-center justify-between px-6 border-b border-sidebar-border">
+            <span className="text-lg font-bold tracking-tight text-sidebar-foreground">BIZORA</span>
+            <button onClick={onClose} className="text-muted-foreground hover:text-sidebar-accent-foreground">
               <X className="h-5 w-5" />
             </button>
           </div>
@@ -87,17 +87,17 @@ export function MobileNav({ open, onClose, bottomNav }: MobileNavProps) {
                   className={cn(
                     "group relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all",
                     active
-                      ? "bg-white/10 text-white"
-                      : "text-[#737373] hover:bg-white/5 hover:text-white"
+                      ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                      : "text-muted-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
                   )}
                 >
                   {active && (
-                    <div className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-[3px] rounded-r-full bg-[#DC2626]" />
+                    <div className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-[3px] rounded-r-full bg-sidebar-primary" />
                   )}
                   <item.icon
                     className={cn(
                       "h-5 w-5 shrink-0",
-                      active ? "text-[#DC2626]" : "text-[#525252]"
+                      active ? "text-sidebar-primary" : "text-muted-foreground"
                     )}
                   />
                   {item.name}
