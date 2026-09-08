@@ -1,51 +1,62 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { TrendingUp, TrendingDown, Minus } from "lucide-react";
 
 interface MetricCardProps {
-  title: string;
+  title?: string;
+  label?: string;
   value: string;
-  change?: number;
-  changeLabel?: string;
+  change?: string;
+  changeType?: "positive" | "negative" | "neutral";
   icon?: React.ReactNode;
-  onClick?: () => void;
   className?: string;
 }
 
-export function MetricCard({ title, value, change, changeLabel, icon, onClick, className }: MetricCardProps) {
-  const trend = change !== undefined ? (change > 0 ? "up" : change < 0 ? "down" : "flat") : null;
+export function MetricCard({
+  title,
+  label,
+  value,
+  change,
+  changeType = "neutral",
+  icon,
+  className,
+}: MetricCardProps) {
+  const displayLabel = title || label;
 
   return (
-    <button
-      onClick={onClick}
+    <div
       className={cn(
-        "rounded-xl border bg-card p-4 text-left transition-default hover:shadow-md hover:border-primary/20 w-full",
-        onClick && "cursor-pointer",
+        "rounded-xl border border-border bg-card p-4 transition-all hover:shadow-sm",
         className
       )}
     >
-      <div className="flex items-start justify-between mb-2">
-        <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{title}</span>
-        {icon && <span className="text-muted-foreground">{icon}</span>}
-      </div>
-      <div className="text-2xl font-bold tracking-tight">{value}</div>
-      {trend && (
-        <div className="flex items-center gap-1 mt-1.5">
-          {trend === "up" && <TrendingUp className="h-3.5 w-3.5 text-success" />}
-          {trend === "down" && <TrendingDown className="h-3.5 w-3.5 text-danger" />}
-          {trend === "flat" && <Minus className="h-3.5 w-3.5 text-muted-foreground" />}
-          <span className={cn(
-            "text-xs font-medium",
-            trend === "up" && "text-success",
-            trend === "down" && "text-danger",
-            trend === "flat" && "text-muted-foreground"
-          )}>
-            {change! > 0 ? "+" : ""}{change}%
-          </span>
-          {changeLabel && <span className="text-xs text-muted-foreground">{changeLabel}</span>}
+      <div className="flex items-start justify-between">
+        <div className="flex-1">
+          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+            {displayLabel}
+          </p>
+          <p className="mt-1.5 text-2xl font-bold tracking-tight financial-number text-foreground">
+            {value}
+          </p>
+          {change && (
+            <p
+              className={cn(
+                "mt-1 text-xs font-medium",
+                changeType === "positive" && "text-foreground",
+                changeType === "negative" && "text-[#DC2626]",
+                changeType === "neutral" && "text-muted-foreground"
+              )}
+            >
+              {change}
+            </p>
+          )}
         </div>
-      )}
-    </button>
+        {icon && (
+          <div className="rounded-lg bg-muted p-2 text-muted-foreground">
+            {icon}
+          </div>
+        )}
+      </div>
+    </div>
   );
 }

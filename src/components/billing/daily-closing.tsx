@@ -104,7 +104,7 @@ export function DailyClosing() {
   if (error) {
     return (
       <Card>
-        <CardContent className="py-12 text-center text-sm text-destructive">
+        <CardContent className="py-12 text-center text-sm text-[#DC2626]">
           {error}
         </CardContent>
       </Card>
@@ -113,7 +113,7 @@ export function DailyClosing() {
 
   if (!data) return null;
 
-  const netProfitColor = data.netProfit >= 0 ? "text-green-500" : "text-destructive";
+  const netProfitColor = data.netProfit >= 0 ? "text-foreground" : "text-[#DC2626]";
 
   return (
     <div className="space-y-4">
@@ -161,9 +161,9 @@ export function DailyClosing() {
           <CardContent className="p-3">
             <div className="flex items-center gap-2 text-muted-foreground mb-1">
               {data.netProfit >= 0 ? (
-                <TrendingUp className="h-3.5 w-3.5 text-green-500" />
+                <TrendingUp className="h-3.5 w-3.5 text-foreground" />
               ) : (
-                <TrendingDown className="h-3.5 w-3.5 text-destructive" />
+                <TrendingDown className="h-3.5 w-3.5 text-[#DC2626]" />
               )}
               <span className="text-xs">Net Profit</span>
             </div>
@@ -182,14 +182,14 @@ export function DailyClosing() {
         <CardContent className="space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Banknote className="h-4 w-4 text-green-500" />
+              <Banknote className="h-4 w-4 text-foreground" />
               <span className="text-sm">Cash</span>
             </div>
             <span className="font-semibold">{formatCurrency(data.cashCollected)}</span>
           </div>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <CreditCard className="h-4 w-4 text-blue-500" />
+              <CreditCard className="h-4 w-4 text-muted-foreground" />
               <span className="text-sm">UPI</span>
             </div>
             <span className="font-semibold">{formatCurrency(data.upiCollected)}</span>
@@ -197,7 +197,7 @@ export function DailyClosing() {
           {data.cardCollected > 0 && (
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <CreditCard className="h-4 w-4 text-purple-500" />
+                <CreditCard className="h-4 w-4 text-muted-foreground" />
                 <span className="text-sm">Card / Bank</span>
               </div>
               <span className="font-semibold">{formatCurrency(data.cardCollected)}</span>
@@ -206,10 +206,10 @@ export function DailyClosing() {
           {data.creditSales > 0 && (
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Wallet className="h-4 w-4 text-orange-500" />
+                <Wallet className="h-4 w-4 text-[#DC2626]" />
                 <span className="text-sm">Credit (Udhaar)</span>
               </div>
-              <span className="font-semibold text-orange-500">
+              <span className="font-semibold text-[#DC2626]">
                 {formatCurrency(data.creditSales)}
               </span>
             </div>
@@ -217,10 +217,10 @@ export function DailyClosing() {
           {data.totalReturns > 0 && (
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Undo2 className="h-4 w-4 text-destructive" />
+                <Undo2 className="h-4 w-4 text-[#DC2626]" />
                 <span className="text-sm">Returns</span>
               </div>
-              <span className="font-semibold text-destructive">
+              <span className="font-semibold text-[#DC2626]">
                 {formatCurrency(data.totalReturns)}
               </span>
             </div>
@@ -230,7 +230,7 @@ export function DailyClosing() {
               <IndianRupee className="h-4 w-4 text-muted-foreground" />
               <span className="text-sm">Expenses</span>
             </div>
-            <span className="font-semibold text-destructive">
+            <span className="font-semibold text-[#DC2626]">
               {formatCurrency(data.totalExpenses)}
             </span>
           </div>

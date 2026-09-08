@@ -117,7 +117,7 @@ export default function GstReportPage() {
                           <td className="py-2 font-medium">{inv.invoice_number}</td>
                           <td className="py-2 text-muted-foreground">{inv.date}</td>
                           <td className="py-2 text-right">₹{inv.taxable_amount.toLocaleString()}</td>
-                          <td className="py-2 text-right text-green-500">₹{inv.tax_amount.toLocaleString()}</td>
+                          <td className="py-2 text-right text-foreground">₹{inv.tax_amount.toLocaleString()}</td>
                           <td className="py-2 text-right font-medium">₹{inv.total.toLocaleString()}</td>
                           <td className="py-2 text-right">
                             <Badge variant={inv.status === "paid" ? "default" : "secondary"} className="text-xs">
@@ -131,7 +131,7 @@ export default function GstReportPage() {
                       <tr className="border-t-2 font-bold">
                         <td colSpan={2} className="py-2">Total</td>
                         <td className="py-2 text-right">₹{data.totalTaxable.toLocaleString()}</td>
-                        <td className="py-2 text-right text-green-500">₹{data.totalTax.toLocaleString()}</td>
+                        <td className="py-2 text-right text-foreground">₹{data.totalTax.toLocaleString()}</td>
                         <td className="py-2 text-right">₹{(data.totalTaxable + data.totalTax).toLocaleString()}</td>
                         <td></td>
                       </tr>

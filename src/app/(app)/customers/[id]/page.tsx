@@ -217,7 +217,7 @@ export default function CustomerDetailPage() {
           <div className="text-xs text-muted-foreground">Purchases</div>
         </div>
         <div className="rounded-xl border bg-card p-4 text-center">
-          <div className="text-2xl font-bold text-orange-500">₹{(customer.outstanding_balance || 0).toLocaleString()}</div>
+          <div className="text-2xl font-bold text-[#DC2626]">₹{(customer.outstanding_balance || 0).toLocaleString()}</div>
           <div className="text-xs text-muted-foreground">Outstanding</div>
         </div>
       </div>
@@ -270,7 +270,7 @@ export default function CustomerDetailPage() {
         <TabsContent value="credits" className="space-y-3 mt-4">
           {pendingCredits.length === 0 ? (
             <div className="rounded-xl border bg-card p-6 text-center">
-              <CheckCircle className="h-8 w-8 mx-auto text-green-500 mb-2" />
+              <CheckCircle className="h-8 w-8 mx-auto text-foreground mb-2" />
               <p className="text-muted-foreground">No pending credits</p>
             </div>
           ) : (
@@ -338,7 +338,7 @@ export default function CustomerDetailPage() {
               <div key={payment.id} className="rounded-xl border bg-card p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <div className="font-medium text-green-500">+₹{payment.amount.toLocaleString()}</div>
+                    <div className="font-medium text-foreground">+₹{payment.amount.toLocaleString()}</div>
                     <div className="text-sm text-muted-foreground capitalize">
                       {payment.payment_method.replace("_", " ")}
                     </div>

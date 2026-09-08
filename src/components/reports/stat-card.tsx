@@ -12,7 +12,7 @@ interface StatCardProps {
 }
 
 export function StatCard({ label, value, change, prefix = "", suffix = "", variant = "default" }: StatCardProps) {
-  const valueColor = variant === "destructive" ? "text-destructive" : variant === "success" ? "text-green-500" : "text-foreground";
+  const valueColor = variant === "destructive" ? "text-[#DC2626]" : variant === "success" ? "text-foreground" : "text-foreground";
 
   return (
     <div className="rounded-xl border bg-card p-4">

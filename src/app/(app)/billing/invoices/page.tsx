@@ -26,12 +26,12 @@ interface Invoice {
 }
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; icon: typeof CheckCircle }> = {
-  draft: { label: "Draft", color: "bg-gray-100 text-gray-700", icon: Clock },
-  sent: { label: "Sent", color: "bg-blue-100 text-blue-700", icon: Send },
-  paid: { label: "Paid", color: "bg-green-100 text-green-700", icon: CheckCircle },
-  partial: { label: "Partial", color: "bg-yellow-100 text-yellow-700", icon: Clock },
-  cancelled: { label: "Cancelled", color: "bg-red-100 text-red-700", icon: XCircle },
-  returned: { label: "Returned", color: "bg-orange-100 text-orange-700", icon: XCircle },
+  draft: { label: "Draft", color: "bg-muted text-foreground", icon: Clock },
+  sent: { label: "Sent", color: "bg-muted text-foreground", icon: Send },
+  paid: { label: "Paid", color: "bg-muted text-foreground", icon: CheckCircle },
+  partial: { label: "Partial", color: "bg-muted text-foreground", icon: Clock },
+  cancelled: { label: "Cancelled", color: "bg-[#DC2626]/10 text-[#DC2626]", icon: XCircle },
+  returned: { label: "Returned", color: "bg-[#DC2626]/10 text-[#DC2626]", icon: XCircle },
 };
 
 export default function InvoicesPage() {
@@ -115,11 +115,11 @@ export default function InvoicesPage() {
       {/* Stats */}
       <div className="grid grid-cols-2 gap-4">
         <div className="rounded-xl border bg-card p-4 text-center">
-          <div className="text-2xl font-bold text-green-500">₹{totalRevenue.toLocaleString()}</div>
+          <div className="text-2xl font-bold text-foreground">₹{totalRevenue.toLocaleString()}</div>
           <div className="text-xs text-muted-foreground">Revenue Collected</div>
         </div>
         <div className="rounded-xl border bg-card p-4 text-center">
-          <div className="text-2xl font-bold text-orange-500">₹{totalOutstanding.toLocaleString()}</div>
+          <div className="text-2xl font-bold text-[#DC2626]">₹{totalOutstanding.toLocaleString()}</div>
           <div className="text-xs text-muted-foreground">Outstanding</div>
         </div>
       </div>
@@ -189,7 +189,7 @@ export default function InvoicesPage() {
                   <div className="text-right">
                     <div className="font-bold">₹{invoice.total.toLocaleString()}</div>
                     {invoice.status !== "paid" && invoice.status !== "cancelled" && (
-                      <div className="text-xs text-orange-500">
+                      <div className="text-xs text-[#DC2626]">
                         Due: ₹{(invoice.total - (invoice.amount_paid || 0)).toLocaleString()}
                       </div>
                     )}
@@ -199,7 +199,7 @@ export default function InvoicesPage() {
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-8 w-8 text-green-500"
+                        className="h-8 w-8 text-foreground"
                         onClick={(e) => {
                           e.preventDefault();
                           handleMarkPaid(invoice.id, invoice.total);
@@ -211,7 +211,7 @@ export default function InvoicesPage() {
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-8 w-8 text-destructive"
+                      className="h-8 w-8 text-[#DC2626]"
                       onClick={(e) => {
                         e.preventDefault();
                         handleDelete(invoice.id);

@@ -28,13 +28,13 @@ const TYPE_ICONS: Record<string, typeof Bell> = {
 };
 
 const TYPE_COLORS: Record<string, string> = {
-  low_stock: "text-orange-500",
-  payment_due: "text-red-500",
-  expense_alert: "text-destructive",
-  invoice_created: "text-green-500",
-  po_received: "text-blue-500",
-  team_joined: "text-purple-500",
-  system: "text-gray-500",
+  low_stock: "text-[#DC2626]",
+  payment_due: "text-[#DC2626]",
+  expense_alert: "text-[#DC2626]",
+  invoice_created: "text-foreground",
+  po_received: "text-foreground",
+  team_joined: "text-foreground",
+  system: "text-muted-foreground",
 };
 
 export function NotificationBell() {
@@ -116,7 +116,7 @@ export function NotificationBell() {
       <Button variant="ghost" size="icon" onClick={handleOpen} className="relative">
         <Bell className="h-5 w-5" />
         {count > 0 && (
-          <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-destructive text-destructive-foreground text-xs flex items-center justify-center font-bold">
+          <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-[#DC2626] text-white text-xs flex items-center justify-center font-bold">
             {count > 9 ? "9+" : count}
           </span>
         )}
@@ -159,7 +159,7 @@ export function NotificationBell() {
                     <div
                       key={notif.id}
                       className={`flex items-start gap-3 p-3 border-b last:border-0 hover:bg-muted/50 transition-colors ${
-                        !notif.is_read ? "bg-primary/5" : ""
+                        !notif.is_read ? "bg-[#DC2626]/5" : ""
                       }`}
                     >
                       <div className={`mt-0.5 ${iconColor}`}>
@@ -169,7 +169,7 @@ export function NotificationBell() {
                         <div className="flex items-center gap-1">
                           <span className="text-sm font-medium">{notif.title}</span>
                           {!notif.is_read && (
-                            <span className="h-2 w-2 rounded-full bg-primary shrink-0" />
+                            <span className="h-2 w-2 rounded-full bg-[#DC2626] shrink-0" />
                           )}
                         </div>
                         <p className="text-xs text-muted-foreground line-clamp-2">
@@ -210,7 +210,7 @@ export function NotificationBell() {
               <div className="p-2 border-t">
                 <Link
                   href="/notifications"
-                  className="block text-center text-sm text-primary hover:underline py-1"
+                  className="block text-center text-sm text-foreground hover:text-[#DC2626] transition-colors py-1"
                   onClick={() => setOpen(false)}
                 >
                   View all notifications

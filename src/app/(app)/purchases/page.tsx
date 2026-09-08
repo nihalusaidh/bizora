@@ -25,11 +25,11 @@ interface PurchaseOrder {
 }
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; icon: typeof CheckCircle }> = {
-  draft: { label: "Draft", color: "bg-gray-100 text-gray-700", icon: Clock },
-  ordered: { label: "Ordered", color: "bg-blue-100 text-blue-700", icon: Send },
-  partial: { label: "Partial", color: "bg-yellow-100 text-yellow-700", icon: Truck },
-  received: { label: "Received", color: "bg-green-100 text-green-700", icon: CheckCircle },
-  cancelled: { label: "Cancelled", color: "bg-red-100 text-red-700", icon: XCircle },
+  draft: { label: "Draft", color: "bg-muted text-foreground", icon: Clock },
+  ordered: { label: "Ordered", color: "bg-muted text-foreground", icon: Send },
+  partial: { label: "Partial", color: "bg-muted text-foreground", icon: Truck },
+  received: { label: "Received", color: "bg-muted text-foreground", icon: CheckCircle },
+  cancelled: { label: "Cancelled", color: "bg-[#DC2626]/10 text-[#DC2626]", icon: XCircle },
 };
 
 export default function PurchasesPage() {
@@ -108,7 +108,7 @@ export default function PurchasesPage() {
           <div className="text-xs text-muted-foreground">Total Ordered</div>
         </div>
         <div className="rounded-xl border bg-card p-4 text-center">
-          <div className="text-2xl font-bold text-orange-500">₹{totalPending.toLocaleString()}</div>
+          <div className="text-2xl font-bold text-[#DC2626]">₹{totalPending.toLocaleString()}</div>
           <div className="text-xs text-muted-foreground">Amount Pending</div>
         </div>
       </div>
@@ -177,7 +177,7 @@ export default function PurchasesPage() {
                   <div className="text-right">
                     <div className="font-bold">₹{Number(po.total).toLocaleString()}</div>
                     {Number(po.amount_paid) > 0 && Number(po.amount_paid) < Number(po.total) && (
-                      <div className="text-xs text-orange-500">
+                      <div className="text-xs text-[#DC2626]">
                         Paid: ₹{Number(po.amount_paid).toLocaleString()}
                       </div>
                     )}
@@ -187,7 +187,7 @@ export default function PurchasesPage() {
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-8 w-8 text-blue-500"
+                        className="h-8 w-8 text-muted-foreground"
                         onClick={(e) => { e.preventDefault(); handleMarkOrdered(po.id); }}
                       >
                         <Send className="h-4 w-4" />
@@ -196,7 +196,7 @@ export default function PurchasesPage() {
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-8 w-8 text-destructive"
+                      className="h-8 w-8 text-[#DC2626]"
                       onClick={(e) => { e.preventDefault(); handleDelete(po.id); }}
                     >
                       <Trash2 className="h-4 w-4" />

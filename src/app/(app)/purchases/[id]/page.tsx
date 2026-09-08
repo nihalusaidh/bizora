@@ -58,11 +58,11 @@ interface POData {
 }
 
 const STATUS_CONFIG: Record<string, { label: string; color: string }> = {
-  draft: { label: "Draft", color: "bg-gray-100 text-gray-700" },
-  ordered: { label: "Ordered", color: "bg-blue-100 text-blue-700" },
-  partial: { label: "Partial", color: "bg-yellow-100 text-yellow-700" },
-  received: { label: "Received", color: "bg-green-100 text-green-700" },
-  cancelled: { label: "Cancelled", color: "bg-red-100 text-red-700" },
+  draft: { label: "Draft", color: "bg-muted text-foreground" },
+  ordered: { label: "Ordered", color: "bg-muted text-foreground" },
+  partial: { label: "Partial", color: "bg-muted text-foreground" },
+  received: { label: "Received", color: "bg-muted text-foreground" },
+  cancelled: { label: "Cancelled", color: "bg-[#DC2626]/10 text-[#DC2626]" },
 };
 
 export default function PurchaseOrderDetailPage() {
@@ -285,7 +285,7 @@ export default function PurchaseOrderDetailPage() {
               </div>
             )}
             {Number(po.discount_amount) > 0 && (
-              <div className="flex justify-between text-green-500">
+              <div className="flex justify-between text-foreground">
                 <span>Discount</span>
                 <span>-₹{Number(po.discount_amount).toFixed(2)}</span>
               </div>
@@ -296,7 +296,7 @@ export default function PurchaseOrderDetailPage() {
               <span>₹{Number(po.total).toFixed(2)}</span>
             </div>
             {Number(po.amount_paid) > 0 && (
-              <div className="flex justify-between text-green-500">
+              <div className="flex justify-between text-foreground">
                 <span>Paid</span>
                 <span>-₹{Number(po.amount_paid).toFixed(2)}</span>
               </div>

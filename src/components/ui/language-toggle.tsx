@@ -56,6 +56,7 @@ export function LanguageToggle() {
       size="icon"
       onClick={toggleLanguage}
       title={language === "en" ? "हिन्दी में बदलें" : "Switch to English"}
+      className="text-muted-foreground hover:text-foreground"
     >
       <Globe className="h-4 w-4" />
       <span className="sr-only">

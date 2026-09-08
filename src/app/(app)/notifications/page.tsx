@@ -28,12 +28,12 @@ const TYPE_ICONS: Record<string, typeof Bell> = {
 };
 
 const TYPE_COLORS: Record<string, string> = {
-  low_stock: "text-orange-500",
-  payment_due: "text-red-500",
-  expense_alert: "text-destructive",
-  invoice_created: "text-green-500",
-  po_received: "text-blue-500",
-  team_joined: "text-purple-500",
+  low_stock: "text-[#DC2626]",
+  payment_due: "text-[#DC2626]",
+  expense_alert: "text-[#DC2626]",
+  invoice_created: "text-foreground",
+  po_received: "text-muted-foreground",
+  team_joined: "text-muted-foreground",
   system: "text-gray-500",
 };
 

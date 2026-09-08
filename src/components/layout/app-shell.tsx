@@ -6,16 +6,14 @@ import { Topbar } from "./topbar";
 import { MobileNav } from "./mobile-nav";
 import { PwaInstallPrompt } from "@/components/pwa/pwa-install-prompt";
 import { GlobalSearch } from "@/components/search/global-search";
-import { useServiceWorker } from "@/lib/hooks/use-service-worker";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  useServiceWorker();
 
   return (
     <div className="flex h-screen overflow-hidden">
       {/* Desktop sidebar */}
-      <div className="hidden lg:flex lg:w-64 lg:flex-col lg:border-r">
+      <div className="hidden lg:flex lg:w-64 lg:flex-col lg:border-r border-border">
         <Sidebar />
       </div>
 

@@ -363,11 +363,11 @@ export default function GstrReportPage() {
                     </div>
                     <div className="flex justify-between py-2 border-b">
                       <span className="text-muted-foreground">Total CGST</span>
-                      <span className="font-medium text-green-600">₹{data.document_summary.total_cgst.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                      <span className="font-medium text-foreground">₹{data.document_summary.total_cgst.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                     </div>
                     <div className="flex justify-between py-2 border-b">
                       <span className="text-muted-foreground">Total SGST</span>
-                      <span className="font-medium text-green-600">₹{data.document_summary.total_sgst.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                      <span className="font-medium text-foreground">₹{data.document_summary.total_sgst.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                     </div>
                     <div className="flex justify-between py-2 border-b">
                       <span className="text-muted-foreground">Total IGST</span>

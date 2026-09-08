@@ -30,7 +30,7 @@ interface SuccessToastProps {
 export function SuccessToast({ message, className }: SuccessToastProps) {
   return (
     <div className={cn(
-      "flex items-center gap-2 rounded-lg bg-success-soft border border-success/20 px-4 py-3 text-sm font-medium text-success animate-slide-up",
+      "flex items-center gap-2 rounded-lg bg-foreground px-4 py-3 text-sm font-medium text-background animate-slide-up",
       className
     )}>
       <CheckCircle className="h-4 w-4" />
@@ -48,34 +48,29 @@ interface InsightCardProps {
   className?: string;
 }
 
-const insightConfig = {
-  success: { icon: CheckCircle, color: "text-success", bg: "bg-success-soft", border: "border-success/20" },
-  warning: { icon: AlertTriangle, color: "text-warning", bg: "bg-warning-soft", border: "border-warning/20" },
-  danger: { icon: XCircle, color: "text-danger", bg: "bg-danger-soft", border: "border-danger/20" },
-  opportunity: { icon: Lightbulb, color: "text-warning", bg: "bg-warning-soft", border: "border-warning/20" },
-  ai: { icon: Brain, color: "text-intelligence", bg: "bg-intelligence-soft", border: "border-intelligence/20" },
-};
-
 export function InsightCard({ type, title, description, impact, action, className }: InsightCardProps) {
   const config = insightConfig[type];
   const Icon = config.icon;
 
   return (
     <div className={cn(
-      "rounded-xl border p-4 transition-default hover:shadow-sm",
-      config.border,
-      config.bg,
+      "rounded-xl border border-border bg-card p-4 transition-default hover:shadow-sm",
       className
     )}>
       <div className="flex items-start gap-3">
-        <div className={cn("mt-0.5", config.color)}>
-          <Icon className="h-4 w-4" />
-        </div>
+        {config.showDot && (
+          <div className="mt-1 h-2 w-2 rounded-full bg-[#DC2626] shrink-0" />
+        )}
+        {!config.showDot && (
+          <div className={cn("mt-0.5 text-muted-foreground")}>
+            <Icon className="h-4 w-4" />
+          </div>
+        )}
         <div className="flex-1 min-w-0">
           <h4 className="text-sm font-semibold">{title}</h4>
           <p className="text-sm text-muted-foreground mt-0.5">{description}</p>
           {impact && (
-            <p className={cn("text-xs font-medium mt-1.5", config.color)}>
+            <p className="text-xs font-semibold mt-1.5 financial-number">
               {impact}
             </p>
           )}
@@ -86,6 +81,14 @@ export function InsightCard({ type, title, description, impact, action, classNam
   );
 }
 
+const insightConfig = {
+  success: { icon: CheckCircle, showDot: false },
+  warning: { icon: AlertTriangle, showDot: false },
+  danger: { icon: XCircle, showDot: true },
+  opportunity: { icon: Lightbulb, showDot: true },
+  ai: { icon: Brain, showDot: false },
+};
+
 interface HealthScoreProps {
   score: number;
   label?: string;
@@ -93,14 +96,17 @@ interface HealthScoreProps {
 }
 
 export function HealthScore({ score, label, className }: HealthScoreProps) {
-  const color = score >= 80 ? "text-success" : score >= 60 ? "text-warning" : "text-danger";
-  const bgColor = score >= 80 ? "bg-success" : score >= 60 ? "bg-warning" : "bg-danger";
+  const statusColor = score >= 80
+    ? "text-foreground"
+    : score >= 60
+    ? "text-[#737373]"
+    : "text-[#DC2626]";
 
   return (
-    <div className={cn("rounded-xl border bg-card p-4", className)}>
+    <div className={cn("rounded-xl border border-border bg-card p-4", className)}>
       <div className="flex items-center justify-between mb-3">
         <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Business Health</span>
-        {label && <span className={cn("text-xs font-medium", color)}>{label}</span>}
+        {label && <span className={cn("text-xs font-medium", statusColor)}>{label}</span>}
       </div>
       <div className="flex items-end gap-3">
         <div className="relative h-16 w-16">
@@ -109,17 +115,17 @@ export function HealthScore({ score, label, className }: HealthScoreProps) {
             <circle
               cx="32" cy="32" r="28" fill="none" strokeWidth="6"
               strokeDasharray={`${(score / 100) * 175.9} 175.9`}
-              className={bgColor}
+              className={score >= 80 ? "stroke-foreground" : score >= 60 ? "stroke-[#737373]" : "stroke-[#DC2626]"}
               strokeLinecap="round"
             />
           </svg>
           <div className="absolute inset-0 flex items-center justify-center">
-            <span className={cn("text-lg font-bold", color)}>{score}</span>
+            <span className={cn("text-lg font-bold", statusColor)}>{score}</span>
           </div>
         </div>
         <div>
-          <div className="text-2xl font-bold">{score}<span className="text-sm font-normal text-muted-foreground">/100</span></div>
-          <div className={cn("text-sm font-medium", color)}>
+          <div className="text-2xl font-bold financial-number">{score}<span className="text-sm font-normal text-muted-foreground">/100</span></div>
+          <div className={cn("text-sm font-medium", statusColor)}>
             {score >= 80 ? "Healthy" : score >= 60 ? "Needs attention" : "Critical"}
           </div>
         </div>
@@ -136,22 +142,19 @@ interface ActionItemProps {
   className?: string;
 }
 
-const severityConfig = {
-  high: { dot: "bg-danger", label: "Urgent" },
-  medium: { dot: "bg-warning", label: "Important" },
-  low: { dot: "bg-success", label: "Suggested" },
-};
-
 export function ActionItem({ severity, title, description, action, className }: ActionItemProps) {
-  const config = severityConfig[severity];
-
   return (
-    <div className={cn("flex items-start gap-3 rounded-lg border p-3 transition-default hover:bg-muted/50", className)}>
-      <div className={cn("h-2.5 w-2.5 rounded-full mt-1.5 shrink-0", config.dot)} />
+    <div className={cn(
+      "flex items-start gap-3 rounded-lg border border-border p-3 transition-default hover:bg-muted/50",
+      className
+    )}>
+      <div className={cn(
+        "mt-1.5 h-2 w-2 rounded-full shrink-0",
+        severity === "high" ? "bg-[#DC2626]" : severity === "medium" ? "bg-[#737373]" : "bg-foreground/30"
+      )} />
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
           <h4 className="text-sm font-semibold">{title}</h4>
-          <span className="text-[10px] font-medium text-muted-foreground uppercase">{config.label}</span>
         </div>
         <p className="text-xs text-muted-foreground mt-0.5">{description}</p>
       </div>

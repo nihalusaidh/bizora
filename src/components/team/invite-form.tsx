@@ -57,7 +57,7 @@ export function InviteForm({ businessId, onSuccess }: InviteFormProps) {
             <div className="p-3 text-sm text-destructive bg-destructive/10 rounded-md">{error}</div>
           )}
           {success && (
-            <div className="p-3 text-sm text-green-600 bg-green-50 rounded-md">
+            <div className="p-3 text-sm text-foreground bg-muted rounded-md">
               Team member invited successfully!
             </div>
           )}

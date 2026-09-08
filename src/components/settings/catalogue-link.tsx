@@ -46,7 +46,7 @@ export function CatalogueLink() {
             className="font-mono text-sm"
           />
           <Button variant="outline" size="icon" onClick={handleCopy}>
-            {copied ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
+            {copied ? <Check className="h-4 w-4 text-foreground" /> : <Copy className="h-4 w-4" />}
           </Button>
           <a href={`/shop/${slug}`} target="_blank" rel="noopener noreferrer">
             <Button variant="outline" size="icon">

@@ -58,11 +58,11 @@ export function PwaInstallPrompt() {
 
   return (
     <div className="fixed bottom-20 left-4 right-4 z-50 lg:hidden">
-      <Card className="border-primary/20 shadow-lg">
+      <Card className="border-border shadow-lg">
         <CardContent className="p-4">
           <div className="flex items-start gap-3">
-            <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-              <Smartphone className="h-5 w-5 text-primary" />
+            <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center shrink-0">
+              <Smartphone className="h-5 w-5 text-foreground" />
             </div>
             <div className="flex-1 min-w-0">
               <h3 className="font-semibold text-sm">Install BIZORA</h3>

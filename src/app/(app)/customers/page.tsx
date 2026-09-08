@@ -100,12 +100,12 @@ export default function CustomersPage() {
         </div>
         <div className="rounded-xl border bg-card p-4 text-center">
           <IndianRupee className="h-5 w-5 mx-auto text-muted-foreground mb-1" />
-          <div className="text-2xl font-bold text-orange-500">₹{totalOutstanding.toLocaleString()}</div>
+          <div className="text-2xl font-bold text-[#DC2626]">₹{totalOutstanding.toLocaleString()}</div>
           <div className="text-xs text-muted-foreground">Outstanding</div>
         </div>
         <div className="rounded-xl border bg-card p-4 text-center">
           <IndianRupee className="h-5 w-5 mx-auto text-muted-foreground mb-1" />
-          <div className="text-2xl font-bold text-green-500">₹{totalSpend.toLocaleString()}</div>
+          <div className="text-2xl font-bold text-foreground">₹{totalSpend.toLocaleString()}</div>
           <div className="text-xs text-muted-foreground">Total Spend</div>
         </div>
       </div>
@@ -206,7 +206,7 @@ export default function CustomersPage() {
                         Edit
                       </button>
                       <button
-                        className="flex w-full items-center gap-2 px-3 py-2 text-sm text-destructive hover:bg-muted"
+                        className="flex w-full items-center gap-2 px-3 py-2 text-sm text-[#DC2626] hover:bg-muted"
                         onClick={(e) => {
                           e.preventDefault();
                           handleDelete(customer.id);

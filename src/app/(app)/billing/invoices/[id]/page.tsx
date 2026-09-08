@@ -55,12 +55,12 @@ interface InvoiceData {
 }
 
 const STATUS_CONFIG: Record<string, { label: string; color: string }> = {
-  draft: { label: "Draft", color: "bg-gray-100 text-gray-700" },
-  sent: { label: "Sent", color: "bg-blue-100 text-blue-700" },
-  paid: { label: "Paid", color: "bg-green-100 text-green-700" },
-  partial: { label: "Partial", color: "bg-yellow-100 text-yellow-700" },
-  cancelled: { label: "Cancelled", color: "bg-red-100 text-red-700" },
-  returned: { label: "Returned", color: "bg-orange-100 text-orange-700" },
+  draft: { label: "Draft", color: "bg-muted text-foreground" },
+  sent: { label: "Sent", color: "bg-muted text-foreground" },
+  paid: { label: "Paid", color: "bg-muted text-foreground" },
+  partial: { label: "Partial", color: "bg-muted text-foreground" },
+  cancelled: { label: "Cancelled", color: "bg-[#DC2626]/10 text-[#DC2626]" },
+  returned: { label: "Returned", color: "bg-[#DC2626]/10 text-[#DC2626]" },
 };
 
 export default function InvoiceDetailPage() {
@@ -335,7 +335,7 @@ export default function InvoiceDetailPage() {
                 <span>₹{invoice.subtotal.toFixed(2)}</span>
               </div>
               {invoice.discount_amount > 0 && (
-                <div className="flex justify-between text-sm text-green-500">
+                <div className="flex justify-between text-sm text-foreground">
                   <span>Discount</span>
                   <span>-₹{invoice.discount_amount.toFixed(2)}</span>
                 </div>
@@ -359,11 +359,11 @@ export default function InvoiceDetailPage() {
               </div>
               {invoice.amount_paid > 0 && (
                 <>
-                  <div className="flex justify-between text-sm text-green-500">
+                  <div className="flex justify-between text-sm text-foreground">
                     <span>Paid</span>
                     <span>-₹{invoice.amount_paid.toFixed(2)}</span>
                   </div>
-                  <div className="flex justify-between text-lg font-bold text-orange-500">
+                  <div className="flex justify-between text-lg font-bold text-[#DC2626]">
                     <span>Balance Due</span>
                     <span>₹{(invoice.total - invoice.amount_paid).toFixed(2)}</span>
                   </div>

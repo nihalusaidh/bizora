@@ -42,7 +42,7 @@ export function ThemeToggle() {
   };
 
   return (
-    <Button variant="ghost" size="icon" onClick={cycleTheme} title={`Theme: ${theme}`}>
+    <Button variant="ghost" size="icon" onClick={cycleTheme} title={`Theme: ${theme}`} className="text-muted-foreground hover:text-foreground">
       {icons[theme]}
     </Button>
   );

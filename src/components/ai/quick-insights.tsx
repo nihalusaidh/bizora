@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { getQuickInsights } from "@/server/actions/ai";
 import { useBusiness } from "@/lib/store";
-import { Sparkles, RefreshCw, Loader2, TrendingUp } from "lucide-react";
+import { Sparkles, RefreshCw, Loader2 } from "lucide-react";
 
 export function QuickInsights() {
   const { businessId } = useBusiness();
@@ -18,8 +18,7 @@ export function QuickInsights() {
     try {
       const data = await getQuickInsights(businessId);
       setInsights(data);
-    } catch (err) {
-      console.error("Failed to load insights:", err);
+    } catch {
       setInsights(["Unable to load insights. Please try again."]);
     } finally {
       setLoading(false);
@@ -34,8 +33,8 @@ export function QuickInsights() {
     <Card>
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <CardTitle className="text-sm font-semibold flex items-center gap-2">
-          <Sparkles className="h-4 w-4 text-primary" />
-          AI Insights
+          <Sparkles className="h-4 w-4 text-[#DC2626]" />
+          BIZORA BRIEF
         </CardTitle>
         <Button
           variant="ghost"
@@ -59,15 +58,20 @@ export function QuickInsights() {
             ))}
           </div>
         ) : (
-          <div className="space-y-2">
+          <div className="space-y-3">
             {insights.map((insight, i) => (
-              <div key={i} className="flex items-start gap-2 text-sm">
-                <TrendingUp className="h-3.5 w-3.5 text-primary mt-0.5 shrink-0" />
+              <div key={i} className="flex items-start gap-2.5 text-sm">
+                <div className="mt-1.5 h-1.5 w-1.5 rounded-full bg-[#DC2626] shrink-0" />
                 <span className="text-muted-foreground">{insight.replace(/^[-•*]\s*/, "")}</span>
               </div>
             ))}
           </div>
         )}
+        <div className="mt-3 pt-3 border-t border-border">
+          <a href="/insights" className="text-xs font-medium text-foreground hover:text-[#DC2626] transition-colors">
+            View insights →
+          </a>
+        </div>
       </CardContent>
     </Card>
   );

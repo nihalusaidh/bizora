@@ -102,7 +102,7 @@ export default function ProfitLossPage() {
                     <span>₹{data.revenue.totalRevenue.toLocaleString()}</span>
                   </div>
                   {data.revenue.totalDiscount > 0 && (
-                    <div className="flex justify-between text-sm text-green-500">
+                    <div className="flex justify-between text-sm text-foreground">
                       <span>Discounts</span>
                       <span>-₹{data.revenue.totalDiscount.toLocaleString()}</span>
                     </div>
@@ -125,7 +125,7 @@ export default function ProfitLossPage() {
                         <span>{cat.icon}</span>
                         {cat.name}
                       </span>
-                      <span className="text-destructive">-₹{cat.amount.toLocaleString()}</span>
+                      <span className="text-[#DC2626]">-₹{cat.amount.toLocaleString()}</span>
                     </div>
                   ))}
                   {data.expenses.byCategory.length === 0 && (
@@ -134,7 +134,7 @@ export default function ProfitLossPage() {
                   <Separator />
                   <div className="flex justify-between font-medium">
                     <span>Total Expenses</span>
-                    <span className="text-destructive">-₹{data.expenses.totalExpenses.toLocaleString()}</span>
+                    <span className="text-[#DC2626]">-₹{data.expenses.totalExpenses.toLocaleString()}</span>
                   </div>
                 </div>
               </div>
@@ -143,7 +143,7 @@ export default function ProfitLossPage() {
               <div className="pt-4 border-t-2">
                 <div className="flex justify-between text-xl font-bold">
                   <span>Net Profit</span>
-                  <span className={data.netProfit >= 0 ? "text-green-500" : "text-destructive"}>
+                  <span className={data.netProfit >= 0 ? "text-foreground" : "text-[#DC2626]"}>
                     ₹{Math.abs(data.netProfit).toLocaleString()}
                     {data.netProfit < 0 && " (Loss)"}
                   </span>
@@ -161,7 +161,7 @@ export default function ProfitLossPage() {
             <Card>
               <CardContent className="p-4">
                 <div className="flex items-center gap-2 mb-2">
-                  <TrendingUp className="h-4 w-4 text-green-500" />
+                  <TrendingUp className="h-4 w-4 text-foreground" />
                   <span className="text-sm text-muted-foreground">Revenue</span>
                 </div>
                 <div className="text-2xl font-bold">₹{data.revenue.totalRevenue.toLocaleString()}</div>
@@ -171,10 +171,10 @@ export default function ProfitLossPage() {
             <Card>
               <CardContent className="p-4">
                 <div className="flex items-center gap-2 mb-2">
-                  <TrendingDown className="h-4 w-4 text-destructive" />
+                  <TrendingDown className="h-4 w-4 text-[#DC2626]" />
                   <span className="text-sm text-muted-foreground">Expenses</span>
                 </div>
-                <div className="text-2xl font-bold text-destructive">₹{data.expenses.totalExpenses.toLocaleString()}</div>
+                <div className="text-2xl font-bold text-[#DC2626]">₹{data.expenses.totalExpenses.toLocaleString()}</div>
                 <div className="text-xs text-muted-foreground">{data.expenses.byCategory.length} categories</div>
               </CardContent>
             </Card>
