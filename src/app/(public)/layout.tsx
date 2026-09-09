@@ -41,6 +41,9 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
             <Link href="/faq" className="text-muted-foreground hover:text-foreground transition-colors">FAQ</Link>
           </nav>
           <div className="flex items-center gap-3">
+            <Link href="/dashboard" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+              Dashboard
+            </Link>
             <Link href="/login" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
               Log in
             </Link>
