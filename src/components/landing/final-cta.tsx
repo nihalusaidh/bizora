@@ -6,23 +6,35 @@ import { ScrollReveal } from "./scroll-reveal";
 
 export function FinalCta() {
   return (
-    <section className="py-24 px-4 sm:px-6 bg-[#0a0a0a]">
-      <div className="max-w-3xl mx-auto text-center">
+    <section className="relative py-32 px-4 sm:px-6 bg-[#0a0a0a] overflow-hidden">
+      {/* Background effects */}
+      <div className="absolute inset-0">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1px] h-20 bg-gradient-to-b from-transparent to-white/5" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#DC2626]/[0.03] rounded-full blur-[150px]" />
+      </div>
+
+      <div className="relative max-w-3xl mx-auto text-center">
         <ScrollReveal>
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-white mb-6">
+          <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-[-0.03em] text-white mb-6 leading-tight">
             Start running your business{" "}
-            <span className="text-[#DC2626]">smarter.</span>
+            <span className="relative inline-block">
+              <span className="relative z-10 text-[#DC2626]">smarter.</span>
+              <span className="absolute bottom-1 left-0 right-0 h-[3px] bg-[#DC2626]/40 rounded-full" />
+            </span>
           </h2>
-          <p className="text-white/40 text-lg mb-10 max-w-lg mx-auto">
+          <p className="text-white/30 text-lg mb-12 max-w-lg mx-auto font-light">
             Join hundreds of businesses already using Bizora to take control of
             their operations.
           </p>
+        </ScrollReveal>
+
+        <ScrollReveal delay={200}>
           <Link
             href="/signup"
-            className="inline-flex items-center gap-2 bg-[#DC2626] text-white px-10 py-4 text-base font-semibold rounded-xl hover:bg-[#B91C1C] transition-all duration-300 shadow-lg shadow-[#DC2626]/20"
+            className="group relative inline-flex items-center gap-2.5 bg-[#DC2626] text-white px-12 py-5 text-base font-semibold rounded-xl hover:bg-[#B91C1C] transition-all duration-300 shadow-[0_0_50px_-12px_rgba(220,38,38,0.4)] hover:shadow-[0_0_70px_-12px_rgba(220,38,38,0.6)]"
           >
             Start Free
-            <ArrowRight className="w-4 h-4" />
+            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </Link>
         </ScrollReveal>
       </div>

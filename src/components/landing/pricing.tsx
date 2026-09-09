@@ -66,17 +66,20 @@ export function Pricing() {
   const [cycle, setCycle] = useState<BillingCycle>("monthly");
 
   return (
-    <section id="pricing" className="py-24 px-4 sm:px-6 bg-neutral-50">
+    <section id="pricing" className="relative py-28 px-4 sm:px-6 bg-neutral-50 overflow-hidden">
+      {/* Top accent */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-[1px] bg-neutral-200" />
+
       <div className="max-w-5xl mx-auto">
         <ScrollReveal>
-          <div className="text-center mb-12">
-            <p className="text-[#DC2626] text-sm font-semibold uppercase tracking-widest mb-3">
+          <div className="text-center mb-14">
+            <p className="text-[#DC2626] text-xs font-semibold uppercase tracking-[0.2em] mb-4">
               Simple Pricing
             </p>
-            <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-[#0a0a0a] mb-4">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-[-0.03em] text-[#0a0a0a] mb-4">
               Start free. Upgrade when ready.
             </h2>
-            <p className="text-neutral-500 text-lg">
+            <p className="text-neutral-400 text-lg font-light">
               No hidden fees. No surprises. Cancel anytime.
             </p>
           </div>
@@ -84,28 +87,28 @@ export function Pricing() {
 
         {/* Toggle */}
         <ScrollReveal delay={100}>
-          <div className="flex items-center justify-center mb-12">
-            <div className="inline-flex items-center rounded-lg border border-neutral-200 bg-white p-1">
+          <div className="flex items-center justify-center mb-14">
+            <div className="inline-flex items-center rounded-xl border border-neutral-200 bg-white p-1 shadow-sm">
               <button
                 onClick={() => setCycle("monthly")}
-                className={`px-5 py-2 text-sm font-medium rounded-md transition-all ${
+                className={`px-6 py-2.5 text-sm font-semibold rounded-lg transition-all duration-300 ${
                   cycle === "monthly"
-                    ? "bg-[#0a0a0a] text-white shadow-sm"
-                    : "text-neutral-500 hover:text-[#0a0a0a]"
+                    ? "bg-[#0a0a0a] text-white shadow-md"
+                    : "text-neutral-400 hover:text-[#0a0a0a]"
                 }`}
               >
                 Monthly
               </button>
               <button
                 onClick={() => setCycle("yearly")}
-                className={`px-5 py-2 text-sm font-medium rounded-md transition-all ${
+                className={`px-6 py-2.5 text-sm font-semibold rounded-lg transition-all duration-300 ${
                   cycle === "yearly"
-                    ? "bg-[#0a0a0a] text-white shadow-sm"
-                    : "text-neutral-500 hover:text-[#0a0a0a]"
+                    ? "bg-[#0a0a0a] text-white shadow-md"
+                    : "text-neutral-400 hover:text-[#0a0a0a]"
                 }`}
               >
                 Yearly
-                <span className="ml-1.5 text-xs text-[#DC2626] font-semibold">
+                <span className="ml-1.5 text-xs text-[#DC2626] font-bold">
                   Save 17%
                 </span>
               </button>
@@ -114,7 +117,7 @@ export function Pricing() {
         </ScrollReveal>
 
         {/* Cards */}
-        <div className="grid sm:grid-cols-3 gap-6">
+        <div className="grid sm:grid-cols-3 gap-6 items-start">
           {plans.map((plan, i) => {
             const price =
               cycle === "monthly" ? plan.price.monthly : plan.price.yearly;
@@ -124,34 +127,34 @@ export function Pricing() {
                 : plan.price.monthly;
 
             return (
-              <ScrollReveal key={plan.name} delay={200 + i * 100}>
+              <ScrollReveal key={plan.name} delay={200 + i * 100} scale>
                 <div
-                  className={`relative flex flex-col rounded-2xl border p-8 transition-all duration-300 h-full ${
+                  className={`relative flex flex-col rounded-2xl border p-8 transition-all duration-500 h-full ${
                     plan.highlight
-                      ? "border-[#DC2626] bg-[#0a0a0a] text-white shadow-xl shadow-[#DC2626]/10 scale-[1.02]"
-                      : "border-neutral-200 bg-white text-[#0a0a0a] hover:border-neutral-300"
+                      ? "border-[#DC2626] bg-[#0a0a0a] text-white shadow-2xl shadow-[#DC2626]/10 scale-[1.03] z-10"
+                      : "border-neutral-200 bg-white text-[#0a0a0a] hover:shadow-xl hover:-translate-y-1"
                   }`}
                 >
                   {plan.highlight && (
-                    <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 rounded-full bg-[#DC2626] px-4 py-1 text-[11px] font-bold uppercase tracking-wider text-white">
+                    <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 rounded-full bg-[#DC2626] px-5 py-1 text-[10px] font-bold uppercase tracking-[0.15em] text-white shadow-lg shadow-[#DC2626]/20">
                       Most Popular
                     </span>
                   )}
 
                   <p
-                    className={`text-sm font-semibold uppercase tracking-wider ${
-                      plan.highlight ? "text-white/40" : "text-neutral-400"
+                    className={`text-[10px] font-semibold uppercase tracking-[0.2em] ${
+                      plan.highlight ? "text-white/30" : "text-neutral-400"
                     }`}
                   >
                     {plan.name}
                   </p>
-                  <div className="mt-4 flex items-baseline gap-1">
-                    <span className="text-5xl font-bold tracking-tight">
+                  <div className="mt-5 flex items-baseline gap-1">
+                    <span className="text-5xl font-bold tracking-[-0.03em]">
                       ₹{price === 0 ? "0" : perMonth.toLocaleString("en-IN")}
                     </span>
                     <span
                       className={`text-sm ${
-                        plan.highlight ? "text-white/40" : "text-neutral-400"
+                        plan.highlight ? "text-white/30" : "text-neutral-400"
                       }`}
                     >
                       {price === 0 ? "/forever" : "/month"}
@@ -160,27 +163,27 @@ export function Pricing() {
                   {cycle === "yearly" && plan.price.yearly > 0 && (
                     <p
                       className={`text-xs mt-1 ${
-                        plan.highlight ? "text-white/30" : "text-neutral-400"
+                        plan.highlight ? "text-white/20" : "text-neutral-400"
                       }`}
                     >
                       ₹{plan.price.yearly.toLocaleString("en-IN")}/year
                     </p>
                   )}
                   <p
-                    className={`mt-2 text-sm ${
-                      plan.highlight ? "text-white/50" : "text-neutral-500"
+                    className={`mt-3 text-sm font-light ${
+                      plan.highlight ? "text-white/40" : "text-neutral-400"
                     }`}
                   >
                     {plan.desc}
                   </p>
 
                   <hr
-                    className={`my-6 ${
+                    className={`my-7 ${
                       plan.highlight ? "border-white/10" : "border-neutral-100"
                     }`}
                   />
 
-                  <ul className="flex flex-1 flex-col gap-3 mb-8">
+                  <ul className="flex flex-1 flex-col gap-3.5 mb-8">
                     {plan.features.map((feat) => (
                       <li
                         key={feat}
@@ -194,7 +197,7 @@ export function Pricing() {
                         />
                         <span
                           className={
-                            plan.highlight ? "text-white/70" : "text-neutral-600"
+                            plan.highlight ? "text-white/60 font-light" : "text-neutral-500"
                           }
                         >
                           {feat}
@@ -205,9 +208,9 @@ export function Pricing() {
 
                   <Link
                     href={plan.href}
-                    className={`block w-full rounded-xl py-3 text-center text-sm font-semibold transition-colors ${
+                    className={`block w-full rounded-xl py-3.5 text-center text-sm font-semibold transition-all duration-300 ${
                       plan.highlight
-                        ? "bg-[#DC2626] text-white hover:bg-[#B91C1C]"
+                        ? "bg-[#DC2626] text-white hover:bg-[#B91C1C] shadow-lg shadow-[#DC2626]/20 hover:shadow-xl hover:shadow-[#DC2626]/30"
                         : "border border-[#0a0a0a] bg-transparent text-[#0a0a0a] hover:bg-[#0a0a0a] hover:text-white"
                     }`}
                   >

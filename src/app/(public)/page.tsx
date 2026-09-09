@@ -1,6 +1,7 @@
 "use client";
 
 import { Preloader } from "@/components/landing/preloader";
+import { ScrollProgress } from "@/components/landing/scroll-progress";
 import { Hero } from "@/components/landing/hero";
 import { StatsBar } from "@/components/landing/stats-bar";
 import { Features } from "@/components/landing/features";
@@ -15,6 +16,7 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-white">
       <Preloader />
+      <ScrollProgress />
       <Hero />
       <StatsBar />
       <Features />
