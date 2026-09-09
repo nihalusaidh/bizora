@@ -2,6 +2,7 @@
 
 import { Bot } from "lucide-react";
 import { ScrollReveal } from "./scroll-reveal";
+import { GraphBackground } from "./graph-background";
 
 const aiQuestions = [
   "What was my best-selling product last month?",
@@ -14,6 +15,9 @@ const aiQuestions = [
 export function AiSection() {
   return (
     <section className="relative py-28 px-4 sm:px-6 bg-[#0a0a0a] text-white overflow-hidden">
+      {/* Animated graph background */}
+      <GraphBackground />
+
       {/* Background effects */}
       <div className="absolute inset-0">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1px] h-20 bg-gradient-to-b from-transparent to-white/5" />

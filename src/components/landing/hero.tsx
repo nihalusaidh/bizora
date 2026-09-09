@@ -3,10 +3,14 @@
 import Link from "next/link";
 import { ArrowRight, Smartphone, Monitor, Globe } from "lucide-react";
 import { ScrollReveal } from "./scroll-reveal";
+import { AnimatedBusinessBg } from "./business-background";
 
 export function Hero() {
   return (
     <section className="relative min-h-screen flex flex-col items-center justify-center px-4 sm:px-6 bg-[#0a0a0a] text-white overflow-hidden">
+      {/* Animated business background */}
+      <AnimatedBusinessBg />
+
       {/* Layered background effects */}
       <div className="absolute inset-0">
         {/* Grid pattern */}

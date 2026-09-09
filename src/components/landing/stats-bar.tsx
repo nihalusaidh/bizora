@@ -2,6 +2,7 @@
 
 import { AnimatedCounter } from "./animated-counter";
 import { ScrollReveal } from "./scroll-reveal";
+import { GraphBackground } from "./graph-background";
 
 const stats = [
   { label: "Bills Generated", target: 5000, prefix: "", suffix: "+" },
@@ -13,6 +14,9 @@ const stats = [
 export function StatsBar() {
   return (
     <section className="relative py-24 px-4 sm:px-6 bg-[#0a0a0a] border-y border-white/5 overflow-hidden">
+      {/* Animated graph background */}
+      <GraphBackground />
+
       {/* Subtle gradient overlay */}
       <div className="absolute inset-0 bg-gradient-to-b from-[#DC2626]/[0.02] to-transparent" />
 
