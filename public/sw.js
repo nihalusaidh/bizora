@@ -124,6 +124,13 @@ self.addEventListener("fetch", (event) => {
   );
 });
 
+// Message handler for skip waiting
+self.addEventListener("message", (event) => {
+  if (event.data?.type === "SKIP_WAITING") {
+    self.skipWaiting();
+  }
+});
+
 // Background sync for offline actions
 self.addEventListener("sync", (event) => {
   if (event.tag === "sync-invoices") {

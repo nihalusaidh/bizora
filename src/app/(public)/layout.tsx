@@ -1,103 +1,158 @@
-import Link from "next/link";
+"use client";
 
-const footerLinks = {
-  product: [
-    { label: "Features", href: "/#features" },
-    { label: "Pricing", href: "/pricing" },
-    { label: "Download", href: "/download" },
-  ],
-  company: [
-    { label: "About", href: "/#about" },
-    { label: "Contact", href: "/#contact" },
-  ],
-  resources: [
-    { label: "Help", href: "/faq" },
-    { label: "FAQ", href: "/faq" },
-    { label: "AI Setup Guide", href: "/faq" },
-  ],
-  legal: [
-    { label: "Privacy", href: "/security" },
-    { label: "Terms", href: "/security" },
-    { label: "Refund Policy", href: "/security" },
-  ],
-};
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+
+const navLinks = [
+  { label: "Features", href: "/#features" },
+  { label: "Pricing", href: "/#pricing" },
+  { label: "Download", href: "/download" },
+  { label: "FAQ", href: "/faq" },
+];
 
 export default function PublicLayout({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
+  const isHome = pathname === "/";
+  const [scrolled, setScrolled] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  useEffect(() => {
+    if (!isHome) return;
+    const onScroll = () => setScrolled(window.scrollY > 50);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [isHome]);
+
+  const navBg = isHome
+    ? scrolled
+      ? "bg-[#0a0a0a]/90 backdrop-blur-xl border-b border-white/10"
+      : "bg-transparent"
+    : "bg-white border-b border-neutral-200";
+
+  const textColor = isHome
+    ? scrolled
+      ? "text-white"
+      : "text-white"
+    : "text-[#0a0a0a]";
+
+  const mutedColor = isHome ? "text-white/50" : "text-neutral-500";
+
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className={`min-h-screen ${isHome ? "bg-[#0a0a0a]" : "bg-white"}`}>
       {/* Nav */}
-      <header className="border-b border-border">
-        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
+      <header
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${navBg}`}
+      >
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
             <div className="h-8 w-8 rounded-lg bg-[#DC2626] flex items-center justify-center">
               <span className="text-white font-bold text-sm">B</span>
             </div>
-            <span className="text-lg font-bold tracking-tight">BIZORA</span>
+            <span className={`text-lg font-bold tracking-tight ${textColor}`}>
+              BIZORA
+            </span>
           </Link>
+
+          {/* Desktop nav */}
           <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
-            <Link href="/#features" className="text-muted-foreground hover:text-foreground transition-colors">Features</Link>
-            <Link href="/pricing" className="text-muted-foreground hover:text-foreground transition-colors">Pricing</Link>
-            <Link href="/download" className="text-muted-foreground hover:text-foreground transition-colors">Download</Link>
-            <Link href="/faq" className="text-muted-foreground hover:text-foreground transition-colors">FAQ</Link>
+            {navLinks.map((link) => (
+              <Link
+                key={link.label}
+                href={link.href}
+                className={`${mutedColor} hover:${textColor} transition-colors`}
+              >
+                {link.label}
+              </Link>
+            ))}
           </nav>
-          <div className="flex items-center gap-3">
-            <Link href="/dashboard" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-              Dashboard
-            </Link>
-            <Link href="/login" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+
+          <div className="hidden md:flex items-center gap-3">
+            <Link
+              href="/login"
+              className={`text-sm font-medium ${mutedColor} hover:${textColor} transition-colors`}
+            >
               Log in
             </Link>
             <Link
               href="/signup"
-              className="rounded-lg bg-[#0a0a0a] px-4 py-2 text-sm font-medium text-white hover:bg-[#262626] transition-colors dark:bg-white dark:text-[#0a0a0a] dark:hover:bg-[#e5e5e5]"
+              className="rounded-lg bg-[#DC2626] px-4 py-2 text-sm font-medium text-white hover:bg-[#B91C1C] transition-colors"
             >
               Start Free
             </Link>
           </div>
+
+          {/* Mobile hamburger */}
+          <button
+            onClick={() => setMobileOpen(!mobileOpen)}
+            className={`md:hidden p-2 ${textColor}`}
+            aria-label="Toggle menu"
+          >
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              {mobileOpen ? (
+                <path d="M18 6L6 18M6 6l12 12" />
+              ) : (
+                <path d="M4 6h16M4 12h16M4 18h16" />
+              )}
+            </svg>
+          </button>
         </div>
+
+        {/* Mobile menu */}
+        {mobileOpen && (
+          <div className={`md:hidden border-t ${isHome ? "border-white/10 bg-[#0a0a0a]" : "border-neutral-200 bg-white"}`}>
+            <div className="px-4 py-4 space-y-3">
+              {navLinks.map((link) => (
+                <Link
+                  key={link.label}
+                  href={link.href}
+                  onClick={() => setMobileOpen(false)}
+                  className={`block text-sm font-medium ${textColor}`}
+                >
+                  {link.label}
+                </Link>
+              ))}
+              <hr className={isHome ? "border-white/10" : "border-neutral-200"} />
+              <Link
+                href="/login"
+                onClick={() => setMobileOpen(false)}
+                className={`block text-sm font-medium ${textColor}`}
+              >
+                Log in
+              </Link>
+              <Link
+                href="/signup"
+                onClick={() => setMobileOpen(false)}
+                className="block text-center rounded-lg bg-[#DC2626] px-4 py-2.5 text-sm font-medium text-white"
+              >
+                Start Free
+              </Link>
+            </div>
+          </div>
+        )}
       </header>
 
       {/* Content */}
       <main>{children}</main>
 
-      {/* Footer */}
-      <footer className="border-t border-border mt-20">
-        <div className="mx-auto max-w-6xl px-4 py-12">
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-8">
-            <div className="col-span-2 md:col-span-1">
-              <div className="flex items-center gap-2 mb-4">
+      {/* Footer - only on non-home pages (home has its own footer) */}
+      {!isHome && (
+        <footer className="border-t border-neutral-200 bg-white mt-20">
+          <div className="max-w-6xl mx-auto px-4 py-12">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+              <div className="flex items-center gap-2">
                 <div className="h-7 w-7 rounded-md bg-[#DC2626] flex items-center justify-center">
                   <span className="text-white font-bold text-xs">B</span>
                 </div>
-                <span className="font-bold">BIZORA</span>
+                <span className="font-bold text-[#0a0a0a]">BIZORA</span>
               </div>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                Know what happened.<br />Know what to do next.
+              <p className="text-xs text-neutral-400">
+                © {new Date().getFullYear()} Bizora. All rights reserved.
               </p>
             </div>
-            {Object.entries(footerLinks).map(([category, links]) => (
-              <div key={category}>
-                <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
-                  {category}
-                </h4>
-                <ul className="space-y-2">
-                  {links.map((link) => (
-                    <li key={link.label}>
-                      <Link href={link.href} className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                        {link.label}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
           </div>
-          <div className="mt-10 pt-6 border-t border-border flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-xs text-muted-foreground">© 2026 Bizora. All rights reserved.</p>
-            <p className="text-xs text-muted-foreground">Built for Indian businesses.</p>
-          </div>
-        </div>
-      </footer>
+        </footer>
+      )}
     </div>
   );
 }

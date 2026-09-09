@@ -20,6 +20,7 @@ const settingsGroups = [
     items: [
       { name: "Payment Methods", description: "Cash, UPI, card settings", href: "/settings", icon: CreditCard },
       { name: "Printer Setup", description: "Thermal printer configuration", href: "/settings", icon: Printer },
+      { name: "Invoice Footer", description: "Bank details, terms & conditions on invoices", href: "/settings/invoice-footer", icon: FileText },
     ],
   },
   {

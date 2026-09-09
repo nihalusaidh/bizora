@@ -53,6 +53,7 @@ export function ProductForm({
   const [name, setName] = useState(product?.name || "");
   const [sku, setSku] = useState(product?.sku || "");
   const [barcode, setBarcode] = useState(product?.barcode || "");
+  const [imageUrl, setImageUrl] = useState((product as any)?.image_url || "");
   const [categoryId, setCategoryId] = useState(product?.category_id || "");
   const [brand, setBrand] = useState(product?.brand || "");
   const [costPrice, setCostPrice] = useState(product?.cost_price?.toString() || "0");
@@ -77,6 +78,7 @@ export function ProductForm({
         name,
         sku: sku || null,
         barcode: barcode || null,
+        image_url: imageUrl || null,
         category_id: categoryId || null,
         brand: brand || null,
         cost_price: parseFloat(costPrice) || 0,
@@ -176,6 +178,19 @@ export function ProductForm({
                 onChange={(e) => setBarcode(e.target.value)}
               />
             </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="image_url">Product Image URL</Label>
+            <Input
+              id="image_url"
+              placeholder="https://example.com/image.jpg"
+              value={imageUrl}
+              onChange={(e) => setImageUrl(e.target.value)}
+            />
+            <p className="text-xs text-muted-foreground">
+              Paste a URL to your product image
+            </p>
           </div>
 
           <div className="grid grid-cols-2 gap-4">

@@ -51,7 +51,7 @@ export function DemoMode() {
 
     // Set demo business in store
     setBusiness(demoBusiness as never);
-    setPlan("pro");
+    setPlan("gold");
 
     // Store demo flag
     localStorage.setItem("bizora-demo", "true");

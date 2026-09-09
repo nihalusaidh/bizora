@@ -55,6 +55,16 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
+  // Diamond-only routes: check plan from query/cookie
+  const diamondOnlyRoutes = ["/settings/team"];
+  const isDiamondOnlyRoute = diamondOnlyRoutes.some((r) => pathname.startsWith(r));
+
+  if (isDiamondOnlyRoute && user) {
+    // Plan is managed client-side via Zustand; server can't easily check.
+    // The PlanGate component handles this on the client side.
+    // Middleware just ensures auth is present.
+  }
+
   return supabaseResponse;
 }
 

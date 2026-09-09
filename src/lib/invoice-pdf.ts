@@ -1,3 +1,5 @@
+import { escapeHtml } from "@/lib/html-sanitizer";
+
 export interface InvoicePdfData {
   invoice_number: string;
   created_at: string;
@@ -17,6 +19,11 @@ export interface InvoicePdfData {
     email?: string | null;
     gst_status?: string | null;
     gstin?: string | null;
+    terms_conditions?: string | null;
+    bank_name?: string | null;
+    bank_account?: string | null;
+    bank_ifsc?: string | null;
+    bank_upi?: string | null;
   } | null;
   customer?: {
     name: string;
@@ -41,23 +48,24 @@ export interface InvoicePdfData {
 export function generateInvoiceHtml(data: InvoicePdfData): string {
   const biz = data.business;
   const cust = data.customer;
+  const e = escapeHtml;
 
   return `
 <!DOCTYPE html>
 <html>
 <head>
   <meta charset="utf-8">
-  <title>Invoice ${data.invoice_number}</title>
+  <title>Invoice ${e(data.invoice_number)}</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 14px; color: #1a1a1a; padding: 24px; }
     .header { display: flex; justify-content: space-between; margin-bottom: 32px; }
     .brand { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
-    .brand-icon { width: 32px; height: 32px; background: #1a7a4c; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 14px; }
+    .brand-icon { width: 32px; height: 32px; background: #DC2626; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 14px; }
     .brand-name { font-size: 20px; font-weight: bold; }
     .info { font-size: 12px; color: #666; line-height: 1.6; }
     .invoice-title { text-align: right; }
-    .invoice-title h1 { font-size: 28px; color: #1a7a4c; margin-bottom: 4px; }
+    .invoice-title h1 { font-size: 28px; color: #DC2626; margin-bottom: 4px; }
     .invoice-num { font-size: 16px; font-weight: bold; }
     .meta { display: flex; justify-content: space-between; margin-bottom: 24px; padding: 16px; background: #f9fafb; border-radius: 8px; }
     .meta-section h3 { font-size: 11px; text-transform: uppercase; color: #999; margin-bottom: 4px; letter-spacing: 0.5px; }
@@ -81,21 +89,21 @@ export function generateInvoiceHtml(data: InvoicePdfData): string {
     <div>
       <div class="brand">
         <div class="brand-icon">B</div>
-        <span class="brand-name">${biz?.name || "BIZORA"}</span>
+        <span class="brand-name">${e(biz?.name || "BIZORA")}</span>
       </div>
       <div class="info">
-        ${biz?.address ? `<p>${biz.address}</p>` : ""}
-        ${biz?.phone ? `<p>Phone: ${biz.phone}</p>` : ""}
-        ${biz?.email ? `<p>Email: ${biz.email}</p>` : ""}
-        ${biz?.gst_status === "registered" && biz?.gstin ? `<p>GSTIN: ${biz.gstin}</p>` : ""}
+        ${biz?.address ? `<p>${e(biz.address)}</p>` : ""}
+        ${biz?.phone ? `<p>Phone: ${e(biz.phone)}</p>` : ""}
+        ${biz?.email ? `<p>Email: ${e(biz.email)}</p>` : ""}
+        ${biz?.gst_status === "registered" && biz?.gstin ? `<p>GSTIN: ${e(biz.gstin)}</p>` : ""}
       </div>
     </div>
     <div class="invoice-title">
       <h1>INVOICE</h1>
-      <div class="invoice-num">${data.invoice_number}</div>
+      <div class="invoice-num">${e(data.invoice_number)}</div>
       <div class="info" style="text-align: right; margin-top: 4px;">
         Date: ${new Date(data.created_at).toLocaleDateString()}<br>
-        Status: ${data.status.toUpperCase()}
+        Status: ${e(data.status.toUpperCase())}
       </div>
     </div>
   </div>
@@ -104,11 +112,11 @@ export function generateInvoiceHtml(data: InvoicePdfData): string {
     <div class="meta-section">
       <h3>Bill To</h3>
       ${cust ? `
-        <p><strong>${cust.name}</strong></p>
-        ${cust.phone ? `<p>${cust.phone}</p>` : ""}
-        ${cust.email ? `<p>${cust.email}</p>` : ""}
-        ${cust.address ? `<p>${cust.address}</p>` : ""}
-        ${cust.gst_number ? `<p>GSTIN: ${cust.gst_number}</p>` : ""}
+        <p><strong>${e(cust.name)}</strong></p>
+        ${cust.phone ? `<p>${e(cust.phone)}</p>` : ""}
+        ${cust.email ? `<p>${e(cust.email)}</p>` : ""}
+        ${cust.address ? `<p>${e(cust.address)}</p>` : ""}
+        ${cust.gst_number ? `<p>GSTIN: ${e(cust.gst_number)}</p>` : ""}
       ` : `<p>Walk-in Customer</p>`}
     </div>
   </div>
@@ -130,10 +138,10 @@ export function generateInvoiceHtml(data: InvoicePdfData): string {
         <tr>
           <td>${i + 1}</td>
           <td>
-            <strong>${item.name}</strong>
-            ${item.sku ? `<br><span style="color:#999;font-size:11px">SKU: ${item.sku}</span>` : ""}
+            <strong>${e(item.name)}</strong>
+            ${item.sku ? `<br><span style="color:#999;font-size:11px">SKU: ${e(item.sku)}</span>` : ""}
           </td>
-          <td>${item.quantity} ${item.unit}</td>
+          <td>${item.quantity} ${e(item.unit)}</td>
           <td>₹${item.unit_price.toFixed(2)}</td>
           <td>${item.discount_percent > 0 ? `${item.discount_percent}%` : "—"}</td>
           <td>${item.tax_rate > 0 ? `${item.tax_rate}%` : "—"}</td>
@@ -189,7 +197,26 @@ export function generateInvoiceHtml(data: InvoicePdfData): string {
   ${data.notes ? `
     <div style="margin-top: 24px; padding: 12px; background: #f9fafb; border-radius: 8px;">
       <strong style="font-size: 12px;">Notes</strong>
-      <p style="font-size: 12px; color: #666; margin-top: 4px;">${data.notes}</p>
+      <p style="font-size: 12px; color: #666; margin-top: 4px;">${e(data.notes)}</p>
+    </div>
+  ` : ""}
+
+  ${(biz?.bank_name || biz?.bank_account || biz?.bank_ifsc) ? `
+    <div style="margin-top: 16px; padding: 12px; background: #f9fafb; border-radius: 8px;">
+      <strong style="font-size: 12px;">Bank Details</strong>
+      <div style="font-size: 12px; color: #666; margin-top: 4px; line-height: 1.6;">
+        ${biz?.bank_name ? `<p>Bank: ${e(biz.bank_name)}</p>` : ""}
+        ${biz?.bank_account ? `<p>Account: ${e(biz.bank_account)}</p>` : ""}
+        ${biz?.bank_ifsc ? `<p>IFSC: ${e(biz.bank_ifsc)}</p>` : ""}
+        ${biz?.bank_upi ? `<p>UPI: ${e(biz.bank_upi)}</p>` : ""}
+      </div>
+    </div>
+  ` : ""}
+
+  ${biz?.terms_conditions ? `
+    <div style="margin-top: 16px; padding: 12px; background: #f9fafb; border-radius: 8px;">
+      <strong style="font-size: 12px;">Terms & Conditions</strong>
+      <p style="font-size: 11px; color: #666; margin-top: 4px; white-space: pre-line;">${e(biz.terms_conditions)}</p>
     </div>
   ` : ""}
 

@@ -81,7 +81,7 @@ const AXIS_STYLE = {
   fontSize: 11,
   tickLine: false,
   axisLine: false,
-  stroke: "#a3a3a3",
+  className: "text-muted-foreground",
 };
 
 export function BizoraChart({
@@ -223,7 +223,7 @@ export function BizoraChart({
               outerRadius={Math.min(height * 0.4, 120)}
               innerRadius={Math.min(height * 0.2, 60)}
               strokeWidth={2}
-              stroke="#fafafa"
+              className="stroke-background"
             >
               {data.map((_, index) => (
                 <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />

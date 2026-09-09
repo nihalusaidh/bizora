@@ -15,7 +15,7 @@ export type BusinessSize = "solo" | "small" | "medium" | "large";
 
 export type GstStatus = "registered" | "unregistered";
 
-export type PlanTier = "free" | "pro" | "advanced";
+export type PlanTier = "free" | "gold" | "diamond";
 
 export type UserRole = "owner" | "manager" | "cashier" | "inventory_staff" | "accountant";
 
@@ -33,6 +33,11 @@ export interface Business {
   phone?: string;
   email?: string;
   upi_id?: string;
+  terms_conditions?: string;
+  bank_name?: string;
+  bank_account?: string;
+  bank_ifsc?: string;
+  bank_upi?: string;
   owner_id: string;
   created_at: string;
   updated_at: string;
