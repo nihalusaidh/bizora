@@ -1,8 +1,4 @@
-"use server";
-
-import { createClient } from "@/lib/supabase/server";
-import { createAdminClient } from "@/lib/supabase/admin";
-import { revalidatePath } from "next/cache";
+import { createClient } from "@/lib/supabase/client";
 import type { UserRole } from "@/types/database";
 
 export interface TeamMember {
@@ -19,7 +15,7 @@ export interface TeamMember {
 }
 
 export async function getTeamMembers(businessId: string) {
-  const supabase = await createClient();
+  const supabase = createClient();
   const { data, error } = await supabase
     .from("memberships")
     .select("user_id, role, created_at, profiles(id, full_name, phone, avatar_url)")
@@ -28,18 +24,16 @@ export async function getTeamMembers(businessId: string) {
 
   if (error) throw new Error(error.message);
 
-  const admin = createAdminClient();
   const members: TeamMember[] = [];
 
   for (const m of data || []) {
-    const { data: userData } = await admin.auth.admin.getUserById(m.user_id);
     const profile = Array.isArray(m.profiles) ? m.profiles[0] : m.profiles;
     members.push({
       user_id: m.user_id,
       role: m.role,
       created_at: m.created_at,
       profiles: profile || null,
-      email: userData?.user?.email || "",
+      email: "",
     });
   }
 
@@ -47,26 +41,28 @@ export async function getTeamMembers(businessId: string) {
 }
 
 export async function inviteTeamMember(businessId: string, email: string, role: UserRole) {
-  const admin = createAdminClient();
+  const supabase = createClient();
 
-  const { data: existingMember } = await admin
+  const { data: existingMembers } = await supabase
     .from("memberships")
     .select("user_id")
-    .eq("business_id", businessId)
-    .limit(1);
+    .eq("business_id", businessId);
 
-  const { data: userData } = await admin.auth.admin.listUsers();
+  if (existingMembers && existingMembers.length > 0) {
+    const membership = existingMembers[0];
+    if (membership.user_id) {
+      throw new Error("This user is already a team member.");
+    }
+  }
+
+  const { data: userData } = await supabase.auth.admin.listUsers();
   const targetUser = userData?.users?.find((u) => u.email === email);
 
   if (!targetUser) {
     throw new Error("No account found with this email. They must sign up first.");
   }
 
-  if (existingMember?.some((m) => m.user_id === targetUser.id)) {
-    throw new Error("This user is already a team member.");
-  }
-
-  const { error } = await admin
+  const { error } = await supabase
     .from("memberships")
     .insert({
       user_id: targetUser.id,
@@ -76,7 +72,6 @@ export async function inviteTeamMember(businessId: string, email: string, role: 
 
   if (error) throw new Error(error.message);
 
-  revalidatePath("/settings/team");
   return { success: true };
 }
 
@@ -85,9 +80,9 @@ export async function updateMemberRole(
   userId: string,
   newRole: UserRole
 ) {
-  const admin = createAdminClient();
+  const supabase = createClient();
 
-  const { error } = await admin
+  const { error } = await supabase
     .from("memberships")
     .update({ role: newRole })
     .eq("business_id", businessId)
@@ -95,14 +90,13 @@ export async function updateMemberRole(
 
   if (error) throw new Error(error.message);
 
-  revalidatePath("/settings/team");
   return { success: true };
 }
 
 export async function removeTeamMember(businessId: string, userId: string) {
-  const admin = createAdminClient();
+  const supabase = createClient();
 
-  const { error } = await admin
+  const { error } = await supabase
     .from("memberships")
     .delete()
     .eq("business_id", businessId)
@@ -110,12 +104,11 @@ export async function removeTeamMember(businessId: string, userId: string) {
 
   if (error) throw new Error(error.message);
 
-  revalidatePath("/settings/team");
   return { success: true };
 }
 
 export async function getCurrentUserRole(businessId: string) {
-  const supabase = await createClient();
+  const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) return null;

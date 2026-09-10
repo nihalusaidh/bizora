@@ -1,7 +1,4 @@
-"use server";
-
-import { createClient } from "@/lib/supabase/server";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { createClient } from "@/lib/supabase/client";
 
 export async function createBusiness(data: {
   name: string;
@@ -12,16 +9,14 @@ export async function createBusiness(data: {
   gstin: string | null;
   size: string;
 }) {
-  const supabase = await createClient();
+  const supabase = createClient();
 
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) {
     return { error: "Not authenticated" };
   }
 
-  const admin = createAdminClient();
-
-  const { data: business, error: businessError } = await admin
+  const { data: business, error: businessError } = await supabase
     .from("businesses")
     .insert({
       name: data.name,
@@ -40,7 +35,7 @@ export async function createBusiness(data: {
     return { error: businessError?.message || "Failed to create business" };
   }
 
-  const { error: membershipError } = await admin
+  const { error: membershipError } = await supabase
     .from("memberships")
     .insert({
       user_id: user.id,

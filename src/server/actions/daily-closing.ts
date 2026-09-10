@@ -1,6 +1,4 @@
-"use server";
-
-import { createClient } from "@/lib/supabase/server";
+import { createClient } from "@/lib/supabase/client";
 
 export interface DailyClosingData {
   date: string;
@@ -29,7 +27,7 @@ export interface DailyClosingData {
 }
 
 export async function getDailyClosingData(businessId: string, date?: string) {
-  const supabase = await createClient();
+  const supabase = createClient();
   const targetDate = date || new Date().toISOString().split("T")[0];
   const nextDate = new Date(new Date(targetDate).getTime() + 86400000)
     .toISOString()

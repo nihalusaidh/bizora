@@ -1,7 +1,4 @@
-"use server";
-
-import { createClient } from "@/lib/supabase/server";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { createClient } from "@/lib/supabase/client";
 
 export interface Notification {
   id: string;
@@ -16,7 +13,7 @@ export interface Notification {
 }
 
 export async function getNotifications(businessId: string, userId?: string) {
-  const supabase = await createClient();
+  const supabase = createClient();
   let query = supabase
     .from("notifications")
     .select("*")
@@ -35,7 +32,7 @@ export async function getNotifications(businessId: string, userId?: string) {
 }
 
 export async function getUnreadCount(businessId: string, userId?: string) {
-  const supabase = await createClient();
+  const supabase = createClient();
   let query = supabase
     .from("notifications")
     .select("id", { count: "exact", head: true })
@@ -53,8 +50,8 @@ export async function getUnreadCount(businessId: string, userId?: string) {
 }
 
 export async function markAsRead(businessId: string, notificationId: string) {
-  const admin = createAdminClient();
-  const { error } = await admin
+  const supabase = createClient();
+  const { error } = await supabase
     .from("notifications")
     .update({ is_read: true })
     .eq("business_id", businessId)
@@ -64,10 +61,10 @@ export async function markAsRead(businessId: string, notificationId: string) {
 }
 
 export async function markAllAsRead(businessId: string, userId?: string) {
-  const admin = createAdminClient();
+  const supabase = createClient();
   const update = { is_read: true };
 
-  let query = admin
+  let query = supabase
     .from("notifications")
     .update(update)
     .eq("business_id", businessId)
@@ -82,8 +79,8 @@ export async function markAllAsRead(businessId: string, userId?: string) {
 }
 
 export async function dismissNotification(businessId: string, notificationId: string) {
-  const admin = createAdminClient();
-  const { error } = await admin
+  const supabase = createClient();
+  const { error } = await supabase
     .from("notifications")
     .update({ is_dismissed: true })
     .eq("business_id", businessId)
@@ -103,8 +100,8 @@ export async function createNotification(
     user_id?: string;
   }
 ) {
-  const admin = createAdminClient();
-  const { data, error } = await admin
+  const supabase = createClient();
+  const { data, error } = await supabase
     .from("notifications")
     .insert({
       business_id: businessId,
@@ -118,49 +115,38 @@ export async function createNotification(
 }
 
 export async function generateAlerts(businessId: string) {
-  const admin = createAdminClient();
+  const supabase = createClient();
   const alerts: Array<{ type: string; title: string; message: string; entity_type: string; entity_id: string }> = [];
 
-  // Low stock alerts
-  const { data: lowStockProducts } = await admin
+  const { data: prods } = await supabase
     .from("products")
     .select("id, name, stock_quantity, min_stock")
     .eq("business_id", businessId)
-    .eq("is_active", true)
-    .lte("stock_quantity", 5);
+    .eq("is_active", true);
 
-  if (lowStockProducts) {
-    const { data: prods } = await admin
-      .from("products")
-      .select("id, name, stock_quantity, min_stock")
-      .eq("business_id", businessId)
-      .eq("is_active", true);
-
-    if (prods) {
-      for (const product of prods) {
-        if (product.stock_quantity <= (product.min_stock || 5) && product.stock_quantity > 0) {
-          alerts.push({
-            type: "low_stock",
-            title: "Low Stock Warning",
-            message: `${product.name} has only ${product.stock_quantity} units left`,
-            entity_type: "product",
-            entity_id: product.id,
-          });
-        } else if (product.stock_quantity === 0) {
-          alerts.push({
-            type: "low_stock",
-            title: "Out of Stock",
-            message: `${product.name} is out of stock`,
-            entity_type: "product",
-            entity_id: product.id,
-          });
-        }
+  if (prods) {
+    for (const product of prods) {
+      if (product.stock_quantity <= (product.min_stock || 5) && product.stock_quantity > 0) {
+        alerts.push({
+          type: "low_stock",
+          title: "Low Stock Warning",
+          message: `${product.name} has only ${product.stock_quantity} units left`,
+          entity_type: "product",
+          entity_id: product.id,
+        });
+      } else if (product.stock_quantity === 0) {
+        alerts.push({
+          type: "low_stock",
+          title: "Out of Stock",
+          message: `${product.name} is out of stock`,
+          entity_type: "product",
+          entity_id: product.id,
+        });
       }
     }
   }
 
-  // Payment due alerts (partial invoices)
-  const { data: pendingInvoices } = await admin
+  const { data: pendingInvoices } = await supabase
     .from("invoices")
     .select("id, invoice_number, total, amount_paid, customers(name)")
     .eq("business_id", businessId)
@@ -180,8 +166,7 @@ export async function generateAlerts(businessId: string) {
     }
   }
 
-  // Customer outstanding balance alerts
-  const { data: customersWithDues } = await admin
+  const { data: customersWithDues } = await supabase
     .from("customers")
     .select("id, name, outstanding_balance")
     .eq("business_id", businessId)
@@ -200,8 +185,7 @@ export async function generateAlerts(businessId: string) {
     }
   }
 
-  // Create notifications for new alerts
-  const { data: existingNotifs } = await admin
+  const { data: existingNotifs } = await supabase
     .from("notifications")
     .select("entity_type, entity_id, type")
     .eq("business_id", businessId)

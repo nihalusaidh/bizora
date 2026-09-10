@@ -1,7 +1,4 @@
-"use server";
-
-import { createClient } from "@/lib/supabase/server";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { createClient } from "@/lib/supabase/client";
 
 export interface LoyaltySettings {
   id: string;
@@ -26,7 +23,7 @@ const DEFAULT_SETTINGS: Omit<LoyaltySettings, "id" | "business_id"> = {
 };
 
 export async function getLoyaltySettings(businessId: string): Promise<LoyaltySettings> {
-  const supabase = await createClient();
+  const supabase = createClient();
   const { data } = await supabase
     .from("loyalty_settings")
     .select("*")
@@ -35,8 +32,7 @@ export async function getLoyaltySettings(businessId: string): Promise<LoyaltySet
 
   if (data) return data as LoyaltySettings;
 
-  const admin = createAdminClient();
-  const { data: created } = await admin
+  const { data: created } = await supabase
     .from("loyalty_settings")
     .insert({ business_id: businessId, ...DEFAULT_SETTINGS } as never)
     .select()
@@ -49,22 +45,22 @@ export async function updateLoyaltySettings(
   businessId: string,
   updates: Partial<Omit<LoyaltySettings, "id" | "business_id">>
 ) {
-  const admin = createAdminClient();
+  const supabase = createClient();
 
-  const { data: existing } = await admin
+  const { data: existing } = await supabase
     .from("loyalty_settings")
     .select("id")
     .eq("business_id", businessId)
     .single();
 
   if (existing) {
-    const { error } = await admin
+    const { error } = await supabase
       .from("loyalty_settings")
       .update(updates)
       .eq("business_id", businessId);
     if (error) throw new Error(error.message);
   } else {
-    const { error } = await admin
+    const { error } = await supabase
       .from("loyalty_settings")
       .insert({ business_id: businessId, ...DEFAULT_SETTINGS, ...updates } as never);
     if (error) throw new Error(error.message);
@@ -80,9 +76,9 @@ export async function earnPoints(businessId: string, invoiceId: string, customer
   const points = Math.floor(amount / settings.earn_rate) * settings.earn_points;
   if (points <= 0) return { pointsEarned: 0, message: "Amount too low to earn points" };
 
-  const admin = createAdminClient();
+  const supabase = createClient();
 
-  const { error: insertError } = await admin.from("loyalty_points").insert({
+  const { error: insertError } = await supabase.from("loyalty_points").insert({
     business_id: businessId,
     customer_id: customerId,
     invoice_id: invoiceId,
@@ -93,13 +89,13 @@ export async function earnPoints(businessId: string, invoiceId: string, customer
 
   if (insertError) throw new Error(insertError.message);
 
-  const { count } = await admin
+  const { count } = await supabase
     .from("loyalty_points")
     .select("*", { count: "exact", head: true })
     .eq("customer_id", customerId)
     .eq("type", "earn");
 
-  const { count: redeemCount } = await admin
+  const { count: redeemCount } = await supabase
     .from("loyalty_points")
     .select("*", { count: "exact", head: true })
     .eq("customer_id", customerId)
@@ -111,7 +107,7 @@ export async function earnPoints(businessId: string, invoiceId: string, customer
 }
 
 export async function getLoyaltyBalance(customerId: string) {
-  const supabase = await createClient();
+  const supabase = createClient();
 
   const { count: earned } = await supabase
     .from("loyalty_points")
@@ -148,8 +144,8 @@ export async function redeemPoints(
 
   const discount = points * settings.redeem_rate;
 
-  const admin = createAdminClient();
-  const { error } = await admin.from("loyalty_points").insert({
+  const supabase = createClient();
+  const { error } = await supabase.from("loyalty_points").insert({
     business_id: businessId,
     customer_id: customerId,
     invoice_id: invoiceId,
@@ -164,7 +160,7 @@ export async function redeemPoints(
 }
 
 export async function getLoyaltyHistory(customerId: string) {
-  const supabase = await createClient();
+  const supabase = createClient();
   const { data, error } = await supabase
     .from("loyalty_points")
     .select("*")

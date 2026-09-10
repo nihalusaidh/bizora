@@ -1,11 +1,8 @@
-"use server";
-
-import { createClient } from "@/lib/supabase/server";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { createClient } from "@/lib/supabase/client";
 import { invoiceSchema, type InvoiceInput } from "@/lib/validators/invoices";
 
 export async function getNextInvoiceNumber(businessId: string) {
-  const supabase = await createClient();
+  const supabase = createClient();
   const { data, error } = await supabase
     .from("invoices")
     .select("invoice_number")
@@ -29,11 +26,9 @@ export async function createInvoice(businessId: string, input: InvoiceInput) {
     throw new Error(parsed.error.issues[0].message);
   }
 
-  const supabase = await createClient();
-  const admin = createAdminClient();
+  const supabase = createClient();
   const invoiceNumber = await getNextInvoiceNumber(businessId);
 
-  // Calculate totals from items
   let subtotal = 0;
   let totalTax = 0;
   let totalItemDiscount = 0;
@@ -52,7 +47,6 @@ export async function createInvoice(businessId: string, input: InvoiceInput) {
     return { ...item, discount_amount: discountAmt, tax_amount: taxAmt, total };
   });
 
-  // Apply global discount
   let globalDiscount = parsed.data.discount_amount;
   if (parsed.data.discount_percent > 0) {
     globalDiscount = subtotal * (parsed.data.discount_percent / 100);
@@ -65,8 +59,7 @@ export async function createInvoice(businessId: string, input: InvoiceInput) {
 
   const status = parsed.data.amount_paid >= finalTotal ? "paid" : parsed.data.amount_paid > 0 ? "partial" : "draft";
 
-  // Create invoice
-  const { data: invoice, error: invoiceError } = await admin
+  const { data: invoice, error: invoiceError } = await supabase
     .from("invoices")
     .insert({
       business_id: businessId,
@@ -90,7 +83,6 @@ export async function createInvoice(businessId: string, input: InvoiceInput) {
 
   if (invoiceError) throw new Error(invoiceError.message);
 
-  // Insert items
   const invoiceItems = items.map((item) => ({
     invoice_id: invoice.id,
     product_id: item.product_id,
@@ -108,20 +100,19 @@ export async function createInvoice(businessId: string, input: InvoiceInput) {
     total: item.total,
   }));
 
-  const { error: itemsError } = await admin.from("invoice_items").insert(invoiceItems);
+  const { error: itemsError } = await supabase.from("invoice_items").insert(invoiceItems);
   if (itemsError) throw new Error(itemsError.message);
 
-  // Update product stock
   for (const item of items) {
     if (item.product_id) {
-      const { data: product } = await admin
+      const { data: product } = await supabase
         .from("products")
         .select("stock_quantity")
         .eq("id", item.product_id)
         .single();
 
       if (product) {
-        await admin
+        await supabase
           .from("products")
           .update({ stock_quantity: Math.max(0, product.stock_quantity - item.quantity) })
           .eq("id", item.product_id);
@@ -129,14 +120,14 @@ export async function createInvoice(businessId: string, input: InvoiceInput) {
     }
 
     if (item.variant_id) {
-      const { data: variant } = await admin
+      const { data: variant } = await supabase
         .from("product_variants")
         .select("stock_quantity")
         .eq("id", item.variant_id)
         .single();
 
       if (variant) {
-        await admin
+        await supabase
           .from("product_variants")
           .update({ stock_quantity: Math.max(0, variant.stock_quantity - item.quantity) })
           .eq("id", item.variant_id);
@@ -144,16 +135,15 @@ export async function createInvoice(businessId: string, input: InvoiceInput) {
     }
   }
 
-  // Update customer stats if customer exists
   if (parsed.data.customer_id) {
-    const { data: customer } = await admin
+    const { data: customer } = await supabase
       .from("customers")
       .select("total_spend, purchase_count, outstanding_balance")
       .eq("id", parsed.data.customer_id)
       .single();
 
     if (customer) {
-      await admin
+      await supabase
         .from("customers")
         .update({
           total_spend: (customer.total_spend || 0) + finalTotal,
@@ -171,7 +161,7 @@ export async function createInvoice(businessId: string, input: InvoiceInput) {
 }
 
 export async function getInvoices(businessId: string, status?: string) {
-  const supabase = await createClient();
+  const supabase = createClient();
   let query = supabase
     .from("invoices")
     .select("*, customers(name, phone)")
@@ -188,7 +178,7 @@ export async function getInvoices(businessId: string, status?: string) {
 }
 
 export async function getInvoice(businessId: string, invoiceId: string) {
-  const supabase = await createClient();
+  const supabase = createClient();
   const { data, error } = await supabase
     .from("invoices")
     .select("*, customers(name, phone, email, address, gst_number), invoice_items(*)")
@@ -206,11 +196,11 @@ export async function updateInvoiceStatus(
   status: string,
   amountPaid?: number
 ) {
-  const admin = createAdminClient();
+  const supabase = createClient();
   const update: Record<string, unknown> = { status };
   if (amountPaid !== undefined) update.amount_paid = amountPaid;
 
-  const { data, error } = await admin
+  const { data, error } = await supabase
     .from("invoices")
     .update(update)
     .eq("business_id", businessId)
@@ -223,8 +213,8 @@ export async function updateInvoiceStatus(
 }
 
 export async function deleteInvoice(businessId: string, invoiceId: string) {
-  const admin = createAdminClient();
-  const { error } = await admin
+  const supabase = createClient();
+  const { error } = await supabase
     .from("invoices")
     .delete()
     .eq("business_id", businessId)

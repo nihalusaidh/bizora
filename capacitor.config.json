@@ -1,9 +1,9 @@
 {
   "appId": "app.bizora.operating",
   "appName": "BIZORA",
-  "webDir": ".next",
+  "webDir": "out",
   "server": {
-    "url": "https://bizora-sigma.vercel.app",
+    "androidScheme": "https",
     "cleartext": false
   },
   "plugins": {
@@ -12,15 +12,15 @@
     },
     "LocalNotifications": {
       "smallIcon": "ic_stat_icon",
-      "iconColor": "#1a7a4c"
+      "iconColor": "#DC2626"
     }
   },
   "android": {
     "allowMixedContent": false,
-    "backgroundColor": "#1a7a4c"
+    "backgroundColor": "#DC2626"
   },
   "ios": {
-    "backgroundColor": "#1a7a4c",
+    "backgroundColor": "#DC2626",
     "allowsBackForwardNavigationGestures": false
   }
 }

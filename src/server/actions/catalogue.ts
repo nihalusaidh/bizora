@@ -1,9 +1,7 @@
-"use server";
-
-import { createClient } from "@/lib/supabase/server";
+import { createClient } from "@/lib/supabase/client";
 
 export async function getBusinessBySlug(slug: string) {
-  const supabase = await createClient();
+  const supabase = createClient();
   const { data, error } = await supabase
     .from("businesses")
     .select("id, name, type, phone, email, address, logo_url")
@@ -15,7 +13,7 @@ export async function getBusinessBySlug(slug: string) {
 }
 
 export async function getCatalogueProducts(businessId: string, categoryId?: string) {
-  const supabase = await createClient();
+  const supabase = createClient();
   let query = supabase
     .from("products")
     .select(`
@@ -38,7 +36,7 @@ export async function getCatalogueProducts(businessId: string, categoryId?: stri
 }
 
 export async function getCatalogueCategories(businessId: string) {
-  const supabase = await createClient();
+  const supabase = createClient();
   const { data, error } = await supabase
     .from("categories")
     .select("id, name, icon, color")

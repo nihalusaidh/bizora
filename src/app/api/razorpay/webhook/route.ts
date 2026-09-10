@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { verifyPaymentSignature } from "@/lib/payments/razorpay";
 import crypto from "crypto";
 
 const supabase = createClient(
@@ -17,7 +16,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Missing signature" }, { status: 400 });
     }
 
-    // Verify webhook signature
     const webhookSecret = process.env.RAZORPAY_WEBHOOK_SECRET || "";
     const expectedSignature = crypto
       .createHmac("sha256", webhookSecret)
@@ -31,21 +29,16 @@ export async function POST(request: NextRequest) {
     const event = JSON.parse(body);
 
     switch (event.event) {
-      case "subscription.activated":
       case "subscription.activated": {
         const subscription = event.payload.subscription.entity;
         const businessId = subscription.notes?.business_id;
 
         if (businessId) {
-          const planId = subscription.plan_id;
           let planTier = "gold";
-
-          // Determine plan from amount
-          if (subscription.plan_id) {
-            const amount = Number(subscription.plan_amount || 0);
-            if (amount >= 69900) planTier = "diamond";
-            else if (amount >= 39900) planTier = "gold";
-          }
+          const amount = Number(subscription.plan_amount || 0);
+          if (amount >= 69900) planTier = "diamond";
+          else if (amount >= 39900) planTier = "gold";
+          else planTier = "free";
 
           await supabase
             .from("businesses")
@@ -76,7 +69,6 @@ export async function POST(request: NextRequest) {
       }
 
       case "subscription.charged": {
-        // Payment successful - subscription remains active
         break;
       }
 

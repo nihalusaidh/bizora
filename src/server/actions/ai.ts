@@ -1,10 +1,7 @@
-"use server";
-
-import { createClient } from "@/lib/supabase/server";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { createClient } from "@/lib/supabase/client";
 import { genai, AI_MODEL, SYSTEM_PROMPT, type ChatMessage } from "@/lib/ai";
 
-const AI_ENABLED = !!process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY !== "your-gemini-api-key-here";
+const AI_ENABLED = typeof window !== "undefined" && !!process.env.NEXT_PUBLIC_GEMINI_API_KEY && process.env.NEXT_PUBLIC_GEMINI_API_KEY !== "your-gemini-api-key-here";
 
 interface ChatSession {
   id: string;
@@ -21,7 +18,7 @@ interface ChatMessageRecord {
 }
 
 export async function getChatSessions(businessId: string): Promise<ChatSession[]> {
-  const supabase = await createClient();
+  const supabase = createClient();
   const { data, error } = await supabase
     .from("ai_chat_sessions" as never)
     .select("*")
@@ -34,7 +31,7 @@ export async function getChatSessions(businessId: string): Promise<ChatSession[]
 }
 
 export async function getChatMessages(sessionId: string): Promise<ChatMessageRecord[]> {
-  const supabase = await createClient();
+  const supabase = createClient();
   const { data, error } = await supabase
     .from("ai_chat_messages" as never)
     .select("*")
@@ -46,8 +43,8 @@ export async function getChatMessages(sessionId: string): Promise<ChatMessageRec
 }
 
 export async function createChatSession(businessId: string, title?: string): Promise<ChatSession> {
-  const admin = createAdminClient();
-  const { data, error } = await admin
+  const supabase = createClient();
+  const { data, error } = await supabase
     .from("ai_chat_sessions" as never)
     .insert({ business_id: businessId, title: title || "New Chat" } as never)
     .select()
@@ -58,15 +55,15 @@ export async function createChatSession(businessId: string, title?: string): Pro
 }
 
 export async function deleteChatSession(sessionId: string): Promise<void> {
-  const admin = createAdminClient();
-  const { error } = await admin
+  const supabase = createClient();
+  const { error } = await supabase
     .from("ai_chat_messages" as never)
     .delete()
     .eq("session_id", sessionId);
 
   if (error) throw error;
 
-  const { error: sessionError } = await admin
+  const { error: sessionError } = await supabase
     .from("ai_chat_sessions" as never)
     .delete()
     .eq("id", sessionId);
@@ -75,7 +72,7 @@ export async function deleteChatSession(sessionId: string): Promise<void> {
 }
 
 async function getBusinessContext(businessId: string): Promise<string> {
-  const supabase = await createClient();
+  const supabase = createClient();
   const lines: string[] = [];
 
   const { data: business } = await supabase
@@ -142,11 +139,9 @@ export async function sendChatMessage(
   sessionId: string,
   userMessage: string
 ): Promise<string> {
-  const supabase = await createClient();
-  const admin = createAdminClient();
+  const supabase = createClient();
 
-  // Save user message
-  const { error: userMsgError } = await admin
+  const { error: userMsgError } = await supabase
     .from("ai_chat_messages" as never)
     .insert({
       session_id: sessionId,
@@ -157,30 +152,26 @@ export async function sendChatMessage(
   if (userMsgError) throw userMsgError;
 
   if (!AI_ENABLED) {
-    const fallback = "AI features require a valid Gemini API key. Add GEMINI_API_KEY to your .env.local file to enable this feature.";
-    await admin
+    const fallback = "AI features require a valid Gemini API key. Add NEXT_PUBLIC_GEMINI_API_KEY to your .env.local file to enable this feature.";
+    await supabase
       .from("ai_chat_messages" as never)
       .insert({ session_id: sessionId, role: "model", content: fallback } as never);
     return fallback;
   }
 
-  // Get chat history for context
   const { data: history } = await supabase
     .from("ai_chat_messages" as never)
     .select("role, content")
     .eq("session_id", sessionId)
     .order("created_at", { ascending: true });
 
-  // Get business context
   const businessContext = await getBusinessContext(businessId);
 
-  // Build conversation for Gemini
   const contents: ChatMessage[] = ((history || []) as unknown as Array<{ role: string; content: string }>).map((m) => ({
     role: m.role === "user" ? "user" : "model",
     text: m.content,
   }));
 
-  // Add business context as system instruction
   const systemInstruction = `${SYSTEM_PROMPT}\n\nCurrent Business Data:\n${businessContext}`;
 
   let assistantMessage: string;
@@ -200,8 +191,7 @@ export async function sendChatMessage(
     assistantMessage = `AI service error: ${msg}. Please check your Gemini API key.`;
   }
 
-  // Save assistant message
-  const { error: modelMsgError } = await admin
+  const { error: modelMsgError } = await supabase
     .from("ai_chat_messages" as never)
     .insert({
       session_id: sessionId,
@@ -211,7 +201,6 @@ export async function sendChatMessage(
 
   if (modelMsgError) throw modelMsgError;
 
-  // Update session title from first message if it's "New Chat"
   const { data: session } = await supabase
     .from("ai_chat_sessions" as never)
     .select("title")
@@ -220,7 +209,7 @@ export async function sendChatMessage(
 
   if (session && session.title === "New Chat") {
     const shortTitle = userMessage.slice(0, 50) + (userMessage.length > 50 ? "..." : "");
-    await admin
+    await supabase
       .from("ai_chat_sessions" as never)
       .update({ title: shortTitle } as never)
       .eq("id", sessionId);
@@ -231,7 +220,7 @@ export async function sendChatMessage(
 
 export async function getQuickInsights(businessId: string): Promise<string[]> {
   if (!AI_ENABLED) {
-    return ["AI features require a valid Gemini API key. Add GEMINI_API_KEY to .env.local to enable."];
+    return ["AI features require a valid Gemini API key. Add NEXT_PUBLIC_GEMINI_API_KEY to .env.local to enable."];
   }
 
   const businessContext = await getBusinessContext(businessId);

@@ -1,11 +1,8 @@
-"use server";
-
-import { createClient } from "@/lib/supabase/server";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { createClient } from "@/lib/supabase/client";
 import { purchaseOrderSchema, type PurchaseOrderInput } from "@/lib/validators/purchase-orders";
 
 export async function getNextPoNumber(businessId: string) {
-  const supabase = await createClient();
+  const supabase = createClient();
   const { data, error } = await supabase
     .from("purchase_orders")
     .select("po_number")
@@ -25,8 +22,7 @@ export async function createPurchaseOrder(businessId: string, input: PurchaseOrd
   const parsed = purchaseOrderSchema.safeParse(input);
   if (!parsed.success) throw new Error(parsed.error.issues[0].message);
 
-  const supabase = await createClient();
-  const admin = createAdminClient();
+  const supabase = createClient();
   const poNumber = await getNextPoNumber(businessId);
 
   let subtotal = 0;
@@ -43,7 +39,7 @@ export async function createPurchaseOrder(businessId: string, input: PurchaseOrd
 
   const total = subtotal + totalTax - parsed.data.discount_amount;
 
-  const { data: po, error: poError } = await admin
+  const { data: po, error: poError } = await supabase
     .from("purchase_orders")
     .insert({
       business_id: businessId,
@@ -77,14 +73,14 @@ export async function createPurchaseOrder(businessId: string, input: PurchaseOrd
     total: item.total,
   }));
 
-  const { error: itemsError } = await admin.from("purchase_order_items").insert(poItems);
+  const { error: itemsError } = await supabase.from("purchase_order_items").insert(poItems);
   if (itemsError) throw new Error(itemsError.message);
 
   return po;
 }
 
 export async function getPurchaseOrders(businessId: string, status?: string) {
-  const supabase = await createClient();
+  const supabase = createClient();
   let query = supabase
     .from("purchase_orders")
     .select("*, suppliers(name, phone)")
@@ -101,7 +97,7 @@ export async function getPurchaseOrders(businessId: string, status?: string) {
 }
 
 export async function getPurchaseOrder(businessId: string, poId: string) {
-  const supabase = await createClient();
+  const supabase = createClient();
   const { data, error } = await supabase
     .from("purchase_orders")
     .select("*, suppliers(id, name, phone, email, address, gst_number), purchase_order_items(*)")
@@ -118,11 +114,10 @@ export async function receivePurchaseOrderItems(
   poId: string,
   items: Array<{ id: string; received_quantity: number }>
 ) {
-  const supabase = await createClient();
-  const admin = createAdminClient();
+  const supabase = createClient();
 
   for (const item of items) {
-    const { error } = await admin
+    const { error } = await supabase
       .from("purchase_order_items")
       .update({ received_quantity: item.received_quantity })
       .eq("id", item.id);
@@ -130,7 +125,6 @@ export async function receivePurchaseOrderItems(
     if (error) throw new Error(error.message);
   }
 
-  // Check if all items fully received
   const { data: poItems } = await supabase
     .from("purchase_order_items")
     .select("ordered_quantity, received_quantity")
@@ -148,7 +142,7 @@ export async function receivePurchaseOrderItems(
     if (allReceived) newStatus = "received";
     else if (anyReceived) newStatus = "partial";
 
-    const { error: statusError } = await admin
+    const { error: statusError } = await supabase
       .from("purchase_orders")
       .update({
         status: newStatus,
@@ -158,7 +152,6 @@ export async function receivePurchaseOrderItems(
 
     if (statusError) throw new Error(statusError.message);
 
-    // If fully received, update product stock
     if (allReceived) {
       const { data: fullItems } = await supabase
         .from("purchase_order_items")
@@ -175,7 +168,7 @@ export async function receivePurchaseOrderItems(
             .single();
 
           if (product) {
-            await admin
+            await supabase
               .from("products")
               .update({ stock_quantity: product.stock_quantity + Number(item.received_quantity) })
               .eq("id", item.product_id);
@@ -194,11 +187,11 @@ export async function updatePurchaseOrderStatus(
   status: string,
   amountPaid?: number
 ) {
-  const admin = createAdminClient();
+  const supabase = createClient();
   const update: Record<string, unknown> = { status };
   if (amountPaid !== undefined) update.amount_paid = amountPaid;
 
-  const { data, error } = await admin
+  const { data, error } = await supabase
     .from("purchase_orders")
     .update(update)
     .eq("business_id", businessId)
@@ -211,8 +204,8 @@ export async function updatePurchaseOrderStatus(
 }
 
 export async function deletePurchaseOrder(businessId: string, poId: string) {
-  const admin = createAdminClient();
-  const { error } = await admin
+  const supabase = createClient();
+  const { error } = await supabase
     .from("purchase_orders")
     .delete()
     .eq("business_id", businessId)

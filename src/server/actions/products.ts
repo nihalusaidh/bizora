@@ -1,7 +1,4 @@
-"use server";
-
-import { createClient } from "@/lib/supabase/server";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { createClient } from "@/lib/supabase/client";
 import { productSchema, productVariantSchema, type ProductInput, type ProductVariantInput } from "@/lib/validators/inventory";
 
 export async function getProducts(
@@ -14,7 +11,7 @@ export async function getProducts(
     offset?: number;
   }
 ) {
-  const supabase = await createClient();
+  const supabase = createClient();
   let query = supabase
     .from("products")
     .select("*, category:categories(id, name), supplier:suppliers(id, name)")
@@ -56,7 +53,7 @@ export async function getProducts(
 }
 
 export async function getProduct(businessId: string, productId: string) {
-  const supabase = await createClient();
+  const supabase = createClient();
   const { data, error } = await supabase
     .from("products")
     .select("*, category:categories(id, name), supplier:suppliers(id, name), variants:product_variants(*)")
@@ -74,8 +71,8 @@ export async function createProduct(businessId: string, input: ProductInput) {
     throw new Error(parsed.error.issues[0].message);
   }
 
-  const admin = createAdminClient();
-  const { data, error } = await admin
+  const supabase = createClient();
+  const { data, error } = await supabase
     .from("products")
     .insert({ ...parsed.data, business_id: businessId })
     .select()
@@ -90,8 +87,8 @@ export async function updateProduct(
   productId: string,
   input: Partial<ProductInput>
 ) {
-  const admin = createAdminClient();
-  const { data, error } = await admin
+  const supabase = createClient();
+  const { data, error } = await supabase
     .from("products")
     .update(input)
     .eq("business_id", businessId)
@@ -104,8 +101,8 @@ export async function updateProduct(
 }
 
 export async function deleteProduct(businessId: string, productId: string) {
-  const admin = createAdminClient();
-  const { error } = await admin
+  const supabase = createClient();
+  const { error } = await supabase
     .from("products")
     .update({ is_active: false })
     .eq("business_id", businessId)
@@ -114,9 +111,8 @@ export async function deleteProduct(businessId: string, productId: string) {
   if (error) throw new Error(error.message);
 }
 
-// Variants
 export async function getProductVariants(businessId: string, productId: string) {
-  const supabase = await createClient();
+  const supabase = createClient();
   const { data, error } = await supabase
     .from("product_variants")
     .select("*")
@@ -138,8 +134,8 @@ export async function createVariant(
     throw new Error(parsed.error.issues[0].message);
   }
 
-  const admin = createAdminClient();
-  const { data, error } = await admin
+  const supabase = createClient();
+  const { data, error } = await supabase
     .from("product_variants")
     .insert({ ...parsed.data, product_id: productId })
     .select()
@@ -154,8 +150,8 @@ export async function updateVariant(
   variantId: string,
   input: Partial<ProductVariantInput>
 ) {
-  const admin = createAdminClient();
-  const { data, error } = await admin
+  const supabase = createClient();
+  const { data, error } = await supabase
     .from("product_variants")
     .update(input)
     .eq("id", variantId)
@@ -167,8 +163,8 @@ export async function updateVariant(
 }
 
 export async function deleteVariant(businessId: string, variantId: string) {
-  const admin = createAdminClient();
-  const { error } = await admin
+  const supabase = createClient();
+  const { error } = await supabase
     .from("product_variants")
     .update({ is_active: false })
     .eq("id", variantId);

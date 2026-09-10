@@ -1,12 +1,12 @@
 const DB_NAME = "bizora-offline";
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 
 function openDB(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
     const request = indexedDB.open(DB_NAME, DB_VERSION);
     request.onupgradeneeded = (event) => {
       const db = (event.target as IDBOpenDBRequest).result;
-      
+
       if (!db.objectStoreNames.contains("pending_invoices")) {
         const store = db.createObjectStore("pending_invoices", { keyPath: "id" });
         store.createIndex("created_at", "created_at");
@@ -26,6 +26,11 @@ function openDB(): Promise<IDBDatabase> {
       if (!db.objectStoreNames.contains("cached_data")) {
         db.createObjectStore("cached_data", { keyPath: "key" });
       }
+      if (!db.objectStoreNames.contains("sync_queue")) {
+        const syncStore = db.createObjectStore("sync_queue", { keyPath: "id", autoIncrement: true });
+        syncStore.createIndex("table_name", "table_name");
+        syncStore.createIndex("created_at", "created_at");
+      }
     };
     request.onsuccess = () => resolve(request.result);
     request.onerror = () => reject(request.error);
@@ -37,6 +42,15 @@ export interface OfflineRecord {
   data: any;
   created_at: string;
   synced: boolean;
+}
+
+export interface SyncQueueItem {
+  id?: number;
+  table_name: string;
+  operation: "insert" | "update" | "delete";
+  data: any;
+  record_id: string;
+  created_at: string;
 }
 
 async function addPending(storeName: string, data: any): Promise<void> {
@@ -99,6 +113,53 @@ async function getCachedData(key: string): Promise<any | null> {
   });
 }
 
+async function addToSyncQueue(item: Omit<SyncQueueItem, "id" | "created_at">): Promise<void> {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction("sync_queue", "readwrite");
+    const store = tx.objectStore("sync_queue");
+    store.add({
+      ...item,
+      created_at: new Date().toISOString(),
+    });
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+  });
+}
+
+async function getSyncQueue(): Promise<SyncQueueItem[]> {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction("sync_queue", "readonly");
+    const store = tx.objectStore("sync_queue");
+    const request = store.getAll();
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+}
+
+async function clearSyncQueue(): Promise<void> {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction("sync_queue", "readwrite");
+    const store = tx.objectStore("sync_queue");
+    store.clear();
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+  });
+}
+
+async function removeSyncQueueItem(id: number): Promise<void> {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction("sync_queue", "readwrite");
+    const store = tx.objectStore("sync_queue");
+    store.delete(id);
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+  });
+}
+
 export const offlineDB = {
   invoices: {
     add: (data: any) => addPending("pending_invoices", data),
@@ -129,9 +190,14 @@ export const offlineDB = {
     set: (key: string, data: any) => cacheData(key, data),
     get: (key: string) => getCachedData(key),
   },
+  syncQueue: {
+    add: (item: Omit<SyncQueueItem, "id" | "created_at">) => addToSyncQueue(item),
+    getAll: () => getSyncQueue(),
+    remove: (id: number) => removeSyncQueueItem(id),
+    clear: () => clearSyncQueue(),
+  },
 };
 
-// Sync manager - syncs offline data when online
 export async function syncOfflineData(
   syncFn: (store: string, record: OfflineRecord) => Promise<void>
 ): Promise<void> {
@@ -154,4 +220,29 @@ export async function syncOfflineData(
       }
     }
   }
+}
+
+export async function processSyncQueue(
+  processFn: (item: SyncQueueItem) => Promise<boolean>
+): Promise<{ processed: number; failed: number }> {
+  const queue = await getSyncQueue();
+  let processed = 0;
+  let failed = 0;
+
+  for (const item of queue) {
+    try {
+      const success = await processFn(item);
+      if (success && item.id) {
+        await removeSyncQueueItem(item.id);
+        processed++;
+      } else {
+        failed++;
+      }
+    } catch (e) {
+      console.error("Sync queue item failed:", e);
+      failed++;
+    }
+  }
+
+  return { processed, failed };
 }

@@ -1,11 +1,8 @@
-"use server";
-
-import { createClient } from "@/lib/supabase/server";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { createClient } from "@/lib/supabase/client";
 import { expenseCategorySchema, type ExpenseCategoryInput } from "@/lib/validators/expenses";
 
 export async function getExpenseCategories(businessId: string) {
-  const supabase = await createClient();
+  const supabase = createClient();
   const { data, error } = await supabase
     .from("expense_categories")
     .select("*")
@@ -23,8 +20,8 @@ export async function createExpenseCategory(businessId: string, input: ExpenseCa
     throw new Error(parsed.error.issues[0].message);
   }
 
-  const admin = createAdminClient();
-  const { data, error } = await admin
+  const supabase = createClient();
+  const { data, error } = await supabase
     .from("expense_categories")
     .insert({ ...parsed.data, business_id: businessId })
     .select()
@@ -39,8 +36,8 @@ export async function updateExpenseCategory(
   categoryId: string,
   input: Partial<ExpenseCategoryInput>
 ) {
-  const admin = createAdminClient();
-  const { data, error } = await admin
+  const supabase = createClient();
+  const { data, error } = await supabase
     .from("expense_categories")
     .update(input)
     .eq("business_id", businessId)
@@ -53,8 +50,8 @@ export async function updateExpenseCategory(
 }
 
 export async function deleteExpenseCategory(businessId: string, categoryId: string) {
-  const admin = createAdminClient();
-  const { error } = await admin
+  const supabase = createClient();
+  const { error } = await supabase
     .from("expense_categories")
     .update({ is_active: false })
     .eq("business_id", businessId)
@@ -65,14 +62,14 @@ export async function deleteExpenseCategory(businessId: string, categoryId: stri
 
 export async function seedDefaultCategories(businessId: string) {
   const { EXPENSE_CATEGORIES_DEFAULTS } = await import("@/lib/constants");
-  const admin = createAdminClient();
+  const supabase = createClient();
 
   const categories = EXPENSE_CATEGORIES_DEFAULTS.map((cat) => ({
     ...cat,
     business_id: businessId,
   }));
 
-  const { data, error } = await admin
+  const { data, error } = await supabase
     .from("expense_categories")
     .insert(categories)
     .select();

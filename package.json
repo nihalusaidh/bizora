@@ -1,5 +1,6 @@
 {
   "name": "bizora",
+  "main": "electron/main.js",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -10,10 +11,19 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "build:cap": "CAPACITOR=true next build",
+    "cap:sync": "npx cap sync",
+    "cap:android": "npx cap open android",
+    "cap:ios": "npx cap open ios",
+    "cap:build:apk": "npm run build:cap && npx cap sync android && cd android && ./gradlew assembleDebug",
+    "electron:dev": "npm run build:cap && electron .",
+    "electron:build": "npm run build:cap && electron-builder --win --mac --linux",
+    "electron:build:win": "npm run build:cap && electron-builder --win"
   },
   "dependencies": {
     "@base-ui/react": "^1.8.0",
+    "@capacitor-community/electron": "^5.0.1",
     "@capacitor/android": "^8.5.1",
     "@capacitor/cli": "^8.5.1",
     "@capacitor/core": "^8.5.1",
@@ -49,6 +59,8 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "electron": "^44.3.0",
+    "electron-builder": "^26.15.3",
     "eslint": "^9",
     "eslint-config-next": "16.3.4",
     "jest": "^30.5.1",

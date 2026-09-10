@@ -1,14 +1,11 @@
-"use server";
-
-import { createClient } from "@/lib/supabase/server";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { createClient } from "@/lib/supabase/client";
 import { expenseSchema, type ExpenseInput } from "@/lib/validators/expenses";
 
 export async function getExpenses(
   businessId: string,
   options?: { search?: string; category_id?: string; start_date?: string; end_date?: string }
 ) {
-  const supabase = await createClient();
+  const supabase = createClient();
   let query = supabase
     .from("expenses")
     .select("*, expense_categories(id, name, icon, color)")
@@ -35,7 +32,7 @@ export async function getExpenses(
 }
 
 export async function getExpense(businessId: string, expenseId: string) {
-  const supabase = await createClient();
+  const supabase = createClient();
   const { data, error } = await supabase
     .from("expenses")
     .select("*, expense_categories(id, name, icon, color)")
@@ -53,8 +50,8 @@ export async function createExpense(businessId: string, input: ExpenseInput) {
     throw new Error(parsed.error.issues[0].message);
   }
 
-  const admin = createAdminClient();
-  const { data, error } = await admin
+  const supabase = createClient();
+  const { data, error } = await supabase
     .from("expenses")
     .insert({
       ...parsed.data,
@@ -77,8 +74,8 @@ export async function updateExpense(
   expenseId: string,
   input: Partial<ExpenseInput>
 ) {
-  const admin = createAdminClient();
-  const { data, error } = await admin
+  const supabase = createClient();
+  const { data, error } = await supabase
     .from("expenses")
     .update({
       ...input,
@@ -95,8 +92,8 @@ export async function updateExpense(
 }
 
 export async function deleteExpense(businessId: string, expenseId: string) {
-  const admin = createAdminClient();
-  const { error } = await admin
+  const supabase = createClient();
+  const { error } = await supabase
     .from("expenses")
     .update({ is_active: false })
     .eq("business_id", businessId)
@@ -106,7 +103,7 @@ export async function deleteExpense(businessId: string, expenseId: string) {
 }
 
 export async function getExpenseSummary(businessId: string, startDate: string, endDate: string) {
-  const supabase = await createClient();
+  const supabase = createClient();
   const { data, error } = await supabase
     .from("expenses")
     .select("amount, category_id, expense_categories(name, icon, color)")

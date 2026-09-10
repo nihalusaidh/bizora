@@ -50,9 +50,22 @@ export default function SubscriptionPage() {
         name: "BIZORA",
         description: `${PLAN_CONFIGS[planKey as keyof typeof PLAN_CONFIGS].name} Plan`,
         handler: async function (response: any) {
-          // Payment successful - update plan locally
+          try {
+            await fetch("/api/razorpay/verify", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+                business_id: businessId,
+                plan: planKey,
+              }),
+            });
+          } catch {
+            // Webhook will handle it as backup
+          }
           setPlan(planKey as any);
-          // In production, verify payment on server via webhook
         },
         prefill: {
           name: business.name || "",

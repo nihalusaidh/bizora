@@ -1,11 +1,8 @@
-"use server";
-
-import { createClient } from "@/lib/supabase/server";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { createClient } from "@/lib/supabase/client";
 import { supplierSchema, type SupplierInput } from "@/lib/validators/inventory";
 
 export async function getSuppliers(businessId: string) {
-  const supabase = await createClient();
+  const supabase = createClient();
   const { data, error } = await supabase
     .from("suppliers")
     .select("*")
@@ -18,7 +15,7 @@ export async function getSuppliers(businessId: string) {
 }
 
 export async function getSupplier(businessId: string, supplierId: string) {
-  const supabase = await createClient();
+  const supabase = createClient();
   const { data, error } = await supabase
     .from("suppliers")
     .select("*")
@@ -36,8 +33,8 @@ export async function createSupplier(businessId: string, input: SupplierInput) {
     throw new Error(parsed.error.issues[0].message);
   }
 
-  const admin = createAdminClient();
-  const { data, error } = await admin
+  const supabase = createClient();
+  const { data, error } = await supabase
     .from("suppliers")
     .insert({ ...parsed.data, business_id: businessId })
     .select()
@@ -52,8 +49,8 @@ export async function updateSupplier(
   supplierId: string,
   input: Partial<SupplierInput>
 ) {
-  const admin = createAdminClient();
-  const { data, error } = await admin
+  const supabase = createClient();
+  const { data, error } = await supabase
     .from("suppliers")
     .update(input)
     .eq("business_id", businessId)
@@ -66,8 +63,8 @@ export async function updateSupplier(
 }
 
 export async function deleteSupplier(businessId: string, supplierId: string) {
-  const admin = createAdminClient();
-  const { error } = await admin
+  const supabase = createClient();
+  const { error } = await supabase
     .from("suppliers")
     .update({ is_active: false })
     .eq("business_id", businessId)

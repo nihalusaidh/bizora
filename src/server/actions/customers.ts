@@ -1,11 +1,8 @@
-"use server";
-
-import { createClient } from "@/lib/supabase/server";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { createClient } from "@/lib/supabase/client";
 import { customerSchema, type CustomerInput } from "@/lib/validators/customers";
 
 export async function getCustomers(businessId: string, search?: string) {
-  const supabase = await createClient();
+  const supabase = createClient();
   let query = supabase
     .from("customers")
     .select("*")
@@ -23,7 +20,7 @@ export async function getCustomers(businessId: string, search?: string) {
 }
 
 export async function getCustomer(businessId: string, customerId: string) {
-  const supabase = await createClient();
+  const supabase = createClient();
   const { data, error } = await supabase
     .from("customers")
     .select("*")
@@ -41,8 +38,8 @@ export async function createCustomer(businessId: string, input: CustomerInput) {
     throw new Error(parsed.error.issues[0].message);
   }
 
-  const admin = createAdminClient();
-  const { data, error } = await admin
+  const supabase = createClient();
+  const { data, error } = await supabase
     .from("customers")
     .insert({ ...parsed.data, business_id: businessId })
     .select()
@@ -57,8 +54,8 @@ export async function updateCustomer(
   customerId: string,
   input: Partial<CustomerInput>
 ) {
-  const admin = createAdminClient();
-  const { data, error } = await admin
+  const supabase = createClient();
+  const { data, error } = await supabase
     .from("customers")
     .update(input)
     .eq("business_id", businessId)
@@ -71,8 +68,8 @@ export async function updateCustomer(
 }
 
 export async function deleteCustomer(businessId: string, customerId: string) {
-  const admin = createAdminClient();
-  const { error } = await admin
+  const supabase = createClient();
+  const { error } = await supabase
     .from("customers")
     .update({ is_active: false })
     .eq("business_id", businessId)

@@ -1,6 +1,6 @@
 import { GoogleGenAI } from "@google/genai";
 
-const apiKey = process.env.GEMINI_API_KEY;
+const apiKey = typeof window !== "undefined" ? process.env.NEXT_PUBLIC_GEMINI_API_KEY : process.env.GEMINI_API_KEY;
 
 if (!apiKey) {
   console.warn("GEMINI_API_KEY not set — AI features will not work");

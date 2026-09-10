@@ -32,12 +32,16 @@ export interface Business {
   address?: string;
   phone?: string;
   email?: string;
+  state?: string;
   upi_id?: string;
   terms_conditions?: string;
   bank_name?: string;
   bank_account?: string;
   bank_ifsc?: string;
   bank_upi?: string;
+  plan?: PlanTier;
+  subscription_status?: string;
+  razorpay_subscription_id?: string;
   owner_id: string;
   created_at: string;
   updated_at: string;

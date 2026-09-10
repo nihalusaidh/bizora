@@ -1,6 +1,4 @@
-"use server";
-
-import { createClient } from "@/lib/supabase/server";
+import { createClient } from "@/lib/supabase/client";
 
 export interface DateRange {
   start_date: string;
@@ -8,7 +6,7 @@ export interface DateRange {
 }
 
 export async function getRevenueReport(businessId: string, range: DateRange) {
-  const supabase = await createClient();
+  const supabase = createClient();
 
   const { data: invoices, error } = await supabase
     .from("invoices")
@@ -29,7 +27,6 @@ export async function getRevenueReport(businessId: string, range: DateRange) {
   const paidCount = invoices.filter((i) => i.status === "paid").length;
   const avgInvoiceValue = invoiceCount > 0 ? totalRevenue / invoiceCount : 0;
 
-  // Daily breakdown
   const dailyMap: Record<string, number> = {};
   invoices.forEach((inv) => {
     const day = inv.created_at.split("T")[0];
@@ -39,7 +36,6 @@ export async function getRevenueReport(businessId: string, range: DateRange) {
     .map(([date, amount]) => ({ date, amount }))
     .sort((a, b) => a.date.localeCompare(b.date));
 
-  // Top customers
   const customerMap: Record<string, { total: number; count: number }> = {};
   invoices.forEach((inv) => {
     const name = (inv.customers as unknown as { name?: string } | null)?.name || "Walk-in";
@@ -67,7 +63,7 @@ export async function getRevenueReport(businessId: string, range: DateRange) {
 }
 
 export async function getExpenseReport(businessId: string, range: DateRange) {
-  const supabase = await createClient();
+  const supabase = createClient();
 
   const { data: expenses, error } = await supabase
     .from("expenses")
@@ -82,7 +78,6 @@ export async function getExpenseReport(businessId: string, range: DateRange) {
 
   const totalExpenses = expenses.reduce((sum, e) => sum + Number(e.amount), 0);
 
-  // By category
   const catMap: Record<string, { amount: number; count: number; icon: string; color: string }> = {};
   expenses.forEach((e) => {
     const cat = e.expense_categories as unknown as { name?: string; icon?: string; color?: string } | null;
@@ -95,7 +90,6 @@ export async function getExpenseReport(businessId: string, range: DateRange) {
     .map(([name, data]) => ({ name, ...data }))
     .sort((a, b) => b.amount - a.amount);
 
-  // Daily breakdown
   const dailyMap: Record<string, number> = {};
   expenses.forEach((e) => {
     dailyMap[e.expense_date] = (dailyMap[e.expense_date] || 0) + Number(e.amount);
@@ -104,7 +98,6 @@ export async function getExpenseReport(businessId: string, range: DateRange) {
     .map(([date, amount]) => ({ date, amount }))
     .sort((a, b) => a.date.localeCompare(b.date));
 
-  // By payment method
   const methodMap: Record<string, number> = {};
   expenses.forEach((e) => {
     methodMap[e.payment_method] = (methodMap[e.payment_method] || 0) + Number(e.amount);
@@ -142,7 +135,7 @@ export async function getProfitLossReport(businessId: string, range: DateRange) 
 }
 
 export async function getGstReport(businessId: string, range: DateRange) {
-  const supabase = await createClient();
+  const supabase = createClient();
 
   const { data: invoices, error } = await supabase
     .from("invoices")
@@ -159,7 +152,6 @@ export async function getGstReport(businessId: string, range: DateRange) {
   const totalTax = invoices.reduce((sum, i) => sum + Number(i.tax_amount), 0);
   const invoiceCount = invoices.length;
 
-  // Invoice-wise GST breakdown
   const invoiceDetails = invoices.map((inv) => ({
     invoice_number: inv.invoice_number,
     date: inv.created_at.split("T")[0],
@@ -178,7 +170,6 @@ export async function getGstReport(businessId: string, range: DateRange) {
 }
 
 export async function getDashboardStats(businessId: string) {
-  const supabase = await createClient();
   const now = new Date();
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split("T")[0];
   const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split("T")[0];

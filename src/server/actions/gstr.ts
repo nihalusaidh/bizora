@@ -1,6 +1,4 @@
-"use server";
-
-import { createClient } from "@/lib/supabase/server";
+import { createClient } from "@/lib/supabase/client";
 
 interface Gstr1B2B {
   gstin: string;
@@ -62,7 +60,7 @@ export interface Gstr1Report {
 }
 
 export async function generateGstr1(businessId: string, month: number, year: number): Promise<Gstr1Report> {
-  const supabase = await createClient();
+  const supabase = createClient();
 
   const startDate = new Date(year, month - 1, 1);
   const endDate = new Date(year, month, 0);
