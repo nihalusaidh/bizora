@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ImageUpload } from "@/components/ui/image-upload";
 import { createProduct, updateProduct, createVariant, updateVariant, deleteVariant } from "@/server/actions/products";
-import { Loader2, ArrowLeft, Plus, Trash2, Package } from "lucide-react";
+import { Loader2, ArrowLeft, Plus, Trash2, Package, Camera } from "lucide-react";
 
 interface ProductFormProps {
   businessId: string;
@@ -182,12 +182,67 @@ export function ProductForm({
             </div>
             <div className="space-y-2">
               <Label htmlFor="barcode">Barcode</Label>
-              <Input
-                id="barcode"
-                placeholder="e.g. 8901234567890"
-                value={barcode}
-                onChange={(e) => setBarcode(e.target.value)}
-              />
+              <div className="flex gap-2">
+                <Input
+                  id="barcode"
+                  placeholder="e.g. 8901234567890"
+                  value={barcode}
+                  onChange={(e) => setBarcode(e.target.value)}
+                  className="font-mono flex-1"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  onClick={async () => {
+                    try {
+                      const { Html5Qrcode } = await import("html5-qrcode");
+                      const container = document.createElement("div");
+                      container.id = "product-barcode-reader";
+                      container.style.cssText = "position:fixed;inset:0;z-index:9999;background:black;display:flex;align-items:center;justify-content:center;";
+                      document.body.appendChild(container);
+
+                      const overlay = document.createElement("div");
+                      overlay.style.cssText = "position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;";
+                      overlay.innerHTML = '<div style="position:relative;width:280px;height:120px;"><div style="position:absolute;left:-4px;top:-4px;width:20px;height:20px;border-left:3px solid #ef4444;border-top:3px solid #ef4444;"></div><div style="position:absolute;right:-4px;top:-4px;width:20px;height:20px;border-right:3px solid #ef4444;border-top:3px solid #ef4444;"></div><div style="position:absolute;left:-4px;bottom:-4px;width:20px;height:20px;border-left:3px solid #ef4444;border-bottom:3px solid #ef4444;"></div><div style="position:absolute;right:-4px;bottom:-4px;width:20px;height:20px;border-right:3px solid #ef4444;border-bottom:3px solid #ef4444;"></div><div style="position:absolute;left:0;right:0;height:2px;background:#ef4444;box-shadow:0 0 8px 2px rgba(239,68,68,0.6);animation:laser-scan 2s ease-in-out infinite;"></div></div>';
+                      container.appendChild(overlay);
+
+                      const closeBtn = document.createElement("button");
+                      closeBtn.textContent = "✕ Close";
+                      closeBtn.style.cssText = "position:absolute;top:16px;right:16px;z-index:10000;background:#ef4444;color:white;border:none;padding:8px 16px;border-radius:8px;font-size:14px;cursor:pointer;";
+                      closeBtn.onclick = () => {
+                        Promise.resolve(scanner.stop()).catch(() => {});
+                        Promise.resolve(scanner.clear()).catch(() => {});
+                        document.body.removeChild(container);
+                      };
+                      container.appendChild(closeBtn);
+
+                      const style = document.createElement("style");
+                      style.textContent = "@keyframes laser-scan{0%{top:0%}50%{top:calc(100% - 2px)}100%{top:0%}}";
+                      document.head.appendChild(style);
+
+                      const scanner = new Html5Qrcode("product-barcode-reader");
+                      await scanner.start(
+                        { facingMode: "environment" },
+                        { fps: 10, qrbox: { width: 280, height: 120 }, aspectRatio: 1.5 },
+                        (text) => {
+                          setBarcode(text);
+                          Promise.resolve(scanner.stop()).catch(() => {});
+                          Promise.resolve(scanner.clear()).catch(() => {});
+                          document.body.removeChild(container);
+                          document.head.removeChild(style);
+                        },
+                        () => {}
+                      );
+                    } catch {
+                      alert("Could not start camera. Please allow camera permission.");
+                    }
+                  }}
+                  title="Scan barcode with camera"
+                >
+                  <Camera className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
           </div>
 

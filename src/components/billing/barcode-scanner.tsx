@@ -3,7 +3,7 @@
 import { useRef, useEffect, useState, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useBusiness } from "@/lib/store";
-import { ScanBarcode, Loader2, Camera, X } from "lucide-react";
+import { ScanBarcode, Loader2, Camera, X, Zap } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
@@ -119,7 +119,7 @@ export function BarcodeScanner({
           { facingMode: "environment" },
           {
             fps: 10,
-            qrbox: { width: 250, height: 150 },
+            qrbox: { width: 280, height: 120 },
             aspectRatio: 1.5,
           },
           (decodedText: string) => {
@@ -128,9 +128,9 @@ export function BarcodeScanner({
               stopCamera();
             }
           },
-          () => {} // ignore errors during scanning
+          () => {}
         );
-      } catch (err) {
+      } catch {
         setCameraError("Could not start camera scanner.");
         setCameraMode(false);
       }
@@ -156,17 +156,66 @@ export function BarcodeScanner({
 
   if (cameraMode) {
     return (
-      <div className="relative rounded-lg overflow-hidden border border-border">
+      <div className="relative rounded-lg overflow-hidden border-2 border-red-500/50 bg-black">
         <div id="barcode-reader" className="w-full" />
+
+        {/* Red laser scanning line overlay */}
+        <div className="pointer-events-none absolute inset-0 z-10">
+          <div className="absolute inset-0 flex items-center justify-center">
+            {/* Scanning frame border */}
+            <div className="relative h-[120px] w-[280px]">
+              {/* Corner brackets */}
+              <div className="absolute -left-1 -top-1 h-5 w-5 border-l-2 border-t-2 border-red-500" />
+              <div className="absolute -right-1 -top-1 h-5 w-5 border-r-2 border-t-2 border-red-500" />
+              <div className="absolute -bottom-1 -left-1 h-5 w-5 border-b-2 border-l-2 border-red-500" />
+              <div className="absolute -bottom-1 -right-1 h-5 w-5 border-b-2 border-r-2 border-red-500" />
+
+              {/* Red laser line */}
+              <div className="laser-line absolute left-0 right-0 h-[2px] bg-red-500 shadow-[0_0_8px_2px_rgba(239,68,68,0.6)]" />
+            </div>
+          </div>
+
+          {/* Status bar */}
+          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent px-4 py-3">
+            <div className="flex items-center justify-center gap-2 text-sm">
+              <Zap className="h-4 w-4 text-red-500 animate-pulse" />
+              <span className="text-white font-medium">Point camera at barcode</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Close button */}
         <Button
           onClick={stopCamera}
           size="sm"
           variant="destructive"
-          className="absolute top-2 right-2 gap-1"
+          className="absolute top-2 right-2 z-20 gap-1"
         >
           <X className="h-3 w-3" />
           Close
         </Button>
+
+        {/* CSS for laser animation */}
+        <style jsx global>{`
+          @keyframes laser-scan {
+            0% { top: 0%; }
+            50% { top: calc(100% - 2px); }
+            100% { top: 0%; }
+          }
+          .laser-line {
+            animation: laser-scan 2s ease-in-out infinite;
+          }
+          #barcode-reader video {
+            border: none !important;
+            border-radius: 0 !important;
+          }
+          #barcode-reader__scan_region {
+            min-height: 200px;
+          }
+          #barcode-reader__dashboard {
+            display: none !important;
+          }
+        `}</style>
       </div>
     );
   }
