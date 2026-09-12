@@ -1,9 +1,10 @@
-const { app, BrowserWindow, protocol } = require("electron");
+const { app, BrowserWindow, shell } = require("electron");
 const path = require("path");
-const fs = require("fs");
 
-const isDev = !app.isPackaged;
 let mainWindow;
+
+const PRODUCTION_URL = "https://bizora-sigma.vercel.app";
+const DEV_URL = "http://localhost:3000";
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -21,39 +22,29 @@ function createWindow() {
     backgroundColor: "#0a0a0a",
   });
 
-  const indexPath = isDev
-    ? "http://localhost:3000"
-    : `file://${path.join(__dirname, "..", "out", "index.html")}`;
-
-  mainWindow.loadURL(indexPath);
+  const isDev = !app.isPackaged;
+  mainWindow.loadURL(isDev ? DEV_URL : PRODUCTION_URL);
 
   if (isDev) {
     mainWindow.webContents.openDevTools();
   }
+
+  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+    shell.openExternal(url);
+    return { action: "deny" };
+  });
 
   mainWindow.on("closed", () => {
     mainWindow = null;
   });
 }
 
-app.whenReady().then(() => {
-  if (!isDev) {
-    protocol.registerFileProtocol("file", (request, callback) => {
-      const filePath = path.join(__dirname, "..", "out", request.url.slice(7));
-      callback({ path: filePath });
-    });
-  }
-  createWindow();
-});
+app.whenReady().then(createWindow);
 
 app.on("window-all-closed", () => {
-  if (process.platform !== "darwin") {
-    app.quit();
-  }
+  if (process.platform !== "darwin") app.quit();
 });
 
 app.on("activate", () => {
-  if (mainWindow === null) {
-    createWindow();
-  }
+  if (mainWindow === null) createWindow();
 });

@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/shared";
 import { Skeleton } from "@/components/ui/skeleton-cards";
 import { useBusiness } from "@/lib/store";
+import { useDebounce } from "@/lib/hooks";
 import { Search, Plus, Package, ShoppingCart, ScanBarcode } from "lucide-react";
 import { BarcodeScanner } from "@/components/billing/barcode-scanner";
 
@@ -30,6 +31,7 @@ export default function BillingPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const debouncedSearch = useDebounce(search, 300);
   const [scannedProduct, setScannedProduct] = useState<Product | null>(null);
 
   const loadProducts = useCallback(async () => {
@@ -43,14 +45,14 @@ export default function BillingPage() {
       .gt("stock_quantity", 0)
       .order("name");
 
-    if (search) {
-      query = query.or(`name.ilike.%${search}%,sku.ilike.%${search}%,barcode.ilike.%${search}%`);
+    if (debouncedSearch) {
+      query = query.or(`name.ilike.%${debouncedSearch}%,sku.ilike.%${debouncedSearch}%,barcode.ilike.%${debouncedSearch}%`);
     }
 
     const { data } = await query.limit(50);
     setProducts((data as unknown as Product[]) || []);
     setLoading(false);
-  }, [businessId, search]);
+  }, [businessId, debouncedSearch]);
 
   useEffect(() => {
     loadProducts();

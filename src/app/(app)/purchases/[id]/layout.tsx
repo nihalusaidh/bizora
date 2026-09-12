@@ -1,0 +1,9 @@
+export const dynamic = "force-static";
+
+export function generateStaticParams() {
+  return [{ id: "placeholder" }];
+}
+
+export default function PurchaseLayout({ children }: { children: React.ReactNode }) {
+  return <>{children}</>;
+}

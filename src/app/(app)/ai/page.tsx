@@ -1,6 +1,12 @@
 "use client";
 
-import { AiChat } from "@/components/ai/ai-chat";
+import dynamic from "next/dynamic";
+import { PageLoader } from "@/components/ui/skeleton";
+
+const AiChat = dynamic(
+  () => import("@/components/ai/ai-chat").then((mod) => ({ default: mod.AiChat })),
+  { loading: () => <PageLoader />, ssr: false }
+);
 
 export default function AiPage() {
   return (

@@ -43,6 +43,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <head>
+        <link rel="preconnect" href="https://nzfpgkloqwjrsbvdegsx.supabase.co" />
+        <link rel="dns-prefetch" href="https://nzfpgkloqwjrsbvdegsx.supabase.co" />
         <script src="https://checkout.razorpay.com/v1/checkout.js" defer />
       </head>
       <body className="min-h-full flex flex-col">

@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ImageUpload } from "@/components/ui/image-upload";
 import { createProduct, updateProduct, createVariant, updateVariant, deleteVariant } from "@/server/actions/products";
 import { Loader2, ArrowLeft, Plus, Trash2, Package } from "lucide-react";
 
@@ -191,16 +192,14 @@ export function ProductForm({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="image_url">Product Image URL</Label>
-            <Input
-              id="image_url"
-              placeholder="https://example.com/image.jpg"
+            <Label>Product Image</Label>
+            <ImageUpload
+              bucket="product-images"
+              path={`products/${businessId}`}
               value={imageUrl}
-              onChange={(e) => setImageUrl(e.target.value)}
+              onUpload={setImageUrl}
+              onRemove={() => setImageUrl("")}
             />
-            <p className="text-xs text-muted-foreground">
-              Paste a URL to your product image
-            </p>
           </div>
 
           <div className="grid grid-cols-2 gap-4">

@@ -1,5 +1,33 @@
 import { createClient } from "@/lib/supabase/client";
 
+export async function getChartOfAccounts(businessId: string) {
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from("chart_of_accounts")
+    .select("*")
+    .eq("business_id", businessId)
+    .eq("is_active", true)
+    .order("account_code");
+  if (error) throw new Error(error.message);
+  return data;
+}
+
+export async function createAccount(businessId: string, input: {
+  account_code: string;
+  account_name: string;
+  account_type: "asset" | "liability" | "equity" | "revenue" | "expense";
+  parent_account_id?: string;
+}) {
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from("chart_of_accounts")
+    .insert({ ...input, business_id: businessId })
+    .select()
+    .single();
+  if (error) throw new Error(error.message);
+  return data;
+}
+
 export async function getJournalEntries(businessId: string, status?: string) {
   const supabase = createClient();
   let query = supabase
