@@ -4,10 +4,12 @@ import { useState, useCallback } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Check, Sparkles, Gem, Crown, Star, Smartphone, CreditCard } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Check, Sparkles, Gem, Crown, Star, Smartphone, CreditCard, Tag, Loader2 } from "lucide-react";
 import { useAppStore } from "@/lib/store";
 import { useBusiness } from "@/lib/store";
 import { PLAN_CONFIGS, getAvailablePlans } from "@/lib/entitlements";
+import { createClient } from "@/lib/supabase/client";
 
 type BillingCycle = "monthly" | "yearly";
 
@@ -20,6 +22,8 @@ function detectPlatform(): "mobile" | "web" | "desktop" {
 
 const planIcons = { free: Star, gold: Crown, diamond: Gem };
 
+const COUPON_CODE = "bizora@abu";
+
 declare global {
   interface Window {
     Razorpay: any;
@@ -28,6 +32,11 @@ declare global {
 
 export default function SubscriptionPage() {
   const [cycle, setCycle] = useState<BillingCycle>("monthly");
+  const [couponInput, setCouponInput] = useState("");
+  const [couponApplied, setCouponApplied] = useState(false);
+  const [couponLoading, setCouponLoading] = useState(false);
+  const [couponError, setCouponError] = useState("");
+  const [selectedPlanForCoupon, setSelectedPlanForCoupon] = useState<string | null>(null);
   const currentPlan = useAppStore((s) => s.plan);
   const setPlan = useAppStore((s) => s.setPlan);
   const { business, businessId } = useBusiness();
@@ -39,13 +48,50 @@ export default function SubscriptionPage() {
     return plan.monthlyPrice * 12 - plan.yearlyPrice;
   };
 
+  const handleCouponActivate = useCallback(
+    async (planKey: string) => {
+      if (!couponInput.trim()) {
+        setCouponError("Enter a coupon code");
+        return;
+      }
+
+      setCouponLoading(true);
+      setCouponError("");
+
+      // Simulate network delay
+      await new Promise((r) => setTimeout(r, 500));
+
+      if (couponInput.trim().toLowerCase() === COUPON_CODE) {
+        setCouponApplied(true);
+        setSelectedPlanForCoupon(planKey);
+
+        // Update Supabase
+        if (businessId) {
+          const supabase = createClient();
+          await supabase
+            .from("businesses")
+            .update({ plan: planKey, subscription_status: "active" })
+            .eq("id", businessId);
+        }
+
+        // Update local store
+        setPlan(planKey as any);
+      } else {
+        setCouponError("Invalid coupon code");
+      }
+
+      setCouponLoading(false);
+    },
+    [couponInput, businessId, setPlan]
+  );
+
   const handleCheckout = useCallback(
     (planKey: string, amount: number) => {
       if (!businessId || !business) return;
 
       const options = {
         key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "",
-        amount: amount * 100, // convert to paise
+        amount: amount * 100,
         currency: "INR",
         name: "BIZORA",
         description: `${PLAN_CONFIGS[planKey as keyof typeof PLAN_CONFIGS].name} Plan`,
@@ -80,9 +126,7 @@ export default function SubscriptionPage() {
           color: "#DC2626",
         },
         modal: {
-          ondismiss: function () {
-            // User closed the checkout
-          },
+          ondismiss: function () {},
         },
       };
 
@@ -115,6 +159,55 @@ export default function SubscriptionPage() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Coupon Code Section */}
+      {currentPlan === "free" && (
+        <Card className="border-[#DC2626]/30 bg-gradient-to-br from-[#DC2626]/5 to-transparent">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2 mb-3">
+              <Tag className="h-4 w-4 text-[#DC2626]" />
+              <p className="text-sm font-semibold">Have a coupon code?</p>
+            </div>
+            {couponApplied ? (
+              <div className="flex items-center gap-2 text-green-600">
+                <Check className="h-4 w-4" />
+                <p className="text-sm font-medium">
+                  Coupon applied! You now have {PLAN_CONFIGS[selectedPlanForCoupon as keyof typeof PLAN_CONFIGS]?.name} plan.
+                </p>
+              </div>
+            ) : (
+              <div className="flex gap-2">
+                <Input
+                  placeholder="Enter coupon code"
+                  value={couponInput}
+                  onChange={(e) => {
+                    setCouponInput(e.target.value);
+                    setCouponError("");
+                  }}
+                  className="font-mono"
+                />
+                {selectedPlanForCoupon ? (
+                  <Button
+                    onClick={() => handleCouponActivate(selectedPlanForCoupon)}
+                    disabled={couponLoading || !couponInput.trim()}
+                    className="gap-2 shrink-0"
+                  >
+                    {couponLoading ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Check className="h-4 w-4" />
+                    )}
+                    Activate
+                  </Button>
+                ) : null}
+              </div>
+            )}
+            {couponError && (
+              <p className="text-xs text-destructive mt-2">{couponError}</p>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       {/* Mobile notice */}
       {platform === "mobile" && (
@@ -228,22 +321,43 @@ export default function SubscriptionPage() {
                     <Button className="w-full" variant="outline" disabled>
                       Not Available on Mobile
                     </Button>
-                  ) : (
+                  ) : plan.monthlyPrice === 0 ? (
                     <Button
-                      className="w-full gap-2"
-                      variant={isGold ? "default" : "outline"}
-                      onClick={() => {
-                        const price = cycle === "monthly" ? plan.monthlyPrice : plan.yearlyPrice;
-                        if (price > 0) {
-                          handleCheckout(key, price);
-                        } else {
-                          setPlan(key as any);
-                        }
-                      }}
+                      className="w-full"
+                      variant="outline"
+                      onClick={() => setPlan(key as any)}
                     >
-                      {plan.monthlyPrice > 0 && <CreditCard className="h-4 w-4" />}
-                      {plan.monthlyPrice > 0 ? "Pay & Upgrade" : "Upgrade"}
+                      Upgrade
                     </Button>
+                  ) : (
+                    <div className="space-y-2">
+                      <Button
+                        className="w-full gap-2"
+                        variant={isGold ? "default" : "outline"}
+                        onClick={() => {
+                          const price = cycle === "monthly" ? plan.monthlyPrice : plan.yearlyPrice;
+                          if (price > 0) {
+                            handleCheckout(key, price);
+                          } else {
+                            setPlan(key as any);
+                          }
+                        }}
+                      >
+                        <CreditCard className="h-4 w-4" />
+                        Pay & Upgrade
+                      </Button>
+                      {!couponApplied && currentPlan === "free" && (
+                        <Button
+                          className="w-full gap-2"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setSelectedPlanForCoupon(key)}
+                        >
+                          <Tag className="h-4 w-4" />
+                          Use Coupon
+                        </Button>
+                      )}
+                    </div>
                   )}
                 </CardContent>
               </Card>
