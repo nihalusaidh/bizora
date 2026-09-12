@@ -72,6 +72,36 @@ export async function inviteTeamMember(businessId: string, email: string, role: 
 
   if (error) throw new Error(error.message);
 
+  try {
+    const { data: business } = await supabase
+      .from("businesses")
+      .select("name")
+      .eq("id", businessId)
+      .single();
+
+    const { data: { user } } = await supabase.auth.getUser();
+    const { data: profile } = user
+      ? await supabase.from("profiles").select("full_name").eq("id", user.id).single()
+      : { data: null };
+
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+    await fetch(`${appUrl}/api/email/send`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        type: "invite",
+        to: email,
+        data: {
+          businessName: business?.name || "Your Business",
+          inviterName: profile?.full_name || "Team Admin",
+          role,
+        },
+      }),
+    });
+  } catch {
+    // Email failure shouldn't block the invite
+  }
+
   return { success: true };
 }
 

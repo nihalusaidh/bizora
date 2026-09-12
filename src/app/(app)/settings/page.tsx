@@ -3,7 +3,7 @@
 import Link from "next/link";
 import {
   Building2, Receipt, Package, Users, Bell, CreditCard, Shield,
-  ChevronRight, Palette, Printer, FileText, Settings2, Gift, HelpCircle
+  ChevronRight, Palette, Printer, FileText, Settings2, Gift, HelpCircle, FileDown
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -45,6 +45,12 @@ const settingsGroups = [
     label: "Subscription",
     items: [
       { name: "Plans & Billing", description: "Upgrade your plan", href: "/settings/subscription", icon: CreditCard },
+    ],
+  },
+  {
+    label: "Data",
+    items: [
+      { name: "Data Export", description: "Export your business data as CSV", href: "/settings/data-export", icon: FileDown },
     ],
   },
   {

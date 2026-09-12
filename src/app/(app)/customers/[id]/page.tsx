@@ -11,7 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CustomerForm } from "@/components/customers/customer-form";
 import { PaymentForm } from "@/components/customers/payment-form";
 import { CreditForm } from "@/components/customers/credit-form";
-import { getCustomer, deleteCustomer } from "@/server/actions/customers";
+import { getCustomer, deleteCustomer, sendPaymentReminder } from "@/server/actions/customers";
 import { getCustomerPayments } from "@/server/actions/khata";
 import { getCustomerCredit, markCreditPaid } from "@/server/actions/khata";
 import { getLoyaltyBalance } from "@/server/actions/loyalty";
@@ -72,6 +72,7 @@ export default function CustomerDetailPage() {
   const [showEditForm, setShowEditForm] = useState(false);
   const [showPaymentForm, setShowPaymentForm] = useState(false);
   const [showCreditForm, setShowCreditForm] = useState(false);
+  const [sendingReminder, setSendingReminder] = useState(false);
 
   const loadData = useCallback(async () => {
     if (!businessId || !customerId) return;
@@ -97,6 +98,22 @@ export default function CustomerDetailPage() {
   useEffect(() => {
     loadData();
   }, [loadData]);
+
+  const handleSendReminder = async () => {
+    if (!businessId || !customerId) return;
+    const latestPendingCredit = credits.find(c => c.status === "pending" && c.type === "credit");
+    if (!latestPendingCredit) return;
+    setSendingReminder(true);
+    try {
+      await sendPaymentReminder(businessId, customerId, latestPendingCredit.id);
+      alert("Payment reminder sent successfully!");
+    } catch (err) {
+      console.error("Failed to send reminder:", err);
+      alert("Failed to send reminder. Make sure the customer has an email address.");
+    } finally {
+      setSendingReminder(false);
+    }
+  };
 
   const handleDelete = async () => {
     if (!businessId || !customerId) return;
@@ -246,6 +263,19 @@ export default function CustomerDetailPage() {
           Add Credit
         </Button>
       </div>
+
+      {/* Send Reminder Button */}
+      {customer.outstanding_balance > 0 && customer.email && (
+        <Button
+          variant="outline"
+          className="w-full"
+          onClick={handleSendReminder}
+          disabled={sendingReminder}
+        >
+          <Mail className="mr-2 h-4 w-4" />
+          {sendingReminder ? "Sending..." : "Send Email Reminder"}
+        </Button>
+      )}
 
       {/* Payment Reminder */}
       {customer.outstanding_balance > 0 && customer.phone && (

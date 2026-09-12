@@ -6,7 +6,7 @@ import { buttonVariants } from "@/components/ui/button";
 import {
   Settings, CreditCard, Users, HelpCircle, IndianRupee, Bell,
   BarChart3, Package, Receipt, Building2, ChevronRight, Calendar,
-  ShoppingCart, Truck, Store, Megaphone
+  ShoppingCart, Truck, Store, Megaphone, Upload, FileDown
 } from "lucide-react";
 
 const moreSections = [
@@ -21,6 +21,9 @@ const moreSections = [
       { label: "Online Store", href: "/catalogue", icon: Store, description: "Share products with customers" },
       { label: "Notify Customers", href: "/customers/notify", icon: Megaphone, description: "Send stock & offer broadcasts" },
       { label: "Daily Closing", href: "/insights/daily-closing", icon: Calendar, description: "End-of-day summary report" },
+      { label: "Import Products", href: "/inventory/import", icon: Upload, description: "Bulk import products via CSV" },
+      { label: "Import Customers", href: "/customers/import", icon: Upload, description: "Bulk import customers via CSV" },
+      { label: "Data Export", href: "/settings/data-export", icon: FileDown, description: "Export your business data" },
     ],
   },
   {

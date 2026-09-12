@@ -21,6 +21,7 @@ import {
   List,
   ShoppingCart,
   Megaphone,
+  Upload,
 } from "lucide-react";
 
 interface Product {
@@ -92,6 +93,10 @@ export default function InventoryPage() {
             data={formatProductsForCsv(products as unknown as Record<string, unknown>[])}
             filename={`products-${new Date().toISOString().split("T")[0]}`}
           />
+          <Link href="/inventory/import" className="inline-flex items-center justify-center rounded-lg border border-input bg-background px-3 py-2 text-sm font-medium hover:bg-muted transition-colors">
+              <Upload className="mr-2 h-4 w-4" />
+              Import
+          </Link>
           <Link href="/inventory/new" className="inline-flex items-center justify-center rounded-lg bg-primary text-primary-foreground px-4 py-2 text-sm font-medium hover:bg-primary/80 transition-colors">
               <Plus className="mr-2 h-4 w-4" />
               Add Product

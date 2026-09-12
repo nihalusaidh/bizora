@@ -77,3 +77,62 @@ export async function deleteCustomer(businessId: string, customerId: string) {
 
   if (error) throw new Error(error.message);
 }
+
+export async function sendPaymentReminder(
+  businessId: string,
+  customerId: string,
+  invoiceId: string,
+  message?: string
+) {
+  const supabase = createClient();
+
+  const { data: customer, error: customerError } = await supabase
+    .from("customers")
+    .select("name, email")
+    .eq("id", customerId)
+    .eq("business_id", businessId)
+    .single();
+
+  if (customerError || !customer) throw new Error("Customer not found");
+  if (!customer.email) throw new Error("Customer has no email address");
+
+  const { data: invoice, error: invoiceError } = await supabase
+    .from("invoices")
+    .select("invoice_number, total, amount_paid")
+    .eq("id", invoiceId)
+    .eq("business_id", businessId)
+    .single();
+
+  if (invoiceError || !invoice) throw new Error("Invoice not found");
+
+  const { data: business } = await supabase
+    .from("businesses")
+    .select("name")
+    .eq("id", businessId)
+    .single();
+
+  const amountDue = invoice.total - invoice.amount_paid;
+
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  const res = await fetch(`${appUrl}/api/email/send`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      type: "payment-reminder",
+      to: customer.email,
+      data: {
+        customerName: customer.name,
+        amount: amountDue,
+        invoiceNumber: invoice.invoice_number,
+        businessName: business?.name || "Your Business",
+      },
+    }),
+  });
+
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.error || "Failed to send email");
+  }
+
+  return { success: true };
+}
