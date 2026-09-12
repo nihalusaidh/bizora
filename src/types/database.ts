@@ -397,3 +397,35 @@ export interface BarcodeLabelConfig {
   created_at: string;
   updated_at: string;
 }
+
+export type BroadcastTemplateType = "new_stock" | "offer" | "restock" | "back_in_stock" | "custom";
+export type BroadcastChannel = "whatsapp" | "sms" | "both";
+export type BroadcastStatus = "draft" | "sending" | "sent" | "partial" | "failed";
+
+export interface CustomerBroadcast {
+  id: string;
+  business_id: string;
+  title: string;
+  message: string;
+  template_type: BroadcastTemplateType;
+  product_id?: string | null;
+  channel: BroadcastChannel;
+  recipient_count: number;
+  sent_count: number;
+  failed_count: number;
+  status: BroadcastStatus;
+  sent_at?: string | null;
+  created_at: string;
+}
+
+export interface BroadcastRecipient {
+  id: string;
+  broadcast_id: string;
+  customer_id: string;
+  phone?: string | null;
+  channel: "whatsapp" | "sms";
+  status: "pending" | "sent" | "failed" | "read";
+  sent_at?: string | null;
+  error_message?: string | null;
+  created_at: string;
+}
