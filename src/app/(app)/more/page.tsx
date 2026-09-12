@@ -5,7 +5,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { buttonVariants } from "@/components/ui/button";
 import {
   Settings, CreditCard, Users, HelpCircle, IndianRupee, Bell,
-  BarChart3, Package, Receipt, Building2, ChevronRight, Calendar
+  BarChart3, Package, Receipt, Building2, ChevronRight, Calendar,
+  ShoppingCart, Truck, Store
 } from "lucide-react";
 
 const moreSections = [
@@ -14,7 +15,10 @@ const moreSections = [
     items: [
       { label: "Expenses", href: "/expenses", icon: IndianRupee, description: "Track and manage expenses" },
       { label: "Purchases", href: "/purchases", icon: Package, description: "Purchase orders and suppliers" },
+      { label: "Sales Orders", href: "/sales-orders", icon: ShoppingCart, description: "Pre-sale commitments" },
+      { label: "Delivery Challans", href: "/billing/challans", icon: Truck, description: "Goods dispatch tracking" },
       { label: "Suppliers", href: "/suppliers", icon: Building2, description: "Manage your suppliers" },
+      { label: "Online Store", href: "/catalogue", icon: Store, description: "Share products with customers" },
       { label: "Daily Closing", href: "/insights/daily-closing", icon: Calendar, description: "End-of-day summary report" },
     ],
   },

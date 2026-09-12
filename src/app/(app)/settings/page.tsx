@@ -54,6 +54,12 @@ const settingsGroups = [
     ],
   },
   {
+    label: "Security",
+    items: [
+      { name: "App Passcode", description: "Lock app with passcode or biometrics", href: "/settings/security", icon: Shield },
+    ],
+  },
+  {
     label: "Support",
     items: [
       { name: "Help & Support", description: "Get help with Bizora", href: "/help", icon: HelpCircle },

@@ -272,6 +272,55 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
               </CardContent>
             </Card>
           )}
+
+          {/* Batch & Expiry */}
+          {((product as any).batch_number || (product as any).expiry_date || (product as any).mrp) && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base">Batch & Expiry</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {(product as any).batch_number && (
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Batch</span>
+                    <span className="font-medium font-mono">{(product as any).batch_number}</span>
+                  </div>
+                )}
+                {(product as any).mrp && (
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">MRP</span>
+                    <span className="font-medium">₹{(product as any).mrp}</span>
+                  </div>
+                )}
+                {(product as any).manufacturing_date && (
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Mfg Date</span>
+                    <span className="font-medium">{new Date((product as any).manufacturing_date).toLocaleDateString()}</span>
+                  </div>
+                )}
+                {(product as any).expiry_date && (
+                  <div className="flex justify-between items-center">
+                    <span className="text-muted-foreground">Expiry</span>
+                    {(() => {
+                      const exp = new Date((product as any).expiry_date);
+                      const now = new Date();
+                      const daysLeft = Math.ceil((exp.getTime() - now.getTime()) / 86400000);
+                      if (daysLeft < 0) return <Badge variant="destructive">Expired</Badge>;
+                      if (daysLeft <= 30) return <Badge variant="destructive">{daysLeft}d left</Badge>;
+                      if (daysLeft <= 60) return <Badge className="bg-yellow-500/10 text-yellow-600">{daysLeft}d left</Badge>;
+                      return <Badge variant="secondary">{daysLeft}d left</Badge>;
+                    })()}
+                  </div>
+                )}
+                {(product as any).hsn_code && (
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">HSN Code</span>
+                    <span className="font-medium font-mono">{(product as any).hsn_code}</span>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
         </div>
       </div>
     </div>

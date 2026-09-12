@@ -16,6 +16,8 @@ import {
   Calendar,
   TrendingUp,
   Receipt,
+  Scale,
+  BookOpen,
 } from "lucide-react";
 
 interface InsightCard {
@@ -104,6 +106,18 @@ const insightCards: InsightCard[] = [
     description: "Profit and loss breakdown and margins",
     icon: <Receipt className="h-5 w-5" />,
     href: "/insights/profit-loss",
+  },
+  {
+    title: "Balance Sheet",
+    description: "Assets, liabilities, and equity overview",
+    icon: <Scale className="h-5 w-5" />,
+    href: "/insights/balance-sheet",
+  },
+  {
+    title: "Journal Entries",
+    description: "Double-entry bookkeeping ledger",
+    icon: <BookOpen className="h-5 w-5" />,
+    href: "/insights/journal",
   },
 ];
 

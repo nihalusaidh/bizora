@@ -63,6 +63,11 @@ export function ProductForm({
   const [minStock, setMinStock] = useState(product?.min_stock?.toString() || "0");
   const [supplierId, setSupplierId] = useState(product?.supplier_id || "");
   const [hasVariants, setHasVariants] = useState(product?.has_variants || false);
+  const [batchNumber, setBatchNumber] = useState((product as any)?.batch_number || "");
+  const [expiryDate, setExpiryDate] = useState((product as any)?.expiry_date || "");
+  const [manufacturingDate, setManufacturingDate] = useState((product as any)?.manufacturing_date || "");
+  const [mrp, setMrp] = useState((product as any)?.mrp?.toString() || "");
+  const [hsnCode, setHsnCode] = useState((product as any)?.hsn_code || "");
   const [variants, setVariants] = useState(product?.variants || []);
   const [newVariant, setNewVariant] = useState({ name: "", sku: "", cost_price: "", selling_price: "", stock_quantity: "0" });
   const [loading, setLoading] = useState(false);
@@ -89,6 +94,11 @@ export function ProductForm({
         supplier_id: supplierId || null,
         has_variants: hasVariants,
         is_active: true,
+        batch_number: batchNumber || null,
+        expiry_date: expiryDate || null,
+        manufacturing_date: manufacturingDate || null,
+        mrp: mrp ? parseFloat(mrp) : null,
+        hsn_code: hsnCode || null,
       };
 
       if (product) {
@@ -323,6 +333,74 @@ export function ProductForm({
                 ))}
               </SelectContent>
             </Select>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Batch & Expiry */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Batch & Expiry Tracking</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="batchNumber">Batch Number</Label>
+              <Input
+                id="batchNumber"
+                placeholder="e.g. BT-2026-001"
+                value={batchNumber}
+                onChange={(e) => setBatchNumber(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="mrp">MRP (₹)</Label>
+              <Input
+                id="mrp"
+                type="number"
+                step="0.01"
+                min="0"
+                placeholder="Maximum Retail Price"
+                value={mrp}
+                onChange={(e) => setMrp(e.target.value)}
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="manufacturingDate">Manufacturing Date</Label>
+              <Input
+                id="manufacturingDate"
+                type="date"
+                value={manufacturingDate}
+                onChange={(e) => setManufacturingDate(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="expiryDate">Expiry Date</Label>
+              <Input
+                id="expiryDate"
+                type="date"
+                value={expiryDate}
+                onChange={(e) => setExpiryDate(e.target.value)}
+              />
+              {expiryDate && (
+                <p className={`text-xs ${new Date(expiryDate) < new Date(Date.now() + 30 * 86400000) ? "text-[#DC2626]" : "text-muted-foreground"}`}>
+                  {new Date(expiryDate) < new Date() ? "⚠️ Expired" :
+                   new Date(expiryDate) < new Date(Date.now() + 30 * 86400000) ? "⚠️ Expiring within 30 days" :
+                   `Valid for ${Math.ceil((new Date(expiryDate).getTime() - Date.now()) / 86400000)} days`}
+                </p>
+              )}
+            </div>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="hsnCodeBatch">HSN Code (for e-invoice)</Label>
+            <Input
+              id="hsnCodeBatch"
+              placeholder="e.g. 6109"
+              value={hsnCode}
+              onChange={(e) => setHsnCode(e.target.value)}
+            />
           </div>
         </CardContent>
       </Card>

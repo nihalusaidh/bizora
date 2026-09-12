@@ -21,11 +21,16 @@ interface InvoiceItem {
   quantity: number;
   unit: string;
   unit_price: number;
+  cost_price?: number | null;
   discount_percent: number;
   discount_amount: number;
   tax_rate: number;
   tax_amount: number;
   total: number;
+  batch_number?: string | null;
+  expiry_date?: string | null;
+  mrp?: number | null;
+  hsn_code?: string | null;
 }
 
 interface InvoiceData {
@@ -371,6 +376,55 @@ export default function InvoiceDetailPage() {
               )}
             </div>
           </div>
+
+          {/* Profit Summary (hidden on print — internal only) */}
+          {invoice.invoice_items.some((item) => item.cost_price != null && item.cost_price > 0) && (
+            <div className="mt-6 p-4 rounded-xl bg-primary/5 border border-primary/20 print:hidden">
+              <div className="text-sm font-semibold text-primary mb-3">Profit Breakdown</div>
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Revenue (excl. tax)</span>
+                  <span>₹{(invoice.invoice_items.reduce((sum, item) => {
+                    const net = item.unit_price * item.quantity - item.discount_amount;
+                    return sum + net;
+                  }, 0)).toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Cost of Goods</span>
+                  <span className="text-[#DC2626]">-₹{(invoice.invoice_items.reduce((sum, item) => {
+                    const cost = (item.cost_price || 0) * item.quantity;
+                    return sum + cost;
+                  }, 0)).toFixed(2)}</span>
+                </div>
+                <Separator />
+                <div className="flex justify-between text-sm font-bold">
+                  <span>Gross Profit</span>
+                  <span className="text-foreground">
+                    ₹{(invoice.invoice_items.reduce((sum, item) => {
+                      const net = item.unit_price * item.quantity - item.discount_amount;
+                      const cost = (item.cost_price || 0) * item.quantity;
+                      return sum + (net - cost);
+                    }, 0)).toFixed(2)}
+                  </span>
+                </div>
+                <div className="flex justify-between text-xs text-muted-foreground">
+                  <span>Margin</span>
+                  <span>
+                    {(() => {
+                      const revenue = invoice.invoice_items.reduce((sum, item) => {
+                        const net = item.unit_price * item.quantity - item.discount_amount;
+                        return sum + net;
+                      }, 0);
+                      const cost = invoice.invoice_items.reduce((sum, item) => {
+                        return sum + (item.cost_price || 0) * item.quantity;
+                      }, 0);
+                      return revenue > 0 ? ((revenue - cost) / revenue * 100).toFixed(1) : "0.0";
+                    })()}%
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Notes & Terms */}
           {(invoice.notes || invoice.terms) && (
