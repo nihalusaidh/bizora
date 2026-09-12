@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { BarcodeDisplay } from "@/components/inventory/barcode-display";
 import { ExportButton } from "@/components/export/export-button";
 import { formatProductsForCsv } from "@/lib/export";
 import {
@@ -78,14 +77,14 @@ export default function InventoryPage() {
   }, [search]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Inventory</h1>
           <p className="text-muted-foreground">Manage your products, categories & suppliers</p>
         </div>
         <div className="flex gap-2">
-          <Link href="/customers/notify" className="inline-flex items-center justify-center rounded-lg border border-input bg-background px-3 py-2 text-sm font-medium hover:bg-muted transition-colors">
+          <Link href="/customers/notify" className="inline-flex items-center justify-center rounded-lg border border-input bg-background px-3 py-2 text-sm font-medium hover:bg-muted transition-all duration-150 tap-effect">
               <Megaphone className="mr-2 h-4 w-4" />
               Notify Customers
           </Link>
@@ -93,11 +92,11 @@ export default function InventoryPage() {
             data={formatProductsForCsv(products as unknown as Record<string, unknown>[])}
             filename={`products-${new Date().toISOString().split("T")[0]}`}
           />
-          <Link href="/inventory/import" className="inline-flex items-center justify-center rounded-lg border border-input bg-background px-3 py-2 text-sm font-medium hover:bg-muted transition-colors">
+          <Link href="/inventory/import" className="inline-flex items-center justify-center rounded-lg border border-input bg-background px-3 py-2 text-sm font-medium hover:bg-muted transition-all duration-150 tap-effect">
               <Upload className="mr-2 h-4 w-4" />
               Import
           </Link>
-          <Link href="/inventory/new" className="inline-flex items-center justify-center rounded-lg bg-primary text-primary-foreground px-4 py-2 text-sm font-medium hover:bg-primary/80 transition-colors">
+          <Link href="/inventory/new" className="inline-flex items-center justify-center rounded-lg bg-primary text-primary-foreground px-4 py-2 text-sm font-medium hover:bg-primary/80 transition-all duration-150 tap-effect shadow-sm hover:shadow-md">
               <Plus className="mr-2 h-4 w-4" />
               Add Product
           </Link>
@@ -107,58 +106,58 @@ export default function InventoryPage() {
       {/* Quick Navigation */}
       <div className="grid gap-3 md:grid-cols-5">
         <Link href="/inventory/categories">
-          <Card className="hover:bg-muted/50 transition-colors cursor-pointer">
+          <Card className="card-premium cursor-pointer group">
             <CardContent className="flex items-center gap-4 p-4">
-              <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                <Tag className="h-5 w-5 text-primary" />
+              <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center transition-all duration-200 group-hover:bg-[#DC2626]/10 group-hover:scale-110">
+                <Tag className="h-5 w-5 text-primary group-hover:text-[#DC2626] transition-colors" />
               </div>
               <div className="flex-1">
                 <h3 className="font-medium">Categories</h3>
                 <p className="text-sm text-muted-foreground">Organize products</p>
               </div>
-              <ArrowRight className="h-4 w-4 text-muted-foreground" />
+              <ArrowRight className="h-4 w-4 text-muted-foreground transition-transform duration-200 group-hover:translate-x-1" />
             </CardContent>
           </Card>
         </Link>
         <Link href="/suppliers">
-          <Card className="hover:bg-muted/50 transition-colors cursor-pointer">
+          <Card className="card-premium cursor-pointer group">
             <CardContent className="flex items-center gap-4 p-4">
-              <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                <Factory className="h-5 w-5 text-primary" />
+              <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center transition-all duration-200 group-hover:bg-[#DC2626]/10 group-hover:scale-110">
+                <Factory className="h-5 w-5 text-primary group-hover:text-[#DC2626] transition-colors" />
               </div>
               <div className="flex-1">
                 <h3 className="font-medium">Suppliers</h3>
                 <p className="text-sm text-muted-foreground">Manage vendors</p>
               </div>
-              <ArrowRight className="h-4 w-4 text-muted-foreground" />
+              <ArrowRight className="h-4 w-4 text-muted-foreground transition-transform duration-200 group-hover:translate-x-1" />
             </CardContent>
           </Card>
         </Link>
         <Link href="/purchases">
-          <Card className="hover:bg-muted/50 transition-colors cursor-pointer">
+          <Card className="card-premium cursor-pointer group">
             <CardContent className="flex items-center gap-4 p-4">
-              <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                <ShoppingCart className="h-5 w-5 text-primary" />
+              <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center transition-all duration-200 group-hover:bg-[#DC2626]/10 group-hover:scale-110">
+                <ShoppingCart className="h-5 w-5 text-primary group-hover:text-[#DC2626] transition-colors" />
               </div>
               <div className="flex-1">
                 <h3 className="font-medium">Purchase Orders</h3>
                 <p className="text-sm text-muted-foreground">Order stock</p>
               </div>
-              <ArrowRight className="h-4 w-4 text-muted-foreground" />
+              <ArrowRight className="h-4 w-4 text-muted-foreground transition-transform duration-200 group-hover:translate-x-1" />
             </CardContent>
           </Card>
         </Link>
         <Link href="/customers/notify">
-          <Card className="hover:bg-muted/50 transition-colors cursor-pointer">
+          <Card className="card-premium cursor-pointer group">
             <CardContent className="flex items-center gap-4 p-4">
-              <div className="h-10 w-10 rounded-lg bg-green-500/10 flex items-center justify-center">
-                <Megaphone className="h-5 w-5 text-green-500" />
+              <div className="h-10 w-10 rounded-lg bg-green-500/10 flex items-center justify-center transition-all duration-200 group-hover:bg-green-500/20 group-hover:scale-110">
+                <Megaphone className="h-5 w-5 text-green-500 transition-colors" />
               </div>
               <div className="flex-1">
                 <h3 className="font-medium">Notify Customers</h3>
                 <p className="text-sm text-muted-foreground">Stock & offers</p>
               </div>
-              <ArrowRight className="h-4 w-4 text-muted-foreground" />
+              <ArrowRight className="h-4 w-4 text-muted-foreground transition-transform duration-200 group-hover:translate-x-1" />
             </CardContent>
           </Card>
         </Link>
@@ -191,6 +190,7 @@ export default function InventoryPage() {
             variant={viewMode === "grid" ? "secondary" : "ghost"}
             size="icon"
             onClick={() => setViewMode("grid")}
+            className="tap-effect"
           >
             <Grid3X3 className="h-4 w-4" />
           </Button>
@@ -198,6 +198,7 @@ export default function InventoryPage() {
             variant={viewMode === "list" ? "secondary" : "ghost"}
             size="icon"
             onClick={() => setViewMode("list")}
+            className="tap-effect"
           >
             <List className="h-4 w-4" />
           </Button>
@@ -206,11 +207,21 @@ export default function InventoryPage() {
 
       {/* Product List */}
       {loading ? (
-        <div className="text-center py-12">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto" />
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="rounded-xl border bg-card p-4 shimmer-loading">
+              <div className="flex items-start gap-3">
+                <div className="h-16 w-16 rounded-lg bg-muted" />
+                <div className="flex-1 space-y-2">
+                  <div className="h-4 w-32 rounded bg-muted" />
+                  <div className="h-3 w-20 rounded bg-muted" />
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       ) : products.length === 0 ? (
-        <div className="rounded-xl border bg-card p-12 text-center">
+        <div className="rounded-xl border bg-card p-12 text-center animate-fade-in">
           <div className="text-5xl mb-4">📦</div>
           <h3 className="text-lg font-semibold mb-2">
             {search ? "No products found" : "No products yet"}
@@ -221,7 +232,7 @@ export default function InventoryPage() {
               : "Add your first product to start building your inventory."}
           </p>
           {!search && (
-            <Link href="/inventory/new" className="inline-flex items-center justify-center rounded-lg bg-primary text-primary-foreground px-4 py-2 text-sm font-medium hover:bg-primary/80 transition-colors">
+            <Link href="/inventory/new" className="inline-flex items-center justify-center rounded-lg bg-primary text-primary-foreground px-4 py-2 text-sm font-medium hover:bg-primary/80 transition-all duration-150 tap-effect">
                 <Plus className="mr-2 h-4 w-4" />
                 Add Your First Product
             </Link>
@@ -229,16 +240,19 @@ export default function InventoryPage() {
         </div>
       ) : viewMode === "grid" ? (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {products.map((product) => (
+          {products.map((product, i) => (
             <Link key={product.id} href={`/inventory/${product.id}`}>
-              <Card className="hover:bg-muted/50 transition-colors cursor-pointer h-full">
+              <Card
+                className="card-premium cursor-pointer h-full"
+                style={{ animationDelay: `${i * 40}ms` }}
+              >
                 <CardContent className="p-4">
                   <div className="flex items-start gap-3">
                     {product.image_url ? (
                       <img
                         src={product.image_url}
                         alt={product.name}
-                        className="h-16 w-16 rounded-lg object-cover"
+                        className="h-16 w-16 rounded-lg object-cover transition-transform duration-200 group-hover:scale-105"
                       />
                     ) : (
                       <div className="h-16 w-16 rounded-lg bg-muted flex items-center justify-center">
@@ -255,9 +269,9 @@ export default function InventoryPage() {
                       )}
                     </div>
                   </div>
-                  <Separator className="my-3" />
+                  <div className="h-px bg-border my-3" />
                   <div className="flex items-center justify-between">
-                    <span className="font-bold text-lg">₹{product.selling_price}</span>
+                    <span className="font-bold text-lg">₹{product.selling_price.toLocaleString("en-IN")}</span>
                     {product.cost_price > 0 && (
                       <Badge variant="outline">
                         {((product.selling_price - product.cost_price) / product.cost_price * 100).toFixed(0)}% margin
@@ -271,9 +285,12 @@ export default function InventoryPage() {
         </div>
       ) : (
         <div className="space-y-2">
-          {products.map((product) => (
+          {products.map((product, i) => (
             <Link key={product.id} href={`/inventory/${product.id}`}>
-              <Card className="hover:bg-muted/50 transition-colors cursor-pointer">
+              <Card
+                className="card-premium cursor-pointer"
+                style={{ animationDelay: `${i * 30}ms` }}
+              >
                 <CardContent className="flex items-center gap-4 p-4">
                   {product.image_url ? (
                     <img
@@ -294,10 +311,10 @@ export default function InventoryPage() {
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="font-bold">₹{product.selling_price}</p>
+                    <p className="font-bold">₹{product.selling_price.toLocaleString("en-IN")}</p>
                     {product.cost_price > 0 && (
                       <p className="text-xs text-muted-foreground">
-                        Cost: ₹{product.cost_price}
+                        Cost: ₹{product.cost_price.toLocaleString("en-IN")}
                       </p>
                     )}
                   </div>
@@ -309,8 +326,4 @@ export default function InventoryPage() {
       )}
     </div>
   );
-}
-
-function Separator({ className }: { className?: string }) {
-  return <div className={`h-px bg-border ${className}`} />;
 }

@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { useAppStore } from "@/lib/store";
+import { PLAN_CONFIGS } from "@/lib/entitlements";
 import {
   LayoutDashboard,
   Receipt,
@@ -13,6 +15,7 @@ import {
   MoreHorizontal,
   Settings,
   HelpCircle,
+  Zap,
 } from "lucide-react";
 
 const navigation = [
@@ -32,6 +35,7 @@ const bottomNavigation = [
 
 export function Sidebar() {
   const pathname = usePathname();
+  const plan = useAppStore((s) => s.plan);
 
   const isActive = (href: string) =>
     pathname === href || (href !== "/dashboard" && pathname.startsWith(href));
@@ -40,8 +44,8 @@ export function Sidebar() {
     <div className="flex h-full flex-col bg-sidebar text-sidebar-foreground">
       {/* Logo */}
       <div className="flex h-16 items-center px-6 border-b border-sidebar-border">
-        <Link href="/dashboard" className="flex items-center gap-2.5">
-          <div className="h-8 w-8 rounded-lg bg-[#DC2626] flex items-center justify-center">
+        <Link href="/dashboard" className="flex items-center gap-2.5 group">
+          <div className="h-8 w-8 rounded-lg bg-[#DC2626] flex items-center justify-center transition-transform duration-200 group-hover:scale-110">
             <span className="text-white font-bold text-sm tracking-tight">B</span>
           </div>
           <span className="text-lg font-bold tracking-tight text-sidebar-foreground">
@@ -52,26 +56,30 @@ export function Sidebar() {
 
       {/* Main Navigation */}
       <nav className="flex-1 space-y-0.5 px-3 py-2">
-        {navigation.map((item) => {
+        {navigation.map((item, i) => {
           const active = isActive(item.href);
           return (
             <Link
               key={item.name}
               href={item.href}
               className={cn(
-                "group relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-150",
+                "group relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium tap-effect",
+                "transition-all duration-150 ease-out",
                 active
-                  ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                  : "text-muted-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
+                  ? "bg-sidebar-accent text-sidebar-accent-foreground shadow-sm"
+                  : "text-muted-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground hover:translate-x-0.5"
               )}
+              style={{ animationDelay: `${i * 30}ms` }}
             >
               {active && (
-                <div className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-[3px] rounded-r-full bg-sidebar-primary" />
+                <div className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-[3px] rounded-r-full bg-sidebar-primary animate-slideRight" />
               )}
               <item.icon
                 className={cn(
-                  "h-5 w-5 shrink-0 transition-colors",
-                  active ? "text-sidebar-primary" : "text-muted-foreground group-hover:text-sidebar-accent-foreground"
+                  "h-5 w-5 shrink-0 transition-all duration-150",
+                  active
+                    ? "text-sidebar-primary"
+                    : "text-muted-foreground group-hover:text-sidebar-accent-foreground group-hover:scale-110"
                 )}
               />
               {item.name}
@@ -89,7 +97,8 @@ export function Sidebar() {
               key={item.name}
               href={item.href}
               className={cn(
-                "group relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-150",
+                "group relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium tap-effect",
+                "transition-all duration-150 ease-out",
                 active
                   ? "bg-sidebar-accent text-sidebar-accent-foreground"
                   : "text-muted-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
@@ -112,9 +121,20 @@ export function Sidebar() {
 
       {/* Plan Badge */}
       <div className="px-4 pb-4">
-        <div className="rounded-lg bg-sidebar-accent border border-sidebar-border px-3 py-2 text-center">
-          <span className="text-xs text-muted-foreground">Free Plan</span>
-        </div>
+        <Link
+          href="/settings/subscription"
+          className={cn(
+            "flex items-center justify-center gap-2 rounded-lg border px-3 py-2 text-center transition-all duration-200 hover:scale-[1.02]",
+            plan === "diamond"
+              ? "bg-gradient-to-r from-purple-500/10 to-blue-500/10 border-purple-500/20 text-purple-600"
+              : plan === "gold"
+              ? "bg-gradient-to-r from-yellow-500/10 to-orange-500/10 border-yellow-500/20 text-yellow-600"
+              : "bg-sidebar-accent border-sidebar-border text-muted-foreground"
+          )}
+        >
+          {plan !== "free" && <Zap className="h-3 w-3" />}
+          <span className="text-xs font-semibold">{PLAN_CONFIGS[plan].name} Plan</span>
+        </Link>
       </div>
     </div>
   );

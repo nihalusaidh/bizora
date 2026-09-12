@@ -103,21 +103,25 @@ export function DashboardMetrics({ businessId }: DashboardMetricsProps) {
         title="Today's Sales"
         value={formatCurrency(metrics?.todaySales || 0)}
         icon={<IndianRupee className="h-4 w-4" />}
+        index={0}
       />
       <MetricCard
         title="Bills"
         value={String(metrics?.todayBills || 0)}
         icon={<Receipt className="h-4 w-4" />}
+        index={1}
       />
       <MetricCard
         title="Month's Profit"
         value={formatCurrency(metrics?.monthProfit || 0)}
         icon={<TrendingUp className="h-4 w-4" />}
+        index={2}
       />
       <MetricCard
         title="Outstanding"
         value={formatCurrency(metrics?.outstanding || 0)}
         icon={<Users className="h-4 w-4" />}
+        index={3}
       />
     </div>
   );

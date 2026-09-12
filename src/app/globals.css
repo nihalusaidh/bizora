@@ -298,6 +298,139 @@
 }
 
 /* ═══════════════════════════════════════════════════════
+   PREMIUM BIZORA ANIMATIONS
+   ═══════════════════════════════════════════════════════ */
+
+@keyframes premiumFadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes premiumScaleSpring {
+  0% { opacity: 0; transform: scale(0.92); }
+  60% { transform: scale(1.02); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes premiumGlow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
+  50% { box-shadow: 0 0 20px 4px rgba(220, 38, 38, 0.08); }
+}
+
+@keyframes premiumShimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes premiumPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+@keyframes premiumSlideRight {
+  from { opacity: 0; transform: translateX(-12px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes premiumSlideDown {
+  from { opacity: 0; transform: translateY(-8px); max-height: 0; }
+  to { opacity: 1; transform: translateY(0); max-height: 500px; }
+}
+
+@keyframes premiumCountUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes premiumCardHover {
+  from { transform: translateY(0); }
+  to { transform: translateY(-2px); }
+}
+
+@keyframes premiumBorderGlow {
+  0%, 100% { border-color: rgba(220, 38, 38, 0.1); }
+  50% { border-color: rgba(220, 38, 38, 0.3); }
+}
+
+/* Staggered entry for lists */
+.stagger-1 { animation-delay: 0ms; }
+.stagger-2 { animation-delay: 30ms; }
+.stagger-3 { animation-delay: 60ms; }
+.stagger-4 { animation-delay: 90ms; }
+.stagger-5 { animation-delay: 120ms; }
+.stagger-6 { animation-delay: 150ms; }
+.stagger-7 { animation-delay: 180ms; }
+.stagger-8 { animation-delay: 210ms; }
+
+/* Premium card interactions */
+.card-premium {
+  transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+.card-premium:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px -5px rgba(0, 0, 0, 0.08), 0 4px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Metric card pulse on load */
+.metric-pulse {
+  animation: premiumFadeUp 400ms cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+/* Shimmer loading effect */
+.shimmer-loading {
+  background: linear-gradient(90deg, var(--muted) 25%, var(--muted-foreground)/10 50%, var(--muted) 75%);
+  background-size: 200% 100%;
+  animation: premiumShimmer 1.5s ease-in-out infinite;
+}
+
+/* Tap effect for mobile */
+.tap-effect {
+  transition: transform 100ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.tap-effect:active {
+  transform: scale(0.97);
+}
+
+/* Premium focus ring */
+.focus-premium:focus-visible {
+  outline: 2px solid var(--red);
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+
+/* Sidebar active indicator */
+.sidebar-active {
+  position: relative;
+}
+.sidebar-active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 60%;
+  background: var(--red);
+  border-radius: 0 3px 3px 0;
+  animation: premiumSlideRight 200ms ease-out;
+}
+
+/* Premium fade up for staggered lists */
+.premium-fade-up {
+  animation: premiumFadeUp 300ms cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+/* Sidebar slide right indicator */
+@keyframes slideRight {
+  from { opacity: 0; height: 0; }
+  to { opacity: 1; height: 60%; }
+}
+.animate-slideRight {
+  animation: slideRight 200ms ease-out;
+}
+
+/* ═══════════════════════════════════════════════════════
    TOUCH & MOBILE
    ═══════════════════════════════════════════════════════ */
 

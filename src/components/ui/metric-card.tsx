@@ -10,6 +10,7 @@ interface MetricCardProps {
   changeType?: "positive" | "negative" | "neutral";
   icon?: React.ReactNode;
   className?: string;
+  index?: number;
 }
 
 export function MetricCard({
@@ -20,28 +21,33 @@ export function MetricCard({
   changeType = "neutral",
   icon,
   className,
+  index = 0,
 }: MetricCardProps) {
   const displayLabel = title || label;
 
   return (
     <div
       className={cn(
-        "rounded-xl border border-border bg-card p-4 transition-all hover:shadow-sm",
+        "group rounded-xl border border-border bg-card p-5",
+        "transition-all duration-200 ease-out",
+        "hover:shadow-lg hover:shadow-black/5 hover:-translate-y-0.5 hover:border-border/80",
+        "metric-pulse",
         className
       )}
+      style={{ animationDelay: `${index * 60}ms` }}
     >
       <div className="flex items-start justify-between">
         <div className="flex-1">
-          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
             {displayLabel}
           </p>
-          <p className="mt-1.5 text-2xl font-bold tracking-tight financial-number text-foreground">
+          <p className="mt-2 text-2xl font-bold tracking-tight financial-number text-foreground">
             {value}
           </p>
           {change && (
             <p
               className={cn(
-                "mt-1 text-xs font-medium",
+                "mt-1.5 text-xs font-medium",
                 changeType === "positive" && "text-foreground",
                 changeType === "negative" && "text-[#DC2626]",
                 changeType === "neutral" && "text-muted-foreground"
@@ -52,7 +58,7 @@ export function MetricCard({
           )}
         </div>
         {icon && (
-          <div className="rounded-lg bg-muted p-2 text-muted-foreground">
+          <div className="rounded-xl bg-muted p-2.5 text-muted-foreground transition-all duration-200 group-hover:bg-[#DC2626]/10 group-hover:text-[#DC2626] group-hover:scale-110">
             {icon}
           </div>
         )}
