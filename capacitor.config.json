@@ -1,9 +1,9 @@
 {
   "appId": "app.bizora.operating",
   "appName": "BIZORA",
-  "webDir": "out",
   "server": {
     "androidScheme": "https",
+    "url": "https://bizora-sigma.vercel.app",
     "cleartext": false
   },
   "plugins": {

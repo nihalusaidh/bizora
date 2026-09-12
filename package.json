@@ -12,14 +12,11 @@
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "typecheck": "tsc --noEmit",
-    "build:cap": "CAPACITOR=true next build",
+    "cap:open": "npx cap open android",
     "cap:sync": "npx cap sync",
-    "cap:android": "npx cap open android",
-    "cap:ios": "npx cap open ios",
-    "cap:build:apk": "npm run build:cap && npx cap sync android && cd android && ./gradlew assembleDebug",
-    "electron:dev": "npm run build:cap && electron .",
-    "electron:build": "npm run build:cap && electron-builder --win --mac --linux",
-    "electron:build:win": "npm run build:cap && electron-builder --win"
+    "electron:dev": "electron .",
+    "electron:build": "electron-builder --win --mac --linux",
+    "electron:build:win": "electron-builder --win"
   },
   "dependencies": {
     "@base-ui/react": "^1.8.0",
