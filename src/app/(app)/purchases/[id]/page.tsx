@@ -16,7 +16,7 @@ import {
 } from "@/server/actions/purchase-orders";
 import { useBusiness } from "@/lib/store";
 import {
-  ArrowLeft, CheckCircle, Trash2, Truck, Package, Clock, Send
+  ArrowLeft, CheckCircle, Trash2, Truck, Package, Clock, Send, Megaphone
 } from "lucide-react";
 
 interface POItem {
@@ -320,6 +320,16 @@ export default function PurchaseOrderDetailPage() {
           {saving ? null : <Truck className="mr-2 h-4 w-4" />}
           {saving ? "Saving..." : "Save Received Quantities"}
         </Button>
+      )}
+
+      {/* Notify Customers after receiving */}
+      {(po.status === "received" || po.status === "partial") && (
+        <Link href={`/customers/notify?type=restock&product=${encodeURIComponent(po.purchase_order_items?.map((i: POItem) => i.name).join(", ") || "")}`}>
+          <Button variant="outline" className="w-full bg-green-500/5 border-green-500/20 text-green-700 hover:bg-green-500/10">
+            <Megaphone className="mr-2 h-4 w-4" />
+            Notify Customers — Stock Arrived
+          </Button>
+        </Link>
       )}
     </div>
   );
