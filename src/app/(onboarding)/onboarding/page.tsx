@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { createBusiness } from "@/server/actions/business";
+import { PlatformStep } from "@/components/onboarding/platform-step";
 import { BusinessTypeStep } from "@/components/onboarding/business-type-step";
 import { BusinessNameStep } from "@/components/onboarding/business-name-step";
 import { CurrencyStep } from "@/components/onboarding/currency-step";
@@ -95,7 +96,7 @@ export default function OnboardingPage() {
     );
   }
 
-  const totalSteps = 7;
+  const totalSteps = 8;
   const progress = ((step + 1) / totalSteps) * 100;
 
   return (
@@ -103,35 +104,35 @@ export default function OnboardingPage() {
       <ProgressBar progress={progress} currentStep={step + 1} totalSteps={totalSteps} />
 
       {step === 0 && (
+        <PlatformStep
+          onSelect={(platform) => {
+            if (platform === "desktop" || platform === "android") {
+              window.location.href = "/download";
+            } else {
+              setStep(1);
+            }
+          }}
+        />
+      )}
+
+      {step === 1 && (
         <>
           <DemoMode />
           <BusinessTypeStep
             value={data.business_type}
             onSelect={(type) => {
               updateData({ business_type: type });
-              setStep(1);
+              setStep(2);
             }}
           />
         </>
       )}
 
-      {step === 1 && (
+      {step === 2 && (
         <BusinessNameStep
           value={data.business_name}
           onSubmit={(name) => {
             updateData({ business_name: name });
-            setStep(2);
-          }}
-          onBack={() => setStep(0)}
-        />
-      )}
-
-      {step === 2 && (
-        <CurrencyStep
-          currency={data.currency}
-          currencySymbol={data.currency_symbol}
-          onSelect={(currency, symbol) => {
-            updateData({ currency, currency_symbol: symbol });
             setStep(3);
           }}
           onBack={() => setStep(1)}
@@ -139,11 +140,11 @@ export default function OnboardingPage() {
       )}
 
       {step === 3 && (
-        <GstStep
-          status={data.gst_status}
-          gstin={data.gstin}
-          onSelect={(status, gstin) => {
-            updateData({ gst_status: status, gstin: gstin || "" });
+        <CurrencyStep
+          currency={data.currency}
+          currencySymbol={data.currency_symbol}
+          onSelect={(currency, symbol) => {
+            updateData({ currency, currency_symbol: symbol });
             setStep(4);
           }}
           onBack={() => setStep(2)}
@@ -151,10 +152,11 @@ export default function OnboardingPage() {
       )}
 
       {step === 4 && (
-        <BusinessSizeStep
-          value={data.business_size}
-          onSelect={(size) => {
-            updateData({ business_size: size });
+        <GstStep
+          status={data.gst_status}
+          gstin={data.gstin}
+          onSelect={(status, gstin) => {
+            updateData({ gst_status: status, gstin: gstin || "" });
             setStep(5);
           }}
           onBack={() => setStep(3)}
@@ -162,13 +164,24 @@ export default function OnboardingPage() {
       )}
 
       {step === 5 && (
-        <ImportStep
-          onNext={() => setStep(6)}
+        <BusinessSizeStep
+          value={data.business_size}
+          onSelect={(size) => {
+            updateData({ business_size: size });
+            setStep(6);
+          }}
           onBack={() => setStep(4)}
         />
       )}
 
       {step === 6 && (
+        <ImportStep
+          onNext={() => setStep(7)}
+          onBack={() => setStep(5)}
+        />
+      )}
+
+      {step === 7 && (
         <ReadyStep
           businessName={data.business_name}
           onComplete={handleComplete}

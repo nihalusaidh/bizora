@@ -2,15 +2,20 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { APP_NAME } from "@/lib/constants";
-import { Eye, EyeOff, Loader2 } from "lucide-react";
+import { Eye, EyeOff, Loader2, Monitor, Smartphone, Download, ArrowRight, CheckCircle2 } from "lucide-react";
+
+type Step = "signup" | "platform";
 
 export default function SignupPage() {
+  const router = useRouter();
+  const [step, setStep] = useState<Step>("signup");
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -18,7 +23,6 @@ export default function SignupPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState(false);
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,28 +52,85 @@ export default function SignupPage() {
       return;
     }
 
-    setSuccess(true);
+    setStep("platform");
     setLoading(false);
   };
 
-  if (success) {
+  const handlePlatformChoice = (platform: string) => {
+    if (platform === "web") {
+      router.push("/onboarding");
+    } else if (platform === "desktop") {
+      window.location.href = "/download";
+    } else if (platform === "android") {
+      window.location.href = "/download";
+    }
+  };
+
+  if (step === "platform") {
     return (
-      <Card>
+      <Card className="max-w-lg">
         <CardHeader className="text-center">
+          <div className="mx-auto mb-3 h-12 w-12 rounded-full bg-green-500/10 flex items-center justify-center">
+            <CheckCircle2 className="h-6 w-6 text-green-600" />
+          </div>
           <CardTitle className="text-2xl font-bold tracking-tight">
-            {APP_NAME}
+            Account Created!
           </CardTitle>
-          <CardDescription>Check your email</CardDescription>
+          <CardDescription>
+            Welcome to {APP_NAME}. How would you like to use it?
+          </CardDescription>
         </CardHeader>
-        <CardContent className="text-center space-y-4">
-          <p className="text-muted-foreground">
-            We&apos;ve sent a confirmation link to <strong>{email}</strong>.
-            Please check your inbox and click the link to verify your account.
-          </p>
-          <Link href="/login" className="inline-flex items-center justify-center rounded-lg border bg-background px-4 py-2 text-sm font-medium hover:bg-muted transition-colors">
-            Back to Sign In
-          </Link>
+        <CardContent className="space-y-3">
+          {/* Web */}
+          <button
+            onClick={() => handlePlatformChoice("web")}
+            className="w-full flex items-center gap-4 p-4 rounded-xl border-2 border-border hover:border-[#DC2626] hover:bg-[#DC2626]/5 transition-all duration-200 text-left group"
+          >
+            <div className="h-12 w-12 rounded-lg bg-[#DC2626]/10 flex items-center justify-center shrink-0 group-hover:bg-[#DC2626]/20 transition-colors">
+              <Monitor className="h-6 w-6 text-[#DC2626]" />
+            </div>
+            <div className="flex-1">
+              <h3 className="font-semibold">Use on Web</h3>
+              <p className="text-sm text-muted-foreground">Open in browser — no download needed</p>
+            </div>
+            <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-[#DC2626] transition-colors" />
+          </button>
+
+          {/* Desktop */}
+          <button
+            onClick={() => handlePlatformChoice("desktop")}
+            className="w-full flex items-center gap-4 p-4 rounded-xl border-2 border-border hover:border-[#DC2626] hover:bg-[#DC2626]/5 transition-all duration-200 text-left group"
+          >
+            <div className="h-12 w-12 rounded-lg bg-blue-500/10 flex items-center justify-center shrink-0 group-hover:bg-blue-500/20 transition-colors">
+              <Download className="h-6 w-6 text-blue-600" />
+            </div>
+            <div className="flex-1">
+              <h3 className="font-semibold">Download for Windows</h3>
+              <p className="text-sm text-muted-foreground">Desktop app — works offline</p>
+            </div>
+            <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-[#DC2626] transition-colors" />
+          </button>
+
+          {/* Android */}
+          <button
+            onClick={() => handlePlatformChoice("android")}
+            className="w-full flex items-center gap-4 p-4 rounded-xl border-2 border-border hover:border-[#DC2626] hover:bg-[#DC2626]/5 transition-all duration-200 text-left group"
+          >
+            <div className="h-12 w-12 rounded-lg bg-green-500/10 flex items-center justify-center shrink-0 group-hover:bg-green-500/20 transition-colors">
+              <Smartphone className="h-6 w-6 text-green-600" />
+            </div>
+            <div className="flex-1">
+              <h3 className="font-semibold">Download for Android</h3>
+              <p className="text-sm text-muted-foreground">Mobile app — scan barcodes on the go</p>
+            </div>
+            <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-[#DC2626] transition-colors" />
+          </button>
         </CardContent>
+        <CardFooter>
+          <p className="text-xs text-center text-muted-foreground w-full">
+            You can always change this later in Settings
+          </p>
+        </CardFooter>
       </Card>
     );
   }
