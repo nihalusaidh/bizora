@@ -9,7 +9,7 @@ export async function getExpenseCategories(businessId: string) {
   const { data, error } = await supabase
     .from("expense_categories")
     .select("*")
-    .eq("business_id", businessId)
+    .eq("business_id", auth.businessId)
     .eq("is_active", true)
     .order("name", { ascending: true });
 
@@ -29,7 +29,7 @@ export async function createExpenseCategory(businessId: string, input: ExpenseCa
 
   const { data, error } = await supabase
     .from("expense_categories")
-    .insert({ ...parsed.data, business_id: businessId })
+    .insert({ ...parsed.data, business_id: auth.businessId })
     .select()
     .single();
 
@@ -49,7 +49,7 @@ export async function updateExpenseCategory(
   const { data, error } = await supabase
     .from("expense_categories")
     .update(input)
-    .eq("business_id", businessId)
+    .eq("business_id", auth.businessId)
     .eq("id", categoryId)
     .select()
     .single();
@@ -66,7 +66,7 @@ export async function deleteExpenseCategory(businessId: string, categoryId: stri
   const { error } = await supabase
     .from("expense_categories")
     .update({ is_active: false })
-    .eq("business_id", businessId)
+    .eq("business_id", auth.businessId)
     .eq("id", categoryId);
 
   if (error) throw new Error(error.message);
@@ -81,7 +81,7 @@ export async function seedDefaultCategories(businessId: string) {
 
   const categories = EXPENSE_CATEGORIES_DEFAULTS.map((cat) => ({
     ...cat,
-    business_id: businessId,
+    business_id: auth.businessId,
   }));
 
   const { data, error } = await supabase

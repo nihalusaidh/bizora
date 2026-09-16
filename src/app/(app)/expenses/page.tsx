@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,7 +15,7 @@ import { getExpenseCategories } from "@/server/actions/expense-categories";
 import { useBusiness } from "@/lib/store";
 import {
   Search, Plus, Trash2, Edit, Tag, IndianRupee,
-  Calendar, CreditCard, Repeat, ArrowLeft, BarChart3
+  Calendar, Repeat, ArrowLeft, BarChart3
 } from "lucide-react";
 
 interface Expense {

@@ -69,7 +69,7 @@ export function UpiQr({ amount, upiId, customerName }: UpiQrProps) {
         {/* QR Code */}
         <div className="rounded-lg bg-white p-4 flex flex-col items-center space-y-3 border border-border">
           {qrDataUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
+             
             <img
               src={qrDataUrl}
               alt={`UPI QR Code for ₹${amount}`}

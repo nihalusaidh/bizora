@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { CheckCircle, MessageCircle, Printer, Download, ArrowRight, Home, ChevronDown, ChevronUp, Gift, Smartphone } from "lucide-react";
 import Link from "next/link";
-import { printInvoice, shareInvoiceViaWhatsApp, type InvoicePdfData } from "@/lib/invoice-pdf";
+import { printInvoice, shareInvoiceViaWhatsApp, generateInvoiceHtml, type InvoicePdfData } from "@/lib/invoice-pdf";
 import { UpiQr } from "@/components/billing/upi-qr";
 
 interface BillCompleteProps {
@@ -28,7 +28,6 @@ export function BillComplete({ invoice, amountPaid, pointsEarned, upiId }: BillC
   };
 
   const handleDownload = () => {
-    const { generateInvoiceHtml } = require("@/lib/invoice-pdf");
     const printWindow = window.open("", "_blank");
     if (printWindow) {
       printWindow.document.write(generateInvoiceHtml(invoice));

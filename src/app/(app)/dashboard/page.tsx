@@ -1,6 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import { APP_NAME } from "@/lib/constants";
 import { DashboardInsights } from "@/components/ai/dashboard-insights";
 import { DashboardMetrics } from "@/components/dashboard/dashboard-metrics";
 import { BusinessHealth } from "@/components/dashboard/business-health";

@@ -5,10 +5,9 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
 import { useBusiness } from "@/lib/store";
 import { getLoyaltySettings, updateLoyaltySettings, type LoyaltySettings } from "@/server/actions/loyalty";
-import { Gift, Save, Loader2, Star, Award, Settings } from "lucide-react";
+import { Gift, Save, Loader2, Star, Award } from "lucide-react";
 
 export default function LoyaltySettingsPage() {
   const { businessId } = useBusiness();

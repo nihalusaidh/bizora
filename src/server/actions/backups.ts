@@ -8,7 +8,7 @@ export async function createBackup(businessId: string) {
   // Create backup record
   const { data: backup, error } = await supabase
     .from("db_backups")
-    .insert({ business_id: businessId, backup_type: "manual", status: "running" })
+    .insert({ business_id: auth.businessId, backup_type: "manual", status: "running" })
     .select()
     .single();
   
@@ -22,7 +22,7 @@ export async function createBackup(businessId: string) {
     const { data } = await supabase
       .from(table)
       .select("*")
-      .eq("business_id", businessId);
+      .eq("business_id", auth.businessId);
     backupData[table] = data || [];
   }
 
@@ -31,7 +31,7 @@ export async function createBackup(businessId: string) {
   const blob = new Blob([jsonStr], { type: "application/json" });
 
   // Upload to storage
-  const fileName = `backups/${businessId}/${new Date().toISOString().split("T")[0]}.json`;
+  const fileName = `backups/${auth.businessId}/${new Date().toISOString().split("T")[0]}.json`;
   const { error: uploadError } = await supabase.storage
     .from("db-backups")
     .upload(fileName, blob, { contentType: "application/json" });
@@ -62,7 +62,7 @@ export async function getBackups(businessId: string) {
   const { data, error } = await supabase
     .from("db_backups")
     .select("*")
-    .eq("business_id", businessId)
+    .eq("business_id", auth.businessId)
     .order("created_at", { ascending: false });
   if (error) throw new Error(error.message);
   return data;
@@ -77,7 +77,7 @@ export async function restoreBackup(businessId: string, backupId: string) {
     .from("db_backups")
     .select("*")
     .eq("id", backupId)
-    .eq("business_id", businessId)
+    .eq("business_id", auth.businessId)
     .single();
   
   if (error || !backup?.file_path) throw new Error("Backup not found");
@@ -98,7 +98,7 @@ export async function restoreBackup(businessId: string, backupId: string) {
   for (const table of tables) {
     if (!data[table]?.length) continue;
     // Delete existing and insert backup
-    await supabase.from(table).delete().eq("business_id", businessId);
+    await supabase.from(table).delete().eq("business_id", auth.businessId);
     if (data[table].length > 0) {
       await supabase.from(table).insert(data[table]);
     }

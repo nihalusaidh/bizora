@@ -1,7 +1,7 @@
 import { requireBusiness } from "@/lib/auth";
 import { genai, AI_MODEL, SYSTEM_PROMPT, type ChatMessage } from "@/lib/ai";
 
-const AI_ENABLED = typeof window !== "undefined" && !!process.env.NEXT_PUBLIC_GEMINI_API_KEY && process.env.NEXT_PUBLIC_GEMINI_API_KEY !== "your-gemini-api-key-here";
+const AI_ENABLED = !!process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY !== "your-gemini-api-key-here";
 
 interface ChatSession {
   id: string;
@@ -169,7 +169,7 @@ export async function sendChatMessage(
   if (userMsgError) throw userMsgError;
 
   if (!AI_ENABLED) {
-    const fallback = "AI features require a valid Gemini API key. Add NEXT_PUBLIC_GEMINI_API_KEY to your .env.local file to enable this feature.";
+    const fallback = "AI features require a valid Gemini API key. Add GEMINI_API_KEY to your .env.local file to enable this feature.";
     await supabase
       .from("ai_chat_messages" as never)
       .insert({ session_id: sessionId, role: "model", content: fallback } as never);
@@ -237,7 +237,7 @@ export async function sendChatMessage(
 
 export async function getQuickInsights(businessId: string): Promise<string[]> {
   if (!AI_ENABLED) {
-    return ["AI features require a valid Gemini API key. Add NEXT_PUBLIC_GEMINI_API_KEY to .env.local to enable."];
+    return ["AI features require a valid Gemini API key. Add GEMINI_API_KEY to .env.local to enable."];
   }
 
   const auth = await requireBusiness();

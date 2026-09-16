@@ -37,7 +37,7 @@ export async function getCustomersWithPhone(businessId: string) {
   const { data, error } = await supabase
     .from("customers")
     .select("id, name, phone")
-    .eq("business_id", businessId)
+    .eq("business_id", auth.businessId)
     .eq("is_active", true)
     .not("phone", "is", null)
     .order("name");
@@ -61,6 +61,7 @@ export async function createBroadcast(businessId: string, input: {
   const { data: customers } = await supabase
     .from("customers")
     .select("id, phone")
+    .eq("business_id", auth.businessId)
     .in("id", input.customer_ids);
 
   const recipients = (customers || []).filter((c) => c.phone && c.phone.length >= 10);
@@ -68,7 +69,7 @@ export async function createBroadcast(businessId: string, input: {
   const { data: broadcast, error: bError } = await supabase
     .from("customer_broadcasts")
     .insert({
-      business_id: businessId,
+      business_id: auth.businessId,
       title: input.title,
       message: input.message,
       template_type: input.template_type,
@@ -106,7 +107,7 @@ export async function sendBroadcastWhatsApp(businessId: string, broadcastId: str
   const { data: broadcast, error: bError } = await supabase
     .from("customer_broadcasts")
     .select("*, customer_broadcast_recipients(*)")
-    .eq("business_id", businessId)
+    .eq("business_id", auth.businessId)
     .eq("id", broadcastId)
     .single();
 
@@ -163,7 +164,7 @@ export async function getBroadcasts(businessId: string) {
   const { data, error } = await supabase
     .from("customer_broadcasts")
     .select("*")
-    .eq("business_id", businessId)
+    .eq("business_id", auth.businessId)
     .order("created_at", { ascending: false });
 
   if (error) throw new Error(error.message);
@@ -178,7 +179,7 @@ export async function deleteBroadcast(businessId: string, broadcastId: string) {
   const { error } = await supabase
     .from("customer_broadcasts")
     .delete()
-    .eq("business_id", businessId)
+    .eq("business_id", auth.businessId)
     .eq("id", broadcastId);
 
   if (error) throw new Error(error.message);

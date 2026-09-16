@@ -18,7 +18,19 @@ export async function POST(request: NextRequest) {
   }
 
   const { subscription, businessId } = await request.json();
-  
+
+  const { data: membership } = await supabase
+    .from("memberships")
+    .select("business_id")
+    .eq("user_id", user.id)
+    .eq("business_id", businessId)
+    .limit(1)
+    .single();
+
+  if (!membership) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
   const { error } = await supabase.from("push_subscriptions").upsert({
     business_id: businessId,
     endpoint: subscription.endpoint,

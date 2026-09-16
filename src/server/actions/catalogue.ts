@@ -26,7 +26,7 @@ export async function getCatalogueProducts(businessId: string, categoryId?: stri
       category:categories(id, name, icon),
       variants:product_variants(id, name, selling_price, sku, stock_quantity, attributes)
     `)
-    .eq("business_id", businessId)
+    .eq("business_id", auth.businessId)
     .eq("is_active", true)
     .order("name", { ascending: true });
 
@@ -46,7 +46,7 @@ export async function getCatalogueCategories(businessId: string) {
   const { data, error } = await supabase
     .from("categories")
     .select("id, name, icon, color")
-    .eq("business_id", businessId)
+    .eq("business_id", auth.businessId)
     .eq("is_active", true)
     .order("sort_order", { ascending: true });
 

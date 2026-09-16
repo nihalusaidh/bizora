@@ -4,7 +4,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import {
   HelpCircle, MessageCircle, BookOpen, Mail, ExternalLink
 } from "lucide-react";
-import Link from "next/link";
 
 const helpTopics = [
   {

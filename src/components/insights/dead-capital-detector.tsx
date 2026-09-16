@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Package, IndianRupee, ExternalLink } from "lucide-react";
+import { Package, ExternalLink } from "lucide-react";
 
 interface DeadCapitalDetectorProps {
   businessId: string;

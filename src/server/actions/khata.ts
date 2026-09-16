@@ -1,4 +1,4 @@
-import { requireAuth, requireBusiness } from "@/lib/auth";
+import { requireBusiness } from "@/lib/auth";
 import {
   customerPaymentSchema,
   customerCreditSchema,
@@ -7,13 +7,14 @@ import {
 } from "@/lib/validators/customers";
 
 export async function getCustomerPayments(customerId: string) {
-  const auth = await requireAuth();
-  if (auth.error || !auth.supabase) return { error: auth.error };
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
   const supabase = auth.supabase;
   const { data, error } = await supabase
     .from("customer_payments")
     .select("*")
     .eq("customer_id", customerId)
+    .eq("business_id", auth.businessId)
     .order("created_at", { ascending: false });
 
   if (error) throw new Error(error.message);
@@ -37,7 +38,7 @@ export async function addCustomerPayment(
   const { error: paymentError } = await supabase.from("customer_payments").insert({
     ...parsed.data,
     customer_id: customerId,
-    business_id: businessId,
+    business_id: auth.businessId,
   });
 
   if (paymentError) throw new Error(paymentError.message);
@@ -76,7 +77,7 @@ export async function getCustomerCredit(businessId: string, customerId: string) 
   const { data, error } = await supabase
     .from("customer_credit")
     .select("*")
-    .eq("business_id", businessId)
+    .eq("business_id", auth.businessId)
     .eq("customer_id", customerId)
     .order("created_at", { ascending: false });
 
@@ -105,7 +106,7 @@ export async function addCustomerCredit(
     type: "credit",
     status: "pending",
     customer_id: customerId,
-    business_id: businessId,
+    business_id: auth.businessId,
   });
 
   if (creditError) throw new Error(creditError.message);
@@ -150,7 +151,7 @@ export async function markCreditPaid(
   const { error: creditError } = await supabase
     .from("customer_credit")
     .update({ status: "paid" })
-    .eq("business_id", businessId)
+    .eq("business_id", auth.businessId)
     .eq("id", creditId);
 
   if (creditError) throw new Error(creditError.message);

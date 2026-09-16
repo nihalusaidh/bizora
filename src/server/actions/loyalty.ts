@@ -1,4 +1,4 @@
-import { requireAuth, requireBusiness } from "@/lib/auth";
+import { requireBusiness } from "@/lib/auth";
 
 export interface LoyaltySettings {
   id: string;
@@ -29,14 +29,14 @@ export async function getLoyaltySettings(businessId: string): Promise<LoyaltySet
   const { data } = await supabase
     .from("loyalty_settings")
     .select("*")
-    .eq("business_id", businessId)
+    .eq("business_id", auth.businessId)
     .single();
 
   if (data) return data as LoyaltySettings;
 
   const { data: created } = await supabase
     .from("loyalty_settings")
-    .insert({ business_id: businessId, ...DEFAULT_SETTINGS } as never)
+    .insert({ business_id: auth.businessId, ...DEFAULT_SETTINGS } as never)
     .select()
     .single();
 
@@ -54,19 +54,19 @@ export async function updateLoyaltySettings(
   const { data: existing } = await supabase
     .from("loyalty_settings")
     .select("id")
-    .eq("business_id", businessId)
+    .eq("business_id", auth.businessId)
     .single();
 
   if (existing) {
     const { error } = await supabase
       .from("loyalty_settings")
       .update(updates)
-      .eq("business_id", businessId);
+      .eq("business_id", auth.businessId);
     if (error) throw new Error(error.message);
   } else {
     const { error } = await supabase
       .from("loyalty_settings")
-      .insert({ business_id: businessId, ...DEFAULT_SETTINGS, ...updates } as never);
+      .insert({ business_id: auth.businessId, ...DEFAULT_SETTINGS, ...updates } as never);
     if (error) throw new Error(error.message);
   }
 
@@ -78,14 +78,14 @@ export async function earnPoints(businessId: string, invoiceId: string, customer
   if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
   const supabase = auth.supabase;
 
-  const settings = await getLoyaltySettings(businessId);
+  const settings = await getLoyaltySettings(auth.businessId);
   if (!settings.enabled) return { pointsEarned: 0, message: "Loyalty program is disabled" };
 
   const points = Math.floor(amount / settings.earn_rate) * settings.earn_points;
   if (points <= 0) return { pointsEarned: 0, message: "Amount too low to earn points" };
 
   const { error: insertError } = await supabase.from("loyalty_points").insert({
-    business_id: businessId,
+    business_id: auth.businessId,
     customer_id: customerId,
     invoice_id: invoiceId,
     type: "earn",
@@ -108,14 +108,15 @@ export async function earnPoints(businessId: string, invoiceId: string, customer
 }
 
 export async function getLoyaltyBalance(customerId: string) {
-  const auth = await requireAuth();
-  if (auth.error || !auth.supabase) return { error: auth.error };
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
   const supabase = auth.supabase;
 
   const { data } = await supabase
     .from("loyalty_points")
     .select("type, points")
-    .eq("customer_id", customerId);
+    .eq("customer_id", customerId)
+    .eq("business_id", auth.businessId);
 
   const balance = (data || []).reduce((sum, p) =>
     p.type === "earn" ? sum + p.points : sum - p.points, 0
@@ -134,7 +135,7 @@ export async function redeemPoints(
   if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
   const supabase = auth.supabase;
 
-  const settings = await getLoyaltySettings(businessId);
+  const settings = await getLoyaltySettings(auth.businessId);
   if (!settings.enabled) throw new Error("Loyalty program is disabled");
 
   if (points < settings.min_redeem_points) {
@@ -149,7 +150,7 @@ export async function redeemPoints(
   const discount = points * settings.redeem_rate;
 
   const { error } = await supabase.from("loyalty_points").insert({
-    business_id: businessId,
+    business_id: auth.businessId,
     customer_id: customerId,
     invoice_id: invoiceId,
     type: "redeem",
@@ -163,13 +164,14 @@ export async function redeemPoints(
 }
 
 export async function getLoyaltyHistory(customerId: string) {
-  const auth = await requireAuth();
-  if (auth.error || !auth.supabase) return { error: auth.error };
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
   const supabase = auth.supabase;
   const { data, error } = await supabase
     .from("loyalty_points")
     .select("*")
     .eq("customer_id", customerId)
+    .eq("business_id", auth.businessId)
     .order("created_at", { ascending: false });
 
   if (error) throw new Error(error.message);

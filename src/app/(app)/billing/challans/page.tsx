@@ -4,11 +4,10 @@ import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { getDeliveryChallans, deleteDeliveryChallan, updateChallanStatus } from "@/server/actions/delivery-challans";
 import { useBusiness } from "@/lib/store";
-import { ArrowLeft, Plus, Truck, Trash2, CheckCircle, Eye } from "lucide-react";
+import { ArrowLeft, Plus, Truck } from "lucide-react";
 
 interface Challan {
   id: string;

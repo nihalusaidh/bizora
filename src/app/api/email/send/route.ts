@@ -30,6 +30,26 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Missing type or to" }, { status: 400 });
     }
 
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(to)) {
+      return NextResponse.json({ error: "Invalid email address" }, { status: 400 });
+    }
+
+    const VALID_EMAIL_TYPES = ["invite", "payment-reminder", "invoice", "low-stock"] as const;
+    if (!VALID_EMAIL_TYPES.includes(type)) {
+      return NextResponse.json({ error: "Invalid email type" }, { status: 400 });
+    }
+
+    const { data: recentEmails } = await supabase
+      .from("email_logs")
+      .select("id")
+      .eq("user_id", user.id)
+      .gte("created_at", new Date(Date.now() - 60 * 60 * 1000).toISOString());
+
+    if (recentEmails && recentEmails.length >= 50) {
+      return NextResponse.json({ error: "Rate limit exceeded" }, { status: 429 });
+    }
+
     let result;
 
     switch (type) {
@@ -73,7 +93,7 @@ export async function POST(request: NextRequest) {
         break;
 
       default:
-        return NextResponse.json({ error: "Invalid email type" }, { status: 400 });
+        break;
     }
 
     return NextResponse.json({ success: true, id: (result as { id?: string })?.id });

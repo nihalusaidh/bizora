@@ -14,7 +14,7 @@ import {
 import { useBusiness } from "@/lib/store";
 import {
   ArrowLeft, Bell, Package, Receipt, Users, CreditCard,
-  Settings, Check, CheckCheck, Trash2, RefreshCw, Sparkles
+  Settings, Check, CheckCheck, Trash2, Sparkles
 } from "lucide-react";
 
 const TYPE_ICONS: Record<string, typeof Bell> = {

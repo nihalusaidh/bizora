@@ -13,7 +13,7 @@ export async function getRevenueReport(businessId: string, range: DateRange) {
   const { data: invoices, error } = await supabase
     .from("invoices")
     .select("total, amount_paid, status, tax_amount, discount_amount, created_at, customers(name)")
-    .eq("business_id", businessId)
+    .eq("business_id", auth.businessId)
     .neq("status", "cancelled")
     .gte("created_at", range.start_date)
     .lte("created_at", range.end_date + "T23:59:59")
@@ -72,7 +72,7 @@ export async function getExpenseReport(businessId: string, range: DateRange) {
   const { data: expenses, error } = await supabase
     .from("expenses")
     .select("amount, payment_method, expense_date, expense_categories(name, icon, color)")
-    .eq("business_id", businessId)
+    .eq("business_id", auth.businessId)
     .eq("is_active", true)
     .gte("expense_date", range.start_date)
     .lte("expense_date", range.end_date)
@@ -149,7 +149,7 @@ export async function getGstReport(businessId: string, range: DateRange) {
   const { data: invoices, error } = await supabase
     .from("invoices")
     .select("invoice_number, created_at, total, tax_amount, discount_amount, status, customers(name, gst_number)")
-    .eq("business_id", businessId)
+    .eq("business_id", auth.businessId)
     .neq("status", "cancelled")
     .gte("created_at", range.start_date)
     .lte("created_at", range.end_date + "T23:59:59")

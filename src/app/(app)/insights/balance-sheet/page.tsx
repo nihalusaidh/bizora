@@ -2,12 +2,11 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { generateBalanceSheet } from "@/server/actions/accounting";
 import { useBusiness } from "@/lib/store";
-import { ArrowLeft, TrendingUp, TrendingDown, Scale, Wallet, CreditCard } from "lucide-react";
+import { ArrowLeft, TrendingUp, TrendingDown, Wallet, CreditCard } from "lucide-react";
 
 interface Account { name: string; type: string; balance: number; }
 interface BalanceSheet {

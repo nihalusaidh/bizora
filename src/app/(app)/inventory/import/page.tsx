@@ -5,11 +5,10 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { useBusiness } from "@/lib/store";
 import { parseCSV, downloadCSV } from "@/lib/csv-utils";
 import { createProduct } from "@/server/actions/products";
-import { ArrowLeft, Upload, FileText, CheckCircle, AlertTriangle, Loader2, Download } from "lucide-react";
+import { ArrowLeft, Upload, CheckCircle, AlertTriangle, Loader2, Download } from "lucide-react";
 
 export default function ImportProductsPage() {
   const router = useRouter();

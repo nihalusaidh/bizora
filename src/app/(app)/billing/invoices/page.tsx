@@ -4,14 +4,13 @@ import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { getInvoices, deleteInvoice, updateInvoiceStatus } from "@/server/actions/invoices";
 import { ExportButton } from "@/components/export/export-button";
 import { formatInvoicesForCsv } from "@/lib/export";
 import { useBusiness } from "@/lib/store";
 import {
-  ArrowLeft, Plus, Search, Receipt, Trash2, Eye,
+  ArrowLeft, Plus, Receipt, Trash2,
   CheckCircle, XCircle, Clock, Send
 } from "lucide-react";
 

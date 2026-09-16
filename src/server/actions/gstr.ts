@@ -74,7 +74,7 @@ export async function generateGstr1(businessId: string, month: number, year: num
       customer:customers(id, name, gst_number, state),
       items:invoice_items(name, hsn_sac, quantity, unit_price, tax_rate, tax_amount, discount_amount, total)
     `)
-    .eq("business_id", businessId)
+    .eq("business_id", auth.businessId)
     .gte("created_at", startDate.toISOString())
     .lte("created_at", endDate.toISOString())
     .in("status", ["paid", "partial", "sent"]);
@@ -84,7 +84,7 @@ export async function generateGstr1(businessId: string, month: number, year: num
   const { data: business, error: bizError } = await supabase
     .from("businesses")
     .select("name, gstin, state, address")
-    .eq("id", businessId)
+    .eq("id", auth.businessId)
     .single();
 
   if (bizError) throw new Error(bizError.message);

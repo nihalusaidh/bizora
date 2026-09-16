@@ -4,13 +4,12 @@ import { useEffect, useState, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { getInvoice, updateInvoiceStatus, deleteInvoice } from "@/server/actions/invoices";
 import { useBusiness } from "@/lib/store";
 import { printInvoice, shareInvoiceViaWhatsApp, type InvoicePdfData } from "@/lib/invoice-pdf";
-import { ArrowLeft, Printer, Send, CheckCircle, Trash2, Download, MessageCircle, Smartphone } from "lucide-react";
+import { ArrowLeft, Printer, CheckCircle, Trash2, MessageCircle } from "lucide-react";
 import { printThermalReceipt, type ThermalReceiptData } from "@/components/billing/thermal-receipt";
 import { UpiQr } from "@/components/billing/upi-qr";
 

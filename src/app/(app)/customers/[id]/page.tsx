@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CustomerForm } from "@/components/customers/customer-form";
@@ -19,7 +19,7 @@ import { useBusiness } from "@/lib/store";
 import { PaymentReminder } from "@/components/billing/payment-reminder";
 import {
   ArrowLeft, Edit, Trash2, Phone, Mail, MapPin,
-  IndianRupee, Calendar, CreditCard, AlertCircle,
+  IndianRupee, Calendar, CreditCard,
   CheckCircle, Clock, Gift
 } from "lucide-react";
 

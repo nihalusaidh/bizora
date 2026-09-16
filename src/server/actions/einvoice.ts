@@ -8,7 +8,7 @@ export async function generateEinvoice(businessId: string, invoiceId: string, mo
   const { data: invoice, error: invError } = await supabase
     .from("invoices")
     .select("*, customers(name, gst_number, state, address), invoice_items(name, hsn_code, quantity, unit_price, tax_rate, tax_amount, discount_amount, total)")
-    .eq("business_id", businessId)
+    .eq("business_id", auth.businessId)
     .eq("id", invoiceId)
     .single();
 
@@ -17,7 +17,7 @@ export async function generateEinvoice(businessId: string, invoiceId: string, mo
   const { data: business } = await supabase
     .from("businesses")
     .select("name, gstin, state, address")
-    .eq("id", businessId)
+    .eq("id", auth.businessId)
     .single();
 
   if (!business?.gstin) throw new Error("GSTIN required for e-invoice");
@@ -32,7 +32,7 @@ export async function generateEinvoice(businessId: string, invoiceId: string, mo
     }).eq("id", invoiceId);
 
     await supabase.from("einvoice_log").insert({
-      business_id: businessId, invoice_id: invoiceId, irn, ack_number: ackNo,
+      business_id: auth.businessId, invoice_id: invoiceId, irn, ack_number: ackNo,
       ack_date: new Date().toISOString(), status: "generated",
       qr_code: JSON.stringify({ irn, ackNo }),
       raw_response: { mode: "sandbox", irn, ackNo },
@@ -48,7 +48,7 @@ export async function getEinvoiceLog(businessId: string, invoiceId?: string) {
   const auth = await requireBusiness();
   if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
   const supabase = auth.supabase;
-  let query = supabase.from("einvoice_log").select("*, invoices(invoice_number)").eq("business_id", businessId).order("created_at", { ascending: false });
+  let query = supabase.from("einvoice_log").select("*, invoices(invoice_number)").eq("business_id", auth.businessId).order("created_at", { ascending: false });
   if (invoiceId) query = query.eq("invoice_id", invoiceId);
   const { data, error } = await query;
   if (error) throw new Error(error.message);
@@ -72,7 +72,7 @@ export async function generateEwayBill(businessId: string, input: {
   const validUpto = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
   const { data, error } = await supabase.from("eway_bill_log").insert({
-    business_id: businessId, invoice_id: input.invoice_id || null, challan_id: input.challan_id || null,
+    business_id: auth.businessId, invoice_id: input.invoice_id || null, challan_id: input.challan_id || null,
     eway_number: ewayNumber, from_state: input.from_state, to_state: input.to_state,
     vehicle_number: input.vehicle_number, transport_mode: input.transport_mode,
     distance_km: input.distance_km, status: "generated", valid_upto: validUpto.toISOString(),
@@ -89,7 +89,7 @@ export async function getEwayBillLog(businessId: string) {
   if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
   const supabase = auth.supabase;
   const { data, error } = await supabase
-    .from("eway_bill_log").select("*, invoices(invoice_number)").eq("business_id", businessId)
+    .from("eway_bill_log").select("*, invoices(invoice_number)").eq("business_id", auth.businessId)
     .order("created_at", { ascending: false });
   if (error) throw new Error(error.message);
   return data;

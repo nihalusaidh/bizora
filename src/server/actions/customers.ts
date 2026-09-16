@@ -1,6 +1,10 @@
 import { requireBusiness } from "@/lib/auth";
 import { customerSchema, type CustomerInput } from "@/lib/validators/customers";
 
+function sanitizeSearch(input: string): string {
+  return input.replace(/[%(),.\\]/g, "\\$&");
+}
+
 export async function getCustomers(businessId: string, search?: string) {
   const auth = await requireBusiness();
   if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
@@ -13,7 +17,8 @@ export async function getCustomers(businessId: string, search?: string) {
     .order("name", { ascending: true });
 
   if (search) {
-    query = query.or(`name.ilike.%${search}%,phone.ilike.%${search}%`);
+    const safe = sanitizeSearch(search);
+    query = query.or(`name.ilike.%${safe}%,phone.ilike.%${safe}%`);
   }
 
   const { data, error } = await query;

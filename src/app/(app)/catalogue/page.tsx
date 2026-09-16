@@ -8,7 +8,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { useBusiness } from "@/lib/store";
-import { Copy, ExternalLink, Package, QrCode } from "lucide-react";
+import { Copy, ExternalLink, Package } from "lucide-react";
 
 interface Product {
   id: string;

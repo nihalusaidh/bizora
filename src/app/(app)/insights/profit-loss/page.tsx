@@ -3,10 +3,9 @@
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { DateRangePicker } from "@/components/reports/date-range-picker";
-import { StatCard } from "@/components/reports/stat-card";
 import { getProfitLossReport } from "@/server/actions/reports";
 import { useBusiness } from "@/lib/store";
 import { ArrowLeft, TrendingUp, TrendingDown } from "lucide-react";

@@ -1,6 +1,10 @@
 import { requireBusiness } from "@/lib/auth";
 import { productSchema, productVariantSchema, type ProductInput, type ProductVariantInput } from "@/lib/validators/inventory";
 
+function sanitizeSearch(input: string): string {
+  return input.replace(/[%(),.\\]/g, "\\$&");
+}
+
 export async function getProducts(
   businessId: string,
   options?: {
@@ -21,7 +25,8 @@ export async function getProducts(
     .eq("is_active", true);
 
   if (options?.search) {
-    query = query.or(`name.ilike.%${options.search}%,sku.ilike.%${options.search}%,barcode.ilike.%${options.search}%`);
+    const safe = sanitizeSearch(options.search);
+    query = query.or(`name.ilike.%${safe}%,sku.ilike.%${safe}%,barcode.ilike.%${safe}%`);
   }
 
   if (options?.category_id) {

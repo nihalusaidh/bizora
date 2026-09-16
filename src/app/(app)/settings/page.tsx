@@ -2,10 +2,9 @@
 
 import Link from "next/link";
 import {
-  Building2, Receipt, Package, Users, Bell, CreditCard, Shield,
-  ChevronRight, Palette, Printer, FileText, Settings2, Gift, HelpCircle, FileDown
+  Building2, Package, Users, Bell, CreditCard, Shield,
+  ChevronRight, Printer, FileText, Gift, HelpCircle, FileDown
 } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
 
 const settingsGroups = [
   {
@@ -73,6 +72,11 @@ const settingsGroups = [
   },
 ];
 
+async function handleSignOut() {
+  await fetch("/auth/signout", { method: "POST" });
+  window.location.href = "/login";
+}
+
 export default function SettingsPage() {
   return (
     <div className="space-y-6 animate-fade-in max-w-2xl">
@@ -104,6 +108,21 @@ export default function SettingsPage() {
           </div>
         </div>
       ))}
+
+      <button
+        onClick={handleSignOut}
+        className="w-full rounded-xl border border-red-200 bg-red-50 p-4 text-left transition-default hover:bg-red-100 dark:border-red-900/50 dark:bg-red-950/50 dark:hover:bg-red-950"
+      >
+        <div className="flex items-center gap-3">
+          <div className="h-9 w-9 rounded-lg bg-red-100 dark:bg-red-900/50 flex items-center justify-center shrink-0">
+            <Shield className="h-4 w-4 text-red-600 dark:text-red-400" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <h3 className="text-sm font-medium text-red-700 dark:text-red-300">Sign Out</h3>
+            <p className="text-xs text-red-500 dark:text-red-400">Log out of your account</p>
+          </div>
+        </div>
+      </button>
     </div>
   );
 }

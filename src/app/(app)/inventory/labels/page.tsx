@@ -8,7 +8,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useBusiness } from "@/lib/store";
-import { BarcodeDisplay } from "@/components/inventory/barcode-display";
 import { ArrowLeft, Search, Printer, Package, CheckSquare } from "lucide-react";
 import Link from "next/link";
 

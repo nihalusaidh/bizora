@@ -16,7 +16,7 @@ import {
 } from "@/server/actions/purchase-orders";
 import { useBusiness } from "@/lib/store";
 import {
-  ArrowLeft, CheckCircle, Trash2, Truck, Package, Clock, Send, Megaphone
+  ArrowLeft, CheckCircle, Trash2, Truck, Send, Megaphone
 } from "lucide-react";
 
 interface POItem {

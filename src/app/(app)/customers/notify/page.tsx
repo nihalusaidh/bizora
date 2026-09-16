@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,9 +14,9 @@ import { createBroadcast, getCustomersWithPhone, sendBroadcastWhatsApp } from "@
 import { useBusiness } from "@/lib/store";
 import type { BroadcastTemplateType } from "@/types/database";
 import {
-  ArrowLeft, Send, Users, MessageCircle, Package, Tag,
-  Megaphone, CheckSquare, Square, Loader2, Search, History,
-  Zap, Phone, ShoppingBag, Percent, PartyPopper
+  ArrowLeft, Send, Users, MessageCircle, Package,
+  CheckSquare, Square, Loader2, Search, History,
+  Zap, Phone, ShoppingBag, Percent
 } from "lucide-react";
 
 interface Customer { id: string; name: string; phone: string | null; }

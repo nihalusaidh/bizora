@@ -7,7 +7,7 @@ export async function getChartOfAccounts(businessId: string) {
   const { data, error } = await supabase
     .from("chart_of_accounts")
     .select("*")
-    .eq("business_id", businessId)
+    .eq("business_id", auth.businessId)
     .eq("is_active", true)
     .order("account_code");
   if (error) throw new Error(error.message);
@@ -25,7 +25,7 @@ export async function createAccount(businessId: string, input: {
   const supabase = auth.supabase;
   const { data, error } = await supabase
     .from("chart_of_accounts")
-    .insert({ ...input, business_id: businessId })
+    .insert({ ...input, business_id: auth.businessId })
     .select()
     .single();
   if (error) throw new Error(error.message);
@@ -39,7 +39,7 @@ export async function getJournalEntries(businessId: string, status?: string) {
   let query = supabase
     .from("journal_entries")
     .select("*, journal_entry_lines(*)")
-    .eq("business_id", businessId)
+    .eq("business_id", auth.businessId)
     .order("entry_date", { ascending: false });
   if (status && status !== "all") query = query.eq("status", status);
   const { data, error } = await query;
@@ -76,7 +76,7 @@ export async function createJournalEntry(businessId: string, input: {
   const { data: entry, error: eError } = await supabase
     .from("journal_entries")
     .insert({
-      business_id: businessId, entry_number: entryNumber, entry_date: input.entry_date || new Date().toISOString().split("T")[0],
+      business_id: auth.businessId, entry_number: entryNumber, entry_date: input.entry_date || new Date().toISOString().split("T")[0],
       description: input.description, reference_type: input.reference_type, reference_id: input.reference_id,
       total_debit: totalDebit, total_credit: totalCredit, status: "posted",
     })
@@ -105,7 +105,7 @@ export async function generateBalanceSheet(businessId: string) {
     .from("journal_entry_lines")
     .select("account_name, account_type, debit, credit")
     .in("journal_entry_id",
-      (await supabase.from("journal_entries").select("id").eq("business_id", businessId).eq("status", "posted")).data?.map((e) => e.id) || []
+      (await supabase.from("journal_entries").select("id").eq("business_id", auth.businessId).eq("status", "posted")).data?.map((e) => e.id) || []
     );
 
   if (error) throw new Error(error.message);

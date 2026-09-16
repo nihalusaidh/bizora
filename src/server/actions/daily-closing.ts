@@ -41,7 +41,7 @@ export async function getDailyClosingData(businessId: string, date?: string) {
     .select(
       "id, total, amount_paid, payment_method, status, tax_amount, discount_amount, created_at"
     )
-    .eq("business_id", businessId)
+    .eq("business_id", auth.businessId)
     .gte("created_at", targetDate)
     .lt("created_at", nextDate)
     .order("created_at", { ascending: true });
@@ -67,7 +67,7 @@ export async function getDailyClosingData(businessId: string, date?: string) {
   const { data: expenses, error: expenseError } = await supabase
     .from("expenses")
     .select("amount, payment_method")
-    .eq("business_id", businessId)
+    .eq("business_id", auth.businessId)
     .eq("is_active", true)
     .gte("expense_date", targetDate)
     .lte("expense_date", targetDate);
@@ -78,7 +78,7 @@ export async function getDailyClosingData(businessId: string, date?: string) {
   const { data: returns } = await supabase
     .from("invoices")
     .select("total")
-    .eq("business_id", businessId)
+    .eq("business_id", auth.businessId)
     .eq("status", "returned")
     .gte("created_at", targetDate)
     .lt("created_at", nextDate);
@@ -87,7 +87,7 @@ export async function getDailyClosingData(businessId: string, date?: string) {
   const { data: lowStock } = await supabase
     .from("products")
     .select("name, min_stock")
-    .eq("business_id", businessId)
+    .eq("business_id", auth.businessId)
     .eq("is_active", true)
     .order("created_at", { ascending: true })
     .limit(10);

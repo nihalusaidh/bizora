@@ -1,20 +1,46 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { createClient as createServerClient } from "@/lib/supabase/server";
 import crypto from "crypto";
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+const VALID_PLANS = ["free", "gold", "diamond"] as const;
 
 export async function POST(request: NextRequest) {
   try {
-    const { razorpay_order_id, razorpay_payment_id, razorpay_signature, business_id, plan } =
+    const serverSupabase = await createServerClient();
+    const { data: { user } } = await serverSupabase.auth.getUser();
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { data: membership } = await serverSupabase
+      .from("memberships")
+      .select("business_id")
+      .eq("user_id", user.id)
+      .limit(1)
+      .single();
+
+    if (!membership) {
+      return NextResponse.json({ error: "No business found" }, { status: 403 });
+    }
+
+    const business_id = membership.business_id;
+
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature, plan } =
       await request.json();
 
-    if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature || !business_id || !plan) {
+    if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature || !plan) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
+
+    if (!VALID_PLANS.includes(plan)) {
+      return NextResponse.json({ error: "Invalid plan" }, { status: 400 });
+    }
+
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
 
     const secret = process.env.RAZORPAY_KEY_SECRET || "";
     const body = razorpay_order_id + "|" + razorpay_payment_id;
@@ -23,7 +49,9 @@ export async function POST(request: NextRequest) {
       .update(body)
       .digest("hex");
 
-    if (expectedSignature !== razorpay_signature) {
+    const sigBuf = Buffer.from(razorpay_signature, "hex");
+    const expectedBuf = Buffer.from(expectedSignature, "hex");
+    if (sigBuf.length !== expectedBuf.length || !crypto.timingSafeEqual(sigBuf, expectedBuf)) {
       return NextResponse.json({ error: "Invalid payment signature" }, { status: 400 });
     }
 

@@ -2,12 +2,6 @@ import type { PlanTier } from "@/types/database";
 
 export type Platform = "mobile" | "web" | "desktop";
 
-interface PlanFeature {
-  label: string;
-  max?: number;
-  unlimited?: boolean;
-}
-
 interface PlanConfig {
   name: string;
   monthlyPrice: number;

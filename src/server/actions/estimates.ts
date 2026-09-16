@@ -179,7 +179,7 @@ export async function convertEstimateToInvoice(businessId: string, estimateId: s
   if (estError) throw new Error(estError.message);
   if (estimate.status === "converted") throw new Error("Estimate already converted");
 
-  let invoiceNumber = `INV-${crypto.randomUUID().replace(/-/g, "").substring(0, 8).toUpperCase()}`;
+  const invoiceNumber = `INV-${crypto.randomUUID().replace(/-/g, "").substring(0, 8).toUpperCase()}`;
 
   const { data: invoice, error: invError } = await supabase
     .from("invoices")

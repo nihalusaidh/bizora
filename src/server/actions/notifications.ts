@@ -20,7 +20,7 @@ export async function getNotifications(businessId: string, userId?: string) {
   let query = supabase
     .from("notifications")
     .select("*")
-    .eq("business_id", businessId)
+    .eq("business_id", auth.businessId)
     .eq("is_dismissed", false)
     .order("created_at", { ascending: false })
     .limit(50);
@@ -42,7 +42,7 @@ export async function getUnreadCount(businessId: string, userId?: string) {
   let query = supabase
     .from("notifications")
     .select("id", { count: "exact", head: true })
-    .eq("business_id", businessId)
+    .eq("business_id", auth.businessId)
     .eq("is_read", false)
     .eq("is_dismissed", false);
 
@@ -63,7 +63,7 @@ export async function markAsRead(businessId: string, notificationId: string) {
   const { error } = await supabase
     .from("notifications")
     .update({ is_read: true })
-    .eq("business_id", businessId)
+    .eq("business_id", auth.businessId)
     .eq("id", notificationId);
 
   if (error) throw new Error(error.message);
@@ -79,7 +79,7 @@ export async function markAllAsRead(businessId: string, userId?: string) {
   let query = supabase
     .from("notifications")
     .update(update)
-    .eq("business_id", businessId)
+    .eq("business_id", auth.businessId)
     .eq("is_read", false);
 
   if (userId) {
@@ -98,7 +98,7 @@ export async function dismissNotification(businessId: string, notificationId: st
   const { error } = await supabase
     .from("notifications")
     .update({ is_dismissed: true })
-    .eq("business_id", businessId)
+    .eq("business_id", auth.businessId)
     .eq("id", notificationId);
 
   if (error) throw new Error(error.message);
@@ -122,7 +122,7 @@ export async function createNotification(
   const { data, error } = await supabase
     .from("notifications")
     .insert({
-      business_id: businessId,
+      business_id: auth.businessId,
       ...notification,
     })
     .select()
@@ -142,7 +142,7 @@ export async function generateAlerts(businessId: string) {
   const { data: prods } = await supabase
     .from("products")
     .select("id, name, stock_quantity, min_stock")
-    .eq("business_id", businessId)
+    .eq("business_id", auth.businessId)
     .eq("is_active", true);
 
   if (prods) {
@@ -170,7 +170,7 @@ export async function generateAlerts(businessId: string) {
   const { data: pendingInvoices } = await supabase
     .from("invoices")
     .select("id, invoice_number, total, amount_paid, customers(name)")
-    .eq("business_id", businessId)
+    .eq("business_id", auth.businessId)
     .eq("status", "partial");
 
   if (pendingInvoices) {
@@ -190,7 +190,7 @@ export async function generateAlerts(businessId: string) {
   const { data: customersWithDues } = await supabase
     .from("customers")
     .select("id, name, outstanding_balance")
-    .eq("business_id", businessId)
+    .eq("business_id", auth.businessId)
     .eq("is_active", true)
     .gt("outstanding_balance", 0);
 
@@ -209,7 +209,7 @@ export async function generateAlerts(businessId: string) {
   const { data: existingNotifs } = await supabase
     .from("notifications")
     .select("entity_type, entity_id, type")
-    .eq("business_id", businessId)
+    .eq("business_id", auth.businessId)
     .eq("is_dismissed", false);
 
   const existingSet = new Set(
@@ -220,7 +220,7 @@ export async function generateAlerts(businessId: string) {
   for (const alert of alerts) {
     const key = `${alert.type}:${alert.entity_type}:${alert.entity_id}`;
     if (!existingSet.has(key)) {
-      await createNotification(businessId, alert);
+      await createNotification(auth.businessId, alert);
       created++;
     }
   }

@@ -1,7 +1,6 @@
 "use client";
 
-import { useState } from "react";
-import { Monitor, Smartphone, Download, ArrowRight, ArrowLeft } from "lucide-react";
+import { Monitor, Smartphone, Download, ArrowRight } from "lucide-react";
 
 interface PlatformStepProps {
   onSelect: (platform: "web" | "desktop" | "android") => void;

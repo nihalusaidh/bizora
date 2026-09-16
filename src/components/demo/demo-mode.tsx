@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useAppStore } from "@/lib/store";
-import { Database, ShoppingCart, Package, Users, BarChart3, Sparkles } from "lucide-react";
+import { Database, Package, Users, BarChart3, Sparkles } from "lucide-react";
 
 const demoBusiness = {
   id: "demo-business-001",

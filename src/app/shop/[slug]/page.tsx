@@ -6,10 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
-  Search, Phone, MapPin, MessageCircle, Package, Store,
-  ArrowRight, ExternalLink
+  Search, Phone, MapPin, MessageCircle, Package, Store
 } from "lucide-react";
-import Link from "next/link";
 
 interface Business {
   id: string;

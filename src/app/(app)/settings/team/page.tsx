@@ -11,7 +11,7 @@ import { useBusiness } from "@/lib/store";
 import { ROLE_DESCRIPTIONS } from "@/lib/rbac";
 import type { UserRole } from "@/types/database";
 import {
-  ArrowLeft, Users, Shield, UserPlus, Crown
+  ArrowLeft, Users, Shield, UserPlus
 } from "lucide-react";
 
 interface TeamMember {

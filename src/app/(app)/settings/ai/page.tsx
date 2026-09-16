@@ -1,55 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Eye, EyeOff, CheckCircle, XCircle, Loader2, KeyRound } from "lucide-react";
-
-const GEMINI_KEY = "bizora_gemini_api_key";
 
 export default function AiSettingsPage() {
-  const [apiKey, setApiKey] = useState("");
-  const [savedKey, setSavedKey] = useState("");
-  const [showKey, setShowKey] = useState(false);
-  const [status, setStatus] = useState<"idle" | "testing" | "connected" | "disconnected">("disconnected");
-  const [mounted, setMounted] = useState(false);
+  const [status] = useState<"connected" | "disconnected">("disconnected");
 
-  useEffect(() => {
-    setMounted(true);
-    const stored = localStorage.getItem(GEMINI_KEY);
-    if (stored) {
-      setSavedKey(stored);
-      setApiKey(stored);
-      setStatus("connected");
-    }
-  }, []);
-
-  const handleTest = async () => {
-    if (!apiKey) return;
-    setStatus("testing");
-    await new Promise((r) => setTimeout(r, 1500));
-    setStatus("connected");
-  };
-
-  const handleConnect = () => {
-    if (!apiKey) return;
-    localStorage.setItem(GEMINI_KEY, apiKey);
-    setSavedKey(apiKey);
-    setStatus("connected");
-  };
-
-  const handleDisconnect = () => {
-    localStorage.removeItem(GEMINI_KEY);
-    setApiKey("");
-    setSavedKey("");
-    setStatus("disconnected");
-  };
-
-  if (!mounted) return null;
-
-  const isConnected = status === "connected" && savedKey;
+  const isConnected = status === "connected";
 
   return (
     <div className="space-y-6 animate-fade-in max-w-2xl">
@@ -90,59 +48,8 @@ export default function AiSettingsPage() {
           </div>
 
           <p className="text-sm text-muted-foreground">
-            Connect your own Gemini API key to enable AI features
+            AI features are configured server-side. Add <code className="text-xs bg-muted px-1 py-0.5 rounded">GEMINI_API_KEY</code> to your <code className="text-xs bg-muted px-1 py-0.5 rounded">.env.local</code> file to enable AI.
           </p>
-
-          <div className="relative">
-            <Input
-              type={showKey ? "text" : "password"}
-              placeholder="Enter your Gemini API key"
-              value={apiKey}
-              onChange={(e) => {
-                setApiKey(e.target.value);
-                if (status === "connected") setStatus("disconnected");
-              }}
-              className="pr-9"
-            />
-            <button
-              type="button"
-              onClick={() => setShowKey(!showKey)}
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-            >
-              {showKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-            </button>
-          </div>
-
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              onClick={handleTest}
-              disabled={!apiKey || status === "testing"}
-            >
-              {status === "testing" ? (
-                <Loader2 className="h-4 w-4 animate-spin mr-1" />
-              ) : (
-                <CheckCircle className="h-4 w-4 mr-1" />
-              )}
-              Test connection
-            </Button>
-            <Button onClick={handleConnect} disabled={!apiKey}>
-              Connect
-            </Button>
-            {isConnected && (
-              <Button variant="destructive" onClick={handleDisconnect}>
-                <XCircle className="h-4 w-4 mr-1" />
-                Disconnect
-              </Button>
-            )}
-          </div>
-
-          <div className="flex items-start gap-2 rounded-lg bg-muted/50 p-3">
-            <KeyRound className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
-            <p className="text-xs text-muted-foreground">
-              Your API key is stored securely. Bizora does not charge for AI usage.
-            </p>
-          </div>
         </CardContent>
       </Card>
     </div>

@@ -5,10 +5,10 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { getSalesOrders, deleteSalesOrder, updateSalesOrderStatus } from "@/server/actions/sales-orders";
+import { getSalesOrders, updateSalesOrderStatus } from "@/server/actions/sales-orders";
 import { useBusiness } from "@/lib/store";
 import Link from "next/link";
-import { ArrowLeft, Plus, ShoppingCart, Trash2, Eye, ArrowRight } from "lucide-react";
+import { ArrowLeft, Plus, ShoppingCart, ArrowRight } from "lucide-react";
 
 interface Order { id: string; order_number: string; status: string; total: number; expected_date?: string | null; created_at: string; customers?: { name: string } | null; }
 

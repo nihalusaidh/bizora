@@ -18,7 +18,6 @@ import {
   AlertTriangle,
   IndianRupee,
   Receipt,
-  ShoppingCart,
   CreditCard,
   Banknote,
   Undo2,

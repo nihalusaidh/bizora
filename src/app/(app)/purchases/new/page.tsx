@@ -1,19 +1,18 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { createPurchaseOrder } from "@/server/actions/purchase-orders";
 import { getProducts } from "@/server/actions/products";
 import { getSuppliers } from "@/server/actions/suppliers";
 import { useBusiness } from "@/lib/store";
-import { ArrowLeft, Plus, Minus, Trash2, Package, Loader2 } from "lucide-react";
+import { ArrowLeft, Plus, Minus, Trash2, Loader2 } from "lucide-react";
 
 interface CartItem {
   productId: string | null;

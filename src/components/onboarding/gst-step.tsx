@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { GST_STATUS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
-import { ArrowLeft, Check } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 
 interface GstStepProps {
   status: "registered" | "unregistered";

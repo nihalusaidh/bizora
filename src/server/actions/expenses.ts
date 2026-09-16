@@ -1,6 +1,10 @@
 import { requireBusiness } from "@/lib/auth";
 import { expenseSchema, type ExpenseInput } from "@/lib/validators/expenses";
 
+function sanitizeSearch(input: string): string {
+  return input.replace(/[%(),.\\]/g, "\\$&");
+}
+
 export async function getExpenses(
   businessId: string,
   options?: { search?: string; category_id?: string; start_date?: string; end_date?: string }
@@ -16,7 +20,8 @@ export async function getExpenses(
     .order("expense_date", { ascending: false });
 
   if (options?.search) {
-    query = query.or(`description.ilike.%${options.search}%,vendor.ilike.%${options.search}%`);
+    const safe = sanitizeSearch(options.search);
+    query = query.or(`description.ilike.%${safe}%,vendor.ilike.%${safe}%`);
   }
   if (options?.category_id) {
     query = query.eq("category_id", options.category_id);

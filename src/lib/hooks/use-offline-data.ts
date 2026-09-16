@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { offlineDB } from "@/lib/offline-db";
-import { createClient } from "@/lib/supabase/client";
 
 interface OfflineDataState<T> {
   data: T[];

@@ -4,7 +4,6 @@ import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { getPurchaseOrders, updatePurchaseOrderStatus, deletePurchaseOrder } from "@/server/actions/purchase-orders";
 import { useBusiness } from "@/lib/store";

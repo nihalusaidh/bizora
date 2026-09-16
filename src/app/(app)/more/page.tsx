@@ -1,11 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { Card, CardContent } from "@/components/ui/card";
-import { buttonVariants } from "@/components/ui/button";
 import {
   Settings, CreditCard, Users, HelpCircle, IndianRupee, Bell,
-  BarChart3, Package, Receipt, Building2, ChevronRight, Calendar,
+  BarChart3, Package, Building2, ChevronRight, Calendar,
   ShoppingCart, Truck, Store, Megaphone, Upload, FileDown
 } from "lucide-react";
 
