@@ -28,7 +28,12 @@ export default function DownloadPage() {
   }, []);
 
   const handleDownloadAPK = () => {
-    window.open("/releases/bizora.apk", "_blank");
+    const a = document.createElement("a");
+    a.href = "/api/download/apk";
+    a.download = "bizora.apk";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
   };
 
   const handleDownloadEXE = () => {
