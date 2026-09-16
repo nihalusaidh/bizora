@@ -3,6 +3,10 @@ import { genai, AI_MODEL, SYSTEM_PROMPT, type ChatMessage } from "@/lib/ai";
 
 const AI_ENABLED = !!process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY !== "your-gemini-api-key-here";
 
+export async function getAiStatus() {
+  return { connected: AI_ENABLED, model: AI_MODEL };
+}
+
 interface ChatSession {
   id: string;
   title: string;

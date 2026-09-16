@@ -1,11 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { getAiStatus } from "@/server/actions/ai";
 
 export default function AiSettingsPage() {
-  const [status] = useState<"connected" | "disconnected">("disconnected");
+  const [status, setStatus] = useState<"checking" | "connected" | "disconnected">("checking");
+
+  useEffect(() => {
+    getAiStatus().then((s) => setStatus(s.connected ? "connected" : "disconnected")).catch(() => setStatus("disconnected"));
+  }, []);
 
   const isConnected = status === "connected";
 
