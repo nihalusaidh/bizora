@@ -102,32 +102,64 @@ export function HealthScore({ score, label, className }: HealthScoreProps) {
     ? "text-[#737373]"
     : "text-[#DC2626]";
 
+  const circumference = 2 * Math.PI * 45;
+  const strokeDashoffset = circumference - (score / 100) * circumference;
+
   return (
-    <div className={cn("rounded-xl border border-border bg-card p-4", className)}>
-      <div className="flex items-center justify-between mb-3">
-        <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Business Health</span>
+    <div className={cn("rounded-xl border border-border bg-card p-6", className)}>
+      <div className="flex items-center justify-between mb-4">
+        <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Business Health</span>
         {label && <span className={cn("text-xs font-medium", statusColor)}>{label}</span>}
       </div>
-      <div className="flex items-end gap-3">
-        <div className="relative h-16 w-16">
-          <svg className="h-16 w-16 -rotate-90" viewBox="0 0 64 64">
-            <circle cx="32" cy="32" r="28" fill="none" stroke="currentColor" strokeWidth="6" className="text-muted/50" />
+      <div className="flex items-center gap-6">
+        {/* Large animated circle */}
+        <div className="relative h-28 w-28 shrink-0">
+          <svg className="h-28 w-28 -rotate-90" viewBox="0 0 100 100">
+            {/* Background circle */}
             <circle
-              cx="32" cy="32" r="28" fill="none" strokeWidth="6"
-              strokeDasharray={`${(score / 100) * 175.9} 175.9`}
+              cx="50" cy="50" r="45"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="6"
+              className="text-muted/30"
+            />
+            {/* Animated progress circle */}
+            <circle
+              cx="50" cy="50" r="45"
+              fill="none"
+              strokeWidth="6"
+              strokeDasharray={circumference}
+              strokeDashoffset={strokeDashoffset}
               className={score >= 80 ? "stroke-foreground" : score >= 60 ? "stroke-[#737373]" : "stroke-[#DC2626]"}
               strokeLinecap="round"
+              style={{
+                transition: "stroke-dashoffset 1s cubic-bezier(0.4, 0, 0.2, 1)",
+              }}
             />
           </svg>
-          <div className="absolute inset-0 flex items-center justify-center">
-            <span className={cn("text-lg font-bold", statusColor)}>{score}</span>
+          {/* Score number in center */}
+          <div className="absolute inset-0 flex flex-col items-center justify-center">
+            <span className={cn("text-3xl font-bold tracking-tight", statusColor)}>
+              {score}
+            </span>
+            <span className="text-[10px] text-muted-foreground font-medium -mt-1">out of 100</span>
           </div>
         </div>
-        <div>
-          <div className="text-2xl font-bold financial-number">{score}<span className="text-sm font-normal text-muted-foreground">/100</span></div>
-          <div className={cn("text-sm font-medium", statusColor)}>
-            {score >= 80 ? "Healthy" : score >= 60 ? "Needs attention" : "Critical"}
+        {/* Status text */}
+        <div className="space-y-1">
+          <div className="text-3xl font-bold tracking-tight financial-number">
+            {score}<span className="text-base font-normal text-muted-foreground">/100</span>
           </div>
+          <div className={cn("text-sm font-semibold", statusColor)}>
+            {score >= 80 ? "Excellent" : score >= 60 ? "Needs Attention" : "Critical"}
+          </div>
+          <p className="text-xs text-muted-foreground max-w-[180px]">
+            {score >= 80
+              ? "Your business is performing well"
+              : score >= 60
+              ? "Some areas need improvement"
+              : "Immediate action recommended"}
+          </p>
         </div>
       </div>
     </div>

@@ -19,6 +19,7 @@ export default function OnboardingPage() {
   const router = useRouter();
   const [step, setStep] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const [checkingUser, setCheckingUser] = useState(true);
   const [data, setData] = useState({
     business_type: "",
@@ -64,6 +65,7 @@ export default function OnboardingPage() {
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
+      setError("Not authenticated. Please sign in again.");
       setLoading(false);
       return;
     }
@@ -79,12 +81,13 @@ export default function OnboardingPage() {
     });
 
     if (result.error) {
-      console.error("Failed to create business:", result.error);
+      setError(result.error);
       setLoading(false);
       return;
     }
 
-    router.push("/dashboard");
+    // Use window.location.href for full page reload so server components re-fetch
+    window.location.href = "/dashboard";
   };
 
   if (checkingUser) {
@@ -102,6 +105,12 @@ export default function OnboardingPage() {
   return (
     <div className="space-y-6">
       <ProgressBar progress={progress} currentStep={step + 1} totalSteps={totalSteps} />
+
+      {error && (
+        <div className="p-3 text-sm text-destructive bg-destructive/10 rounded-md">
+          {error}
+        </div>
+      )}
 
       {step === 0 && (
         <PlatformStep

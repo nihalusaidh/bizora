@@ -6,6 +6,15 @@ import { Moon, Sun, Monitor } from "lucide-react";
 
 type Theme = "light" | "dark" | "system";
 
+function applyTheme(t: Theme) {
+  const root = document.documentElement;
+  if (t === "dark" || (t === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
+    root.classList.add("dark");
+  } else {
+    root.classList.remove("dark");
+  }
+}
+
 export function ThemeToggle() {
   const [theme, setTheme] = useState<Theme>("system");
 
@@ -18,15 +27,6 @@ export function ThemeToggle() {
       applyTheme("system");
     }
   }, []);
-
-  const applyTheme = (t: Theme) => {
-    const root = document.documentElement;
-    if (t === "dark" || (t === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
-      root.classList.add("dark");
-    } else {
-      root.classList.remove("dark");
-    }
-  };
 
   const cycleTheme = () => {
     const next: Theme = theme === "light" ? "dark" : theme === "dark" ? "system" : "light";

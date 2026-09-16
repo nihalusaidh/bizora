@@ -37,7 +37,10 @@ export default function LoginPage() {
     }
 
     router.push("/dashboard");
-    router.refresh();
+    // Force full page reload so server components re-fetch with new session
+    setTimeout(() => {
+      window.location.href = "/dashboard";
+    }, 100);
   };
 
   return (

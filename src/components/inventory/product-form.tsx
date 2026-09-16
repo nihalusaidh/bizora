@@ -438,13 +438,19 @@ export function ProductForm({
                 value={expiryDate}
                 onChange={(e) => setExpiryDate(e.target.value)}
               />
-              {expiryDate && (
-                <p className={`text-xs ${new Date(expiryDate) < new Date(Date.now() + 30 * 86400000) ? "text-[#DC2626]" : "text-muted-foreground"}`}>
-                  {new Date(expiryDate) < new Date() ? "⚠️ Expired" :
-                   new Date(expiryDate) < new Date(Date.now() + 30 * 86400000) ? "⚠️ Expiring within 30 days" :
-                   `Valid for ${Math.ceil((new Date(expiryDate).getTime() - Date.now()) / 86400000)} days`}
-                </p>
-              )}
+              {expiryDate && (() => {
+                const now = new Date();
+                const expDate = new Date(expiryDate);
+                const daysLeft = Math.ceil((expDate.getTime() - now.getTime()) / 86400000);
+                const monthFromNow = new Date(now.getTime() + 30 * 86400000);
+                return (
+                  <p className={`text-xs ${expDate < monthFromNow ? "text-[#DC2626]" : "text-muted-foreground"}`}>
+                    {daysLeft < 0 ? "⚠️ Expired" :
+                     daysLeft <= 30 ? "⚠️ Expiring within 30 days" :
+                     `Valid for ${daysLeft} days`}
+                  </p>
+                );
+              })()}
             </div>
           </div>
           <div className="space-y-2">
