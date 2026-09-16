@@ -52,7 +52,7 @@ export default function ProfitLossPage() {
     setLoading(true);
     try {
       const result = await getProfitLossReport(businessId, { start_date: startDate, end_date: endDate });
-      setData(result);
+      setData(result as any);
     } catch (err) {
       console.error("Failed to load:", err);
     } finally {

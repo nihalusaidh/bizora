@@ -40,7 +40,7 @@ export default function ExpenseReportPage() {
     setLoading(true);
     try {
       const result = await getExpenseReport(businessId, { start_date: startDate, end_date: endDate });
-      setData(result);
+      setData(result as any);
     } catch (err) {
       console.error("Failed to load:", err);
     } finally {

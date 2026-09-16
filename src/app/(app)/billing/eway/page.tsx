@@ -28,7 +28,8 @@ export default function EwayBillPage() {
 
   const load = useCallback(async () => {
     if (!businessId) return;
-    setLog(await getEwayBillLog(businessId));
+    const result = await getEwayBillLog(businessId) as any;
+    if (!result?.error) setLog(result);
     setDataLoading(false);
   }, [businessId]);
 

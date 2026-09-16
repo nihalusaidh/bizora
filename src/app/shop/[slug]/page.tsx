@@ -63,15 +63,21 @@ export default function ShopPage({ params }: { params: Promise<{ slug: string }>
     setLoading(true);
     setError("");
     try {
-      const biz = await getBusinessBySlug(slug);
-      setBusiness(biz);
+      const bizResult = await getBusinessBySlug(slug) as any;
+      if (bizResult?.error || !bizResult) {
+        setError(bizResult?.error || "Store not found");
+        setLoading(false);
+        return;
+      }
+      const biz = bizResult?.data ?? bizResult;
+      setBusiness(biz as any);
 
       const [prods, cats] = await Promise.all([
-        getCatalogueProducts(biz.id, selectedCategory ?? undefined) as unknown as Product[],
-        getCatalogueCategories(biz.id),
+        getCatalogueProducts(biz.id, selectedCategory ?? undefined) as any,
+        getCatalogueCategories(biz.id) as any,
       ]);
-      setProducts(prods);
-      setCategories(cats);
+      setProducts(prods as any);
+      setCategories(cats as any);
     } catch (err) {
       setError("Store not found");
     } finally {

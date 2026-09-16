@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/client";
+import { requireAuth, requireBusiness } from "@/lib/auth";
 import type { UserRole } from "@/types/database";
 
 export interface TeamMember {
@@ -15,7 +15,10 @@ export interface TeamMember {
 }
 
 export async function getTeamMembers(businessId: string) {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
+
   const { data, error } = await supabase
     .from("memberships")
     .select("user_id, role, created_at, profiles(id, full_name, phone, avatar_url)")
@@ -41,31 +44,35 @@ export async function getTeamMembers(businessId: string) {
 }
 
 export async function inviteTeamMember(businessId: string, email: string, role: UserRole) {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
 
-  const { data: existingMembers } = await supabase
-    .from("memberships")
-    .select("user_id")
-    .eq("business_id", businessId);
+  const { data: existingUser } = await supabase
+    .from("profiles")
+    .select("id")
+    .eq("email", email)
+    .single() as { data: { id: string } | null };
 
-  if (existingMembers && existingMembers.length > 0) {
-    const membership = existingMembers[0];
-    if (membership.user_id) {
-      throw new Error("This user is already a team member.");
-    }
+  if (!existingUser) {
+    throw new Error("No account found with this email. They must sign up first.");
   }
 
-  const { data: userData } = await supabase.auth.admin.listUsers();
-  const targetUser = userData?.users?.find((u) => u.email === email);
+  const { data: existingMembership } = await supabase
+    .from("memberships")
+    .select("user_id")
+    .eq("business_id", businessId)
+    .eq("user_id", existingUser.id)
+    .single();
 
-  if (!targetUser) {
-    throw new Error("No account found with this email. They must sign up first.");
+  if (existingMembership) {
+    throw new Error("This user is already a team member.");
   }
 
   const { error } = await supabase
     .from("memberships")
     .insert({
-      user_id: targetUser.id,
+      user_id: existingUser.id,
       business_id: businessId,
       role,
     });
@@ -79,12 +86,13 @@ export async function inviteTeamMember(businessId: string, email: string, role: 
       .eq("id", businessId)
       .single();
 
-    const { data: { user } } = await supabase.auth.getUser();
-    const { data: profile } = user
-      ? await supabase.from("profiles").select("full_name").eq("id", user.id).single()
-      : { data: null };
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("full_name")
+      .eq("id", auth.user!.id)
+      .single();
 
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL!;
     await fetch(`${appUrl}/api/email/send`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -110,7 +118,9 @@ export async function updateMemberRole(
   userId: string,
   newRole: UserRole
 ) {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
 
   const { error } = await supabase
     .from("memberships")
@@ -124,7 +134,9 @@ export async function updateMemberRole(
 }
 
 export async function removeTeamMember(businessId: string, userId: string) {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
 
   const { error } = await supabase
     .from("memberships")
@@ -138,16 +150,15 @@ export async function removeTeamMember(businessId: string, userId: string) {
 }
 
 export async function getCurrentUserRole(businessId: string) {
-  const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-
-  if (!user) return null;
+  const auth = await requireAuth();
+  if (auth.error || !auth.supabase) return null;
+  const supabase = auth.supabase;
 
   const { data, error } = await supabase
     .from("memberships")
     .select("role")
     .eq("business_id", businessId)
-    .eq("user_id", user.id)
+    .eq("user_id", auth.user!.id)
     .single();
 
   if (error) return null;

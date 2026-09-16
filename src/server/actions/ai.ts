@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/client";
+import { requireBusiness } from "@/lib/auth";
 import { genai, AI_MODEL, SYSTEM_PROMPT, type ChatMessage } from "@/lib/ai";
 
 const AI_ENABLED = typeof window !== "undefined" && !!process.env.NEXT_PUBLIC_GEMINI_API_KEY && process.env.NEXT_PUBLIC_GEMINI_API_KEY !== "your-gemini-api-key-here";
@@ -18,7 +18,10 @@ interface ChatMessageRecord {
 }
 
 export async function getChatSessions(businessId: string): Promise<ChatSession[]> {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) throw new Error(auth.error || "Not authenticated");
+  const supabase = auth.supabase;
+
   const { data, error } = await supabase
     .from("ai_chat_sessions" as never)
     .select("*")
@@ -31,7 +34,10 @@ export async function getChatSessions(businessId: string): Promise<ChatSession[]
 }
 
 export async function getChatMessages(sessionId: string): Promise<ChatMessageRecord[]> {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) throw new Error(auth.error || "Not authenticated");
+  const supabase = auth.supabase;
+
   const { data, error } = await supabase
     .from("ai_chat_messages" as never)
     .select("*")
@@ -43,7 +49,10 @@ export async function getChatMessages(sessionId: string): Promise<ChatMessageRec
 }
 
 export async function createChatSession(businessId: string, title?: string): Promise<ChatSession> {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) throw new Error(auth.error || "Not authenticated");
+  const supabase = auth.supabase;
+
   const { data, error } = await supabase
     .from("ai_chat_sessions" as never)
     .insert({ business_id: businessId, title: title || "New Chat" } as never)
@@ -55,7 +64,10 @@ export async function createChatSession(businessId: string, title?: string): Pro
 }
 
 export async function deleteChatSession(sessionId: string): Promise<void> {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) throw new Error(auth.error || "Not authenticated");
+  const supabase = auth.supabase;
+
   const { error } = await supabase
     .from("ai_chat_messages" as never)
     .delete()
@@ -72,7 +84,10 @@ export async function deleteChatSession(sessionId: string): Promise<void> {
 }
 
 async function getBusinessContext(businessId: string): Promise<string> {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return "";
+  const supabase = auth.supabase;
+
   const lines: string[] = [];
 
   const { data: business } = await supabase
@@ -139,7 +154,9 @@ export async function sendChatMessage(
   sessionId: string,
   userMessage: string
 ): Promise<string> {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) throw new Error(auth.error || "Not authenticated");
+  const supabase = auth.supabase;
 
   const { error: userMsgError } = await supabase
     .from("ai_chat_messages" as never)
@@ -222,6 +239,9 @@ export async function getQuickInsights(businessId: string): Promise<string[]> {
   if (!AI_ENABLED) {
     return ["AI features require a valid Gemini API key. Add NEXT_PUBLIC_GEMINI_API_KEY to .env.local to enable."];
   }
+
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) throw new Error(auth.error || "Not authenticated");
 
   const businessContext = await getBusinessContext(businessId);
 

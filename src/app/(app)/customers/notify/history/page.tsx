@@ -28,8 +28,8 @@ export default function BroadcastHistoryPage() {
     if (!businessId) return;
     setLoading(true);
     try {
-      const data = await getBroadcasts(businessId);
-      setBroadcasts(data);
+      const result = await getBroadcasts(businessId) as any;
+      if (!result?.error) setBroadcasts(result);
     } catch (err) {
       console.error(err);
     } finally {

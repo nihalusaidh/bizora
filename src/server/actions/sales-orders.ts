@@ -1,7 +1,10 @@
-import { createClient } from "@/lib/supabase/client";
+import { requireBusiness } from "@/lib/auth";
 
 export async function getSalesOrders(businessId: string, status?: string) {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
+
   let query = supabase
     .from("sales_orders")
     .select("*, customers(name, phone)")
@@ -14,7 +17,10 @@ export async function getSalesOrders(businessId: string, status?: string) {
 }
 
 export async function getSalesOrder(businessId: string, orderId: string) {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
+
   const { data, error } = await supabase
     .from("sales_orders")
     .select("*, customers(name, phone, email, address), sales_order_items(*)")
@@ -26,18 +32,10 @@ export async function getSalesOrder(businessId: string, orderId: string) {
 }
 
 export async function getNextOrderNumber(businessId: string) {
-  const supabase = createClient();
-  const { data, error } = await supabase
-    .from("sales_orders")
-    .select("order_number")
-    .eq("business_id", businessId)
-    .order("created_at", { ascending: false })
-    .limit(1)
-    .single();
-  if (error && error.code !== "PGRST116") throw new Error(error.message);
-  if (!data) return "SO-0001";
-  const lastNum = parseInt(data.order_number.split("-")[1] || "0", 10);
-  return `SO-${String(lastNum + 1).padStart(4, "0")}`;
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const suffix = crypto.randomUUID().replace(/-/g, "").substring(0, 8).toUpperCase();
+  return `SO-${suffix}`;
 }
 
 export async function createSalesOrder(businessId: string, input: {
@@ -47,7 +45,10 @@ export async function createSalesOrder(businessId: string, input: {
   expected_date?: string | null;
   notes?: string | null;
 }) {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
+
   const orderNumber = await getNextOrderNumber(businessId);
 
   let subtotal = 0;
@@ -103,7 +104,10 @@ export async function createSalesOrder(businessId: string, input: {
 }
 
 export async function updateSalesOrderStatus(businessId: string, orderId: string, status: string) {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
+
   const { data, error } = await supabase
     .from("sales_orders")
     .update({ status, updated_at: new Date().toISOString() })
@@ -116,13 +120,19 @@ export async function updateSalesOrderStatus(businessId: string, orderId: string
 }
 
 export async function deleteSalesOrder(businessId: string, orderId: string) {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
+
   const { error } = await supabase.from("sales_orders").delete().eq("business_id", businessId).eq("id", orderId);
   if (error) throw new Error(error.message);
 }
 
 export async function convertOrderToInvoice(businessId: string, orderId: string) {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
+
   const { data: order, error } = await supabase
     .from("sales_orders")
     .select("*, sales_order_items(*)")
@@ -131,15 +141,7 @@ export async function convertOrderToInvoice(businessId: string, orderId: string)
     .single();
   if (error) throw new Error(error.message);
 
-  const { data: invoices } = await supabase
-    .from("invoices").select("invoice_number").eq("business_id", businessId)
-    .order("created_at", { ascending: false }).limit(1);
-
-  let invoiceNumber = "INV-0001";
-  if (invoices && invoices.length > 0) {
-    const lastNum = parseInt(invoices[0].invoice_number.split("-")[1] || "0", 10);
-    invoiceNumber = `INV-${String(lastNum + 1).padStart(4, "0")}`;
-  }
+  let invoiceNumber = `INV-${crypto.randomUUID().replace(/-/g, "").substring(0, 8).toUpperCase()}`;
 
   const { data: invoice, error: iErr } = await supabase
     .from("invoices")

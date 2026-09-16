@@ -1,7 +1,10 @@
-import { createClient } from "@/lib/supabase/client";
+import { requireBusiness } from "@/lib/auth";
 
 export async function getEstimates(businessId: string, status?: string) {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
+
   let query = supabase
     .from("estimates")
     .select("*, customers(name, phone)")
@@ -18,7 +21,10 @@ export async function getEstimates(businessId: string, status?: string) {
 }
 
 export async function getEstimate(businessId: string, estimateId: string) {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
+
   const { data, error } = await supabase
     .from("estimates")
     .select("*, customers(name, phone, email, address, gst_number), estimate_items(*)")
@@ -31,20 +37,10 @@ export async function getEstimate(businessId: string, estimateId: string) {
 }
 
 export async function getNextEstimateNumber(businessId: string) {
-  const supabase = createClient();
-  const { data, error } = await supabase
-    .from("estimates")
-    .select("estimate_number")
-    .eq("business_id", businessId)
-    .order("created_at", { ascending: false })
-    .limit(1)
-    .single();
-
-  if (error && error.code !== "PGRST116") throw new Error(error.message);
-  if (!data) return "EST-0001";
-
-  const lastNum = parseInt(data.estimate_number.split("-")[1] || "0", 10);
-  return `EST-${String(lastNum + 1).padStart(4, "0")}`;
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const suffix = crypto.randomUUID().replace(/-/g, "").substring(0, 8).toUpperCase();
+  return `EST-${suffix}`;
 }
 
 export async function createEstimate(businessId: string, input: {
@@ -64,7 +60,10 @@ export async function createEstimate(businessId: string, input: {
   notes?: string | null;
   valid_until?: string | null;
 }) {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
+
   const estimateNumber = await getNextEstimateNumber(businessId);
 
   let subtotal = 0;
@@ -135,7 +134,10 @@ export async function createEstimate(businessId: string, input: {
 }
 
 export async function updateEstimateStatus(businessId: string, estimateId: string, status: string) {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
+
   const { data, error } = await supabase
     .from("estimates")
     .update({ status, updated_at: new Date().toISOString() })
@@ -149,7 +151,10 @@ export async function updateEstimateStatus(businessId: string, estimateId: strin
 }
 
 export async function deleteEstimate(businessId: string, estimateId: string) {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
+
   const { error } = await supabase
     .from("estimates")
     .delete()
@@ -160,7 +165,9 @@ export async function deleteEstimate(businessId: string, estimateId: string) {
 }
 
 export async function convertEstimateToInvoice(businessId: string, estimateId: string) {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
 
   const { data: estimate, error: estError } = await supabase
     .from("estimates")
@@ -172,18 +179,7 @@ export async function convertEstimateToInvoice(businessId: string, estimateId: s
   if (estError) throw new Error(estError.message);
   if (estimate.status === "converted") throw new Error("Estimate already converted");
 
-  const { data: invoices } = await supabase
-    .from("invoices")
-    .select("invoice_number")
-    .eq("business_id", businessId)
-    .order("created_at", { ascending: false })
-    .limit(1);
-
-  let invoiceNumber = "INV-0001";
-  if (invoices && invoices.length > 0) {
-    const lastNum = parseInt(invoices[0].invoice_number.split("-")[1] || "0", 10);
-    invoiceNumber = `INV-${String(lastNum + 1).padStart(4, "0")}`;
-  }
+  let invoiceNumber = `INV-${crypto.randomUUID().replace(/-/g, "").substring(0, 8).toUpperCase()}`;
 
   const { data: invoice, error: invError } = await supabase
     .from("invoices")

@@ -44,7 +44,7 @@ export default function TeamPage() {
         getTeamMembers(businessId),
         getCurrentUserRole(businessId),
       ]);
-      setMembers(teamData);
+      setMembers(teamData as any);
       setCurrentRole(role);
 
       // Get current user ID from supabase

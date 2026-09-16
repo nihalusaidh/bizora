@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/client";
+import { requireBusiness } from "@/lib/auth";
 
 interface Gstr1B2B {
   gstin: string;
@@ -60,7 +60,9 @@ export interface Gstr1Report {
 }
 
 export async function generateGstr1(businessId: string, month: number, year: number): Promise<Gstr1Report> {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error } as any;
+  const supabase = auth.supabase;
 
   const startDate = new Date(year, month - 1, 1);
   const endDate = new Date(year, month, 0);

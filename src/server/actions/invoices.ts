@@ -1,23 +1,11 @@
-import { createClient } from "@/lib/supabase/client";
+import { requireBusiness } from "@/lib/auth";
 import { invoiceSchema, type InvoiceInput } from "@/lib/validators/invoices";
 
 export async function getNextInvoiceNumber(businessId: string) {
-  const supabase = createClient();
-  const { data, error } = await supabase
-    .from("invoices")
-    .select("invoice_number")
-    .eq("business_id", businessId)
-    .order("created_at", { ascending: false })
-    .limit(1)
-    .single();
-
-  if (error && error.code !== "PGRST116") throw new Error(error.message);
-
-  if (!data) return "INV-0001";
-
-  const lastNum = parseInt(data.invoice_number.split("-")[1] || "0", 10);
-  const nextNum = lastNum + 1;
-  return `INV-${String(nextNum).padStart(4, "0")}`;
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const suffix = crypto.randomUUID().replace(/-/g, "").substring(0, 8).toUpperCase();
+  return `INV-${suffix}`;
 }
 
 export async function createInvoice(businessId: string, input: InvoiceInput) {
@@ -26,7 +14,9 @@ export async function createInvoice(businessId: string, input: InvoiceInput) {
     throw new Error(parsed.error.issues[0].message);
   }
 
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
   const invoiceNumber = await getNextInvoiceNumber(businessId);
 
   let subtotal = 0;
@@ -62,7 +52,7 @@ export async function createInvoice(businessId: string, input: InvoiceInput) {
   const { data: invoice, error: invoiceError } = await supabase
     .from("invoices")
     .insert({
-      business_id: businessId,
+      business_id: auth.businessId,
       invoice_number: invoiceNumber,
       customer_id: parsed.data.customer_id || null,
       status,
@@ -161,11 +151,13 @@ export async function createInvoice(businessId: string, input: InvoiceInput) {
 }
 
 export async function getInvoices(businessId: string, status?: string) {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
   let query = supabase
     .from("invoices")
     .select("*, customers(name, phone)")
-    .eq("business_id", businessId)
+    .eq("business_id", auth.businessId)
     .order("created_at", { ascending: false });
 
   if (status && status !== "all") {
@@ -178,11 +170,13 @@ export async function getInvoices(businessId: string, status?: string) {
 }
 
 export async function getInvoice(businessId: string, invoiceId: string) {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
   const { data, error } = await supabase
     .from("invoices")
     .select("*, customers(name, phone, email, address, gst_number), invoice_items(*)")
-    .eq("business_id", businessId)
+    .eq("business_id", auth.businessId)
     .eq("id", invoiceId)
     .single();
 
@@ -196,14 +190,16 @@ export async function updateInvoiceStatus(
   status: string,
   amountPaid?: number
 ) {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
   const update: Record<string, unknown> = { status };
   if (amountPaid !== undefined) update.amount_paid = amountPaid;
 
   const { data, error } = await supabase
     .from("invoices")
     .update(update)
-    .eq("business_id", businessId)
+    .eq("business_id", auth.businessId)
     .eq("id", invoiceId)
     .select()
     .single();
@@ -213,11 +209,13 @@ export async function updateInvoiceStatus(
 }
 
 export async function deleteInvoice(businessId: string, invoiceId: string) {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
   const { error } = await supabase
     .from("invoices")
     .delete()
-    .eq("business_id", businessId)
+    .eq("business_id", auth.businessId)
     .eq("id", invoiceId);
 
   if (error) throw new Error(error.message);

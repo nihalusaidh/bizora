@@ -1,7 +1,9 @@
-import { createClient } from "@/lib/supabase/client";
+import { requireBusiness } from "@/lib/auth";
 
 export async function generateEinvoice(businessId: string, invoiceId: string, mode: "sandbox" | "production" = "sandbox") {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
 
   const { data: invoice, error: invError } = await supabase
     .from("invoices")
@@ -43,7 +45,9 @@ export async function generateEinvoice(businessId: string, invoiceId: string, mo
 }
 
 export async function getEinvoiceLog(businessId: string, invoiceId?: string) {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
   let query = supabase.from("einvoice_log").select("*, invoices(invoice_number)").eq("business_id", businessId).order("created_at", { ascending: false });
   if (invoiceId) query = query.eq("invoice_id", invoiceId);
   const { data, error } = await query;
@@ -60,7 +64,9 @@ export async function generateEwayBill(businessId: string, input: {
   transport_mode: "road" | "rail" | "air" | "ship";
   distance_km?: number;
 }) {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
 
   const ewayNumber = `EW${Date.now()}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
   const validUpto = new Date(Date.now() + 24 * 60 * 60 * 1000);
@@ -79,7 +85,9 @@ export async function generateEwayBill(businessId: string, input: {
 }
 
 export async function getEwayBillLog(businessId: string) {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
   const { data, error } = await supabase
     .from("eway_bill_log").select("*, invoices(invoice_number)").eq("business_id", businessId)
     .order("created_at", { ascending: false });

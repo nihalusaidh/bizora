@@ -39,8 +39,9 @@ export default function ChallansPage() {
     if (!businessId) return;
     setLoading(true);
     try {
-      const data = await getDeliveryChallans(businessId, statusFilter);
-      setChallans(data);
+      const result = await getDeliveryChallans(businessId, statusFilter) as any;
+      if (result?.error) { setLoading(false); return; }
+      setChallans(result);
     } catch (err) {
       console.error(err);
     } finally {

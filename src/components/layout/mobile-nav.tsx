@@ -44,7 +44,7 @@ export function MobileNav({ open, onClose, bottomNav }: MobileNavProps) {
   if (bottomNav) {
     return (
       <nav className="border-t border-border bg-background safe-area-bottom">
-        <div className="flex items-center justify-around px-2 py-1.5">
+        <div className="flex items-center justify-around px-2 py-3">
           {bottomNavItems.map((item) => {
             const active = isActive(item.href);
             return (
@@ -52,7 +52,7 @@ export function MobileNav({ open, onClose, bottomNav }: MobileNavProps) {
                 key={item.name}
                 href={item.href}
                 className={cn(
-                  "flex flex-col items-center gap-0.5 rounded-lg px-3 py-1.5 text-[10px] font-medium transition-colors",
+                  "flex flex-col items-center gap-0.5 rounded-lg px-3 py-3 min-h-[44px] text-[10px] font-medium transition-colors",
                   active ? "text-[#DC2626]" : "text-muted-foreground"
                 )}
               >

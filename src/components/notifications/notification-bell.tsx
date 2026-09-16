@@ -57,7 +57,7 @@ export function NotificationBell() {
     if (!businessId) return;
     try {
       const c = await getUnreadCount(businessId);
-      setCount(c);
+      setCount(c as any);
     } catch {
       // silent
     }
@@ -74,7 +74,7 @@ export function NotificationBell() {
     setLoading(true);
     try {
       const data = await getNotifications(businessId);
-      setNotifications(data);
+      setNotifications(data as any);
     } catch {
       // silent
     } finally {
@@ -184,7 +184,7 @@ export function NotificationBell() {
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="h-6 w-6"
+                            className="h-8 w-8"
                             onClick={() => handleMarkRead(notif.id)}
                           >
                             <Check className="h-3 w-3" />
@@ -193,7 +193,7 @@ export function NotificationBell() {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-6 w-6 text-muted-foreground"
+                          className="h-8 w-8 text-muted-foreground"
                           onClick={() => handleDismiss(notif.id)}
                         >
                           <Trash2 className="h-3 w-3" />

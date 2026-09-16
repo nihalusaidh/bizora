@@ -1,8 +1,11 @@
-import { createClient } from "@/lib/supabase/client";
+import { requireBusiness } from "@/lib/auth";
 import { expenseCategorySchema, type ExpenseCategoryInput } from "@/lib/validators/expenses";
 
 export async function getExpenseCategories(businessId: string) {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
+
   const { data, error } = await supabase
     .from("expense_categories")
     .select("*")
@@ -20,7 +23,10 @@ export async function createExpenseCategory(businessId: string, input: ExpenseCa
     throw new Error(parsed.error.issues[0].message);
   }
 
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
+
   const { data, error } = await supabase
     .from("expense_categories")
     .insert({ ...parsed.data, business_id: businessId })
@@ -36,7 +42,10 @@ export async function updateExpenseCategory(
   categoryId: string,
   input: Partial<ExpenseCategoryInput>
 ) {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
+
   const { data, error } = await supabase
     .from("expense_categories")
     .update(input)
@@ -50,7 +59,10 @@ export async function updateExpenseCategory(
 }
 
 export async function deleteExpenseCategory(businessId: string, categoryId: string) {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
+
   const { error } = await supabase
     .from("expense_categories")
     .update({ is_active: false })
@@ -62,7 +74,10 @@ export async function deleteExpenseCategory(businessId: string, categoryId: stri
 
 export async function seedDefaultCategories(businessId: string) {
   const { EXPENSE_CATEGORIES_DEFAULTS } = await import("@/lib/constants");
-  const supabase = createClient();
+
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
 
   const categories = EXPENSE_CATEGORIES_DEFAULTS.map((cat) => ({
     ...cat,

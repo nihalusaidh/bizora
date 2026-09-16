@@ -45,8 +45,9 @@ export default function InvoicesPage() {
     if (!businessId) return;
     setLoading(true);
     try {
-      const data = await getInvoices(businessId, statusFilter);
-      setInvoices(data);
+      const result = await getInvoices(businessId, statusFilter) as any;
+      if (result?.error) { setLoading(false); return; }
+      setInvoices(result);
     } catch (err) {
       console.error("Failed to load invoices:", err);
     } finally {
@@ -199,7 +200,7 @@ export default function InvoicesPage() {
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-8 w-8 text-foreground"
+                        className="h-10 w-10 text-foreground"
                         onClick={(e) => {
                           e.preventDefault();
                           handleMarkPaid(invoice.id, invoice.total);
@@ -211,7 +212,7 @@ export default function InvoicesPage() {
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-8 w-8 text-[#DC2626]"
+                      className="h-10 w-10 text-[#DC2626]"
                       onClick={(e) => {
                         e.preventDefault();
                         handleDelete(invoice.id);

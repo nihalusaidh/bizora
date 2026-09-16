@@ -1,7 +1,9 @@
-import { createClient } from "@/lib/supabase/client";
+import { requireBusiness } from "@/lib/auth";
 
 export async function createBackup(businessId: string) {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
   
   // Create backup record
   const { data: backup, error } = await supabase
@@ -54,7 +56,9 @@ export async function createBackup(businessId: string) {
 }
 
 export async function getBackups(businessId: string) {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
   const { data, error } = await supabase
     .from("db_backups")
     .select("*")
@@ -65,7 +69,9 @@ export async function getBackups(businessId: string) {
 }
 
 export async function restoreBackup(businessId: string, backupId: string) {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
   
   const { data: backup, error } = await supabase
     .from("db_backups")
@@ -80,8 +86,15 @@ export async function restoreBackup(businessId: string, backupId: string) {
   const response = await fetch(backup.file_path);
   const data = await response.json();
 
-  // Restore each table
+  // Validate backup structure before restoring
+  const allowedTables = ["products", "customers", "invoices", "expenses", "categories", "suppliers"];
   const tables = Object.keys(data);
+  const invalidTables = tables.filter(t => !allowedTables.includes(t));
+  if (invalidTables.length > 0) {
+    throw new Error(`Invalid tables in backup: ${invalidTables.join(", ")}`);
+  }
+
+  // Restore each table
   for (const table of tables) {
     if (!data[table]?.length) continue;
     // Delete existing and insert backup

@@ -1,15 +1,17 @@
-import { createClient } from "@/lib/supabase/client";
+import { requireBusiness } from "@/lib/auth";
 import { expenseSchema, type ExpenseInput } from "@/lib/validators/expenses";
 
 export async function getExpenses(
   businessId: string,
   options?: { search?: string; category_id?: string; start_date?: string; end_date?: string }
 ) {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
   let query = supabase
     .from("expenses")
     .select("*, expense_categories(id, name, icon, color)")
-    .eq("business_id", businessId)
+    .eq("business_id", auth.businessId)
     .eq("is_active", true)
     .order("expense_date", { ascending: false });
 
@@ -32,11 +34,13 @@ export async function getExpenses(
 }
 
 export async function getExpense(businessId: string, expenseId: string) {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
   const { data, error } = await supabase
     .from("expenses")
     .select("*, expense_categories(id, name, icon, color)")
-    .eq("business_id", businessId)
+    .eq("business_id", auth.businessId)
     .eq("id", expenseId)
     .single();
 
@@ -50,7 +54,9 @@ export async function createExpense(businessId: string, input: ExpenseInput) {
     throw new Error(parsed.error.issues[0].message);
   }
 
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
   const { data, error } = await supabase
     .from("expenses")
     .insert({
@@ -60,7 +66,7 @@ export async function createExpense(businessId: string, input: ExpenseInput) {
       reference: parsed.data.reference || null,
       notes: parsed.data.notes || null,
       recurring_period: parsed.data.is_recurring ? parsed.data.recurring_period : null,
-      business_id: businessId,
+      business_id: auth.businessId,
     })
     .select()
     .single();
@@ -74,7 +80,9 @@ export async function updateExpense(
   expenseId: string,
   input: Partial<ExpenseInput>
 ) {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
   const { data, error } = await supabase
     .from("expenses")
     .update({
@@ -82,7 +90,7 @@ export async function updateExpense(
       category_id: input.category_id || null,
       recurring_period: input.is_recurring ? input.recurring_period : null,
     })
-    .eq("business_id", businessId)
+    .eq("business_id", auth.businessId)
     .eq("id", expenseId)
     .select()
     .single();
@@ -92,22 +100,26 @@ export async function updateExpense(
 }
 
 export async function deleteExpense(businessId: string, expenseId: string) {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
   const { error } = await supabase
     .from("expenses")
     .update({ is_active: false })
-    .eq("business_id", businessId)
+    .eq("business_id", auth.businessId)
     .eq("id", expenseId);
 
   if (error) throw new Error(error.message);
 }
 
 export async function getExpenseSummary(businessId: string, startDate: string, endDate: string) {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
   const { data, error } = await supabase
     .from("expenses")
     .select("amount, category_id, expense_categories(name, icon, color)")
-    .eq("business_id", businessId)
+    .eq("business_id", auth.businessId)
     .eq("is_active", true)
     .gte("expense_date", startDate)
     .lte("expense_date", endDate);

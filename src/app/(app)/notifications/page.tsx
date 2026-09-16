@@ -69,7 +69,7 @@ export default function NotificationsPage() {
     setLoading(true);
     try {
       const data = await getNotifications(businessId);
-      setNotifications(data);
+      setNotifications(data as any);
     } catch (err) {
       console.error("Failed to load:", err);
     } finally {

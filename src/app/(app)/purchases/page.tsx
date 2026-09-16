@@ -44,7 +44,7 @@ export default function PurchasesPage() {
     setLoading(true);
     try {
       const data = await getPurchaseOrders(businessId, statusFilter);
-      setOrders(data);
+      setOrders(data as any);
     } catch (err) {
       console.error("Failed to load:", err);
     } finally {

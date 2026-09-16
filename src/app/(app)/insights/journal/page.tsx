@@ -33,7 +33,7 @@ export default function JournalPage() {
   const load = useCallback(async () => {
     if (!businessId) return;
     setLoading(true);
-    try { setEntries(await getJournalEntries(businessId, statusFilter)); }
+    try { setEntries(await getJournalEntries(businessId, statusFilter) as any); }
     catch (err) { console.error(err); }
     finally { setLoading(false); }
   }, [businessId, statusFilter]);

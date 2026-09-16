@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/client";
+import { requireBusiness } from "@/lib/auth";
 
 export interface DateRange {
   start_date: string;
@@ -6,7 +6,9 @@ export interface DateRange {
 }
 
 export async function getRevenueReport(businessId: string, range: DateRange) {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
 
   const { data: invoices, error } = await supabase
     .from("invoices")
@@ -63,7 +65,9 @@ export async function getRevenueReport(businessId: string, range: DateRange) {
 }
 
 export async function getExpenseReport(businessId: string, range: DateRange) {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
 
   const { data: expenses, error } = await supabase
     .from("expenses")
@@ -116,14 +120,17 @@ export async function getExpenseReport(businessId: string, range: DateRange) {
 }
 
 export async function getProfitLossReport(businessId: string, range: DateRange) {
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+
   const [revenue, expenses] = await Promise.all([
     getRevenueReport(businessId, range),
     getExpenseReport(businessId, range),
   ]);
 
-  const grossProfit = revenue.totalRevenue - revenue.totalDiscount;
-  const netProfit = grossProfit - expenses.totalExpenses;
-  const profitMargin = revenue.totalRevenue > 0 ? (netProfit / revenue.totalRevenue) * 100 : 0;
+  const grossProfit = (revenue.totalRevenue ?? 0) - (revenue.totalDiscount ?? 0);
+  const netProfit = grossProfit - (expenses.totalExpenses ?? 0);
+  const profitMargin = (revenue.totalRevenue ?? 0) > 0 ? (netProfit / (revenue.totalRevenue ?? 0)) * 100 : 0;
 
   return {
     revenue,
@@ -135,7 +142,9 @@ export async function getProfitLossReport(businessId: string, range: DateRange) 
 }
 
 export async function getGstReport(businessId: string, range: DateRange) {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
 
   const { data: invoices, error } = await supabase
     .from("invoices")
@@ -170,6 +179,9 @@ export async function getGstReport(businessId: string, range: DateRange) {
 }
 
 export async function getDashboardStats(businessId: string) {
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+
   const now = new Date();
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split("T")[0];
   const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split("T")[0];
@@ -183,25 +195,25 @@ export async function getDashboardStats(businessId: string) {
     getExpenseReport(businessId, { start_date: startOfLastMonth, end_date: endOfLastMonth }),
   ]);
 
-  const thisMonthProfit = thisMonthRevenue.totalRevenue - thisMonthExpenses.totalExpenses;
-  const lastMonthProfit = lastMonthRevenue.totalRevenue - lastMonthExpenses.totalExpenses;
+  const thisMonthProfit = (thisMonthRevenue.totalRevenue ?? 0) - (thisMonthExpenses.totalExpenses ?? 0);
+  const lastMonthProfit = (lastMonthRevenue.totalRevenue ?? 0) - (lastMonthExpenses.totalExpenses ?? 0);
 
-  const revenueChange = lastMonthRevenue.totalRevenue > 0
-    ? ((thisMonthRevenue.totalRevenue - lastMonthRevenue.totalRevenue) / lastMonthRevenue.totalRevenue) * 100
+  const revenueChange = (lastMonthRevenue.totalRevenue ?? 0) > 0
+    ? (((thisMonthRevenue.totalRevenue ?? 0) - (lastMonthRevenue.totalRevenue ?? 0)) / (lastMonthRevenue.totalRevenue ?? 0)) * 100
     : 0;
-  const expenseChange = lastMonthExpenses.totalExpenses > 0
-    ? ((thisMonthExpenses.totalExpenses - lastMonthExpenses.totalExpenses) / lastMonthExpenses.totalExpenses) * 100
+  const expenseChange = (lastMonthExpenses.totalExpenses ?? 0) > 0
+    ? (((thisMonthExpenses.totalExpenses ?? 0) - (lastMonthExpenses.totalExpenses ?? 0)) / (lastMonthExpenses.totalExpenses ?? 0)) * 100
     : 0;
   const profitChange = lastMonthProfit > 0
     ? ((thisMonthProfit - lastMonthProfit) / lastMonthProfit) * 100
     : 0;
 
   return {
-    revenue: { current: thisMonthRevenue.totalRevenue, change: revenueChange },
-    expenses: { current: thisMonthExpenses.totalExpenses, change: expenseChange },
+    revenue: { current: thisMonthRevenue.totalRevenue ?? 0, change: revenueChange },
+    expenses: { current: thisMonthExpenses.totalExpenses ?? 0, change: expenseChange },
     profit: { current: thisMonthProfit, change: profitChange },
-    invoices: thisMonthRevenue.invoiceCount,
-    outstanding: thisMonthRevenue.totalPending,
-    avgInvoice: thisMonthRevenue.avgInvoiceValue,
+    invoices: thisMonthRevenue.invoiceCount ?? 0,
+    outstanding: thisMonthRevenue.totalPending ?? 0,
+    avgInvoice: thisMonthRevenue.avgInvoiceValue ?? 0,
   };
 }

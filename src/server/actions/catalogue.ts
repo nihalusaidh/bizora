@@ -1,7 +1,9 @@
-import { createClient } from "@/lib/supabase/client";
+import { requireAuth, requireBusiness } from "@/lib/auth";
 
 export async function getBusinessBySlug(slug: string) {
-  const supabase = createClient();
+  const auth = await requireAuth();
+  if (auth.error || !auth.supabase) return { error: auth.error };
+  const supabase = auth.supabase;
   const { data, error } = await supabase
     .from("businesses")
     .select("id, name, type, phone, email, address, logo_url")
@@ -13,7 +15,9 @@ export async function getBusinessBySlug(slug: string) {
 }
 
 export async function getCatalogueProducts(businessId: string, categoryId?: string) {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
   let query = supabase
     .from("products")
     .select(`
@@ -36,7 +40,9 @@ export async function getCatalogueProducts(businessId: string, categoryId?: stri
 }
 
 export async function getCatalogueCategories(businessId: string) {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
   const { data, error } = await supabase
     .from("categories")
     .select("id, name, icon, color")

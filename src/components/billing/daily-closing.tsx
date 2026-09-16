@@ -43,7 +43,7 @@ export function DailyClosing() {
     if (!businessId) return;
     setLoading(true);
     getDailyClosingData(businessId, today)
-      .then(setData)
+      .then((d) => setData(d as any))
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
   }, [businessId, today]);

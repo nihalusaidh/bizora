@@ -2,10 +2,11 @@
 
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Menu } from "lucide-react";
+import { Menu, Search } from "lucide-react";
 import { NotificationBell } from "@/components/notifications/notification-bell";
 import { GlobalSearch } from "@/components/search/global-search";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { cn } from "@/lib/utils";
 
 const pageTitles: Record<string, string> = {
   "/dashboard": "Home",
@@ -21,9 +22,10 @@ const pageTitles: Record<string, string> = {
 
 interface TopbarProps {
   onMenuToggle: () => void;
+  className?: string;
 }
 
-export function Topbar({ onMenuToggle }: TopbarProps) {
+export function Topbar({ onMenuToggle, className }: TopbarProps) {
   const pathname = usePathname();
 
   const title =
@@ -35,7 +37,7 @@ export function Topbar({ onMenuToggle }: TopbarProps) {
       .join(" / ");
 
   return (
-    <header className="flex h-14 items-center gap-4 border-b border-border bg-background px-4 lg:px-6">
+    <header className={cn("flex h-14 items-center gap-4 border-b border-border bg-background px-4 lg:px-6 pt-[env(safe-area-inset-top)]", className)}>
       <Button
         variant="ghost"
         size="icon"
@@ -48,6 +50,14 @@ export function Topbar({ onMenuToggle }: TopbarProps) {
       <h1 className="text-base font-semibold text-foreground">{title}</h1>
 
       <div className="ml-auto flex items-center gap-0.5">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="lg:hidden text-foreground hover:bg-muted"
+          onClick={() => window.dispatchEvent(new KeyboardEvent("keydown", { key: "k", ctrlKey: true, bubbles: true }))}
+        >
+          <Search className="h-5 w-5" />
+        </Button>
         <GlobalSearch />
         <ThemeToggle />
         <NotificationBell />

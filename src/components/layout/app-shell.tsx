@@ -22,14 +22,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
       {/* Main content */}
       <div className="flex flex-1 flex-col overflow-hidden">
-        <Topbar onMenuToggle={() => setSidebarOpen(true)} />
+        <Topbar onMenuToggle={() => setSidebarOpen(true)} className="safe-area-top" />
         <main className="flex-1 overflow-y-auto p-4 md:p-6 pb-20 lg:pb-6">
           {children}
         </main>
       </div>
 
       {/* Mobile bottom nav */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40">
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 safe-area-bottom">
         <MobileNav bottomNav />
       </div>
 

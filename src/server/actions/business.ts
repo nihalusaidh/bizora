@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/client";
+import { requireAuth } from "@/lib/auth";
 
 export async function createBusiness(data: {
   name: string;
@@ -9,12 +9,11 @@ export async function createBusiness(data: {
   gstin: string | null;
   size: string;
 }) {
-  const supabase = createClient();
-
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
-  if (authError || !user) {
-    return { error: "Not authenticated" };
+  const auth = await requireAuth();
+  if (auth.error || !auth.supabase) {
+    return { error: auth.error };
   }
+  const supabase = auth.supabase;
 
   const { data: business, error: businessError } = await supabase
     .from("businesses")
@@ -26,7 +25,7 @@ export async function createBusiness(data: {
       gst_status: data.gst_status,
       gstin: data.gstin,
       size: data.size,
-      owner_id: user.id,
+      owner_id: auth.user!.id,
     })
     .select()
     .single();
@@ -38,7 +37,7 @@ export async function createBusiness(data: {
   const { error: membershipError } = await supabase
     .from("memberships")
     .insert({
-      user_id: user.id,
+      user_id: auth.user!.id,
       business_id: business.id,
       role: "owner",
     });

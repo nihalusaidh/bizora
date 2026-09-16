@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/client";
+import { requireBusiness } from "@/lib/auth";
 
 export interface Notification {
   id: string;
@@ -13,7 +13,10 @@ export interface Notification {
 }
 
 export async function getNotifications(businessId: string, userId?: string) {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
+
   let query = supabase
     .from("notifications")
     .select("*")
@@ -32,7 +35,10 @@ export async function getNotifications(businessId: string, userId?: string) {
 }
 
 export async function getUnreadCount(businessId: string, userId?: string) {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
+
   let query = supabase
     .from("notifications")
     .select("id", { count: "exact", head: true })
@@ -50,7 +56,10 @@ export async function getUnreadCount(businessId: string, userId?: string) {
 }
 
 export async function markAsRead(businessId: string, notificationId: string) {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
+
   const { error } = await supabase
     .from("notifications")
     .update({ is_read: true })
@@ -61,7 +70,10 @@ export async function markAsRead(businessId: string, notificationId: string) {
 }
 
 export async function markAllAsRead(businessId: string, userId?: string) {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
+
   const update = { is_read: true };
 
   let query = supabase
@@ -79,7 +91,10 @@ export async function markAllAsRead(businessId: string, userId?: string) {
 }
 
 export async function dismissNotification(businessId: string, notificationId: string) {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
+
   const { error } = await supabase
     .from("notifications")
     .update({ is_dismissed: true })
@@ -100,7 +115,10 @@ export async function createNotification(
     user_id?: string;
   }
 ) {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
+
   const { data, error } = await supabase
     .from("notifications")
     .insert({
@@ -115,7 +133,10 @@ export async function createNotification(
 }
 
 export async function generateAlerts(businessId: string) {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
+
   const alerts: Array<{ type: string; title: string; message: string; entity_type: string; entity_id: string }> = [];
 
   const { data: prods } = await supabase

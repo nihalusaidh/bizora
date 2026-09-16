@@ -43,8 +43,9 @@ export default function EstimatesPage() {
     if (!businessId) return;
     setLoading(true);
     try {
-      const data = await getEstimates(businessId, statusFilter);
-      setEstimates(data);
+      const result = await getEstimates(businessId, statusFilter) as any;
+      if (result?.error) { setLoading(false); return; }
+      setEstimates(result);
     } catch (err) {
       console.error("Failed to load:", err);
     } finally {

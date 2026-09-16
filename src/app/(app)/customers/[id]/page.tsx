@@ -84,10 +84,10 @@ export default function CustomerDetailPage() {
         getCustomerCredit(businessId, customerId),
         getLoyaltyBalance(customerId),
       ]);
-      setCustomer(cust);
-      setPayments(pays);
-      setCredits(creds);
-      setLoyaltyPoints(loyalty);
+      if (cust && !('error' in cust)) setCustomer(cust);
+      if (Array.isArray(pays)) setPayments(pays);
+      if (Array.isArray(creds)) setCredits(creds);
+      if (typeof loyalty === 'number') setLoyaltyPoints(loyalty);
     } catch (err) {
       console.error("Failed to load customer:", err);
     } finally {

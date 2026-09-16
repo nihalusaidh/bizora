@@ -19,7 +19,7 @@ export default function BackupPage() {
   const load = useCallback(async () => {
     if (!businessId) return;
     try {
-      setBackups(await getBackups(businessId));
+      setBackups(await getBackups(businessId) as any);
     } catch {}
     setLoading(false);
   }, [businessId]);

@@ -1,12 +1,14 @@
-import { createClient } from "@/lib/supabase/client";
+import { requireBusiness } from "@/lib/auth";
 import { categorySchema, type CategoryInput } from "@/lib/validators/inventory";
 
 export async function getCategories(businessId: string) {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
   const { data, error } = await supabase
     .from("categories")
     .select("*")
-    .eq("business_id", businessId)
+    .eq("business_id", auth.businessId)
     .eq("is_active", true)
     .order("sort_order", { ascending: true })
     .order("name", { ascending: true });
@@ -16,11 +18,13 @@ export async function getCategories(businessId: string) {
 }
 
 export async function getCategory(businessId: string, categoryId: string) {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
   const { data, error } = await supabase
     .from("categories")
     .select("*")
-    .eq("business_id", businessId)
+    .eq("business_id", auth.businessId)
     .eq("id", categoryId)
     .single();
 
@@ -34,10 +38,12 @@ export async function createCategory(businessId: string, input: CategoryInput) {
     throw new Error(parsed.error.issues[0].message);
   }
 
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
   const { data, error } = await supabase
     .from("categories")
-    .insert({ ...parsed.data, business_id: businessId })
+    .insert({ ...parsed.data, business_id: auth.businessId })
     .select()
     .single();
 
@@ -50,11 +56,13 @@ export async function updateCategory(
   categoryId: string,
   input: Partial<CategoryInput>
 ) {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
   const { data, error } = await supabase
     .from("categories")
     .update(input)
-    .eq("business_id", businessId)
+    .eq("business_id", auth.businessId)
     .eq("id", categoryId)
     .select()
     .single();
@@ -64,11 +72,13 @@ export async function updateCategory(
 }
 
 export async function deleteCategory(businessId: string, categoryId: string) {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
   const { error } = await supabase
     .from("categories")
     .update({ is_active: false })
-    .eq("business_id", businessId)
+    .eq("business_id", auth.businessId)
     .eq("id", categoryId);
 
   if (error) throw new Error(error.message);

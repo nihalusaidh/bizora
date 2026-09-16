@@ -1,12 +1,14 @@
-import { createClient } from "@/lib/supabase/client";
+import { requireBusiness } from "@/lib/auth";
 import { customerSchema, type CustomerInput } from "@/lib/validators/customers";
 
 export async function getCustomers(businessId: string, search?: string) {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
   let query = supabase
     .from("customers")
     .select("*")
-    .eq("business_id", businessId)
+    .eq("business_id", auth.businessId)
     .eq("is_active", true)
     .order("name", { ascending: true });
 
@@ -20,11 +22,13 @@ export async function getCustomers(businessId: string, search?: string) {
 }
 
 export async function getCustomer(businessId: string, customerId: string) {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
   const { data, error } = await supabase
     .from("customers")
     .select("*")
-    .eq("business_id", businessId)
+    .eq("business_id", auth.businessId)
     .eq("id", customerId)
     .single();
 
@@ -38,10 +42,12 @@ export async function createCustomer(businessId: string, input: CustomerInput) {
     throw new Error(parsed.error.issues[0].message);
   }
 
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
   const { data, error } = await supabase
     .from("customers")
-    .insert({ ...parsed.data, business_id: businessId })
+    .insert({ ...parsed.data, business_id: auth.businessId })
     .select()
     .single();
 
@@ -54,11 +60,13 @@ export async function updateCustomer(
   customerId: string,
   input: Partial<CustomerInput>
 ) {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
   const { data, error } = await supabase
     .from("customers")
     .update(input)
-    .eq("business_id", businessId)
+    .eq("business_id", auth.businessId)
     .eq("id", customerId)
     .select()
     .single();
@@ -68,11 +76,13 @@ export async function updateCustomer(
 }
 
 export async function deleteCustomer(businessId: string, customerId: string) {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
   const { error } = await supabase
     .from("customers")
     .update({ is_active: false })
-    .eq("business_id", businessId)
+    .eq("business_id", auth.businessId)
     .eq("id", customerId);
 
   if (error) throw new Error(error.message);
@@ -84,13 +94,15 @@ export async function sendPaymentReminder(
   invoiceId: string,
   message?: string
 ) {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
 
   const { data: customer, error: customerError } = await supabase
     .from("customers")
     .select("name, email")
     .eq("id", customerId)
-    .eq("business_id", businessId)
+    .eq("business_id", auth.businessId)
     .single();
 
   if (customerError || !customer) throw new Error("Customer not found");
@@ -100,7 +112,7 @@ export async function sendPaymentReminder(
     .from("invoices")
     .select("invoice_number, total, amount_paid")
     .eq("id", invoiceId)
-    .eq("business_id", businessId)
+    .eq("business_id", auth.businessId)
     .single();
 
   if (invoiceError || !invoice) throw new Error("Invoice not found");
@@ -108,12 +120,12 @@ export async function sendPaymentReminder(
   const { data: business } = await supabase
     .from("businesses")
     .select("name")
-    .eq("id", businessId)
+    .eq("id", auth.businessId)
     .single();
 
   const amountDue = invoice.total - invoice.amount_paid;
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL!;
   const res = await fetch(`${appUrl}/api/email/send`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },

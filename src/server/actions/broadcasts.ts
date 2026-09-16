@@ -1,22 +1,22 @@
-import { createClient } from "@/lib/supabase/client";
+import { requireBusiness } from "@/lib/auth";
 import type { BroadcastTemplateType, BroadcastChannel } from "@/types/database";
 
 const TEMPLATES: Record<BroadcastTemplateType, (data: { businessName: string; productName?: string; offerText?: string }) => { title: string; message: string }> = {
   new_stock: ({ businessName, productName }) => ({
     title: `New Stock: ${productName || "New Products"}`,
-    message: `🎉 New stock just arrived at ${businessName}!\n\n${productName ? `📦 ${productName} is now available.` : "Check out our latest arrivals!"}\n\nVisit us today or order on WhatsApp.`,
+    message: `New stock just arrived at ${businessName}!\n\n${productName ? `${productName} is now available.` : "Check out our latest arrivals!"}\n\nVisit us today or order on WhatsApp.`,
   }),
   offer: ({ businessName, productName, offerText }) => ({
     title: `Special Offer${productName ? `: ${productName}` : ""}`,
-    message: `🔥 Special Offer at ${businessName}!\n\n${offerText || "Get amazing discounts on selected products!"}\n\n${productName ? `📦 ${productName}\n\n` : ""}Hurry, limited time only!`,
+    message: `Special Offer at ${businessName}!\n\n${offerText || "Get amazing discounts on selected products!"}\n\n${productName ? `${productName}\n\n` : ""}Hurry, limited time only!`,
   }),
   restock: ({ businessName, productName }) => ({
     title: `Restocked: ${productName || "Products"}`,
-    message: `✅ Back in stock at ${businessName}!\n\n${productName ? `${productName} is available again.` : "Your favourite products are back!"}\n\nGrab them before they run out!`,
+    message: `Back in stock at ${businessName}!\n\n${productName ? `${productName} is available again.` : "Your favourite products are back!"}\n\nGrab them before they run out!`,
   }),
   back_in_stock: ({ businessName, productName }) => ({
     title: `Back in Stock: ${productName || "Products"}`,
-    message: `📢 Good news from ${businessName}!\n\n${productName ? `${productName} is back in stock!` : "Products you were looking for are back!"}\n\nOrder now.`,
+    message: `Good news from ${businessName}!\n\n${productName ? `${productName} is back in stock!` : "Products you were looking for are back!"}\n\nOrder now.`,
   }),
   custom: ({ businessName }) => ({
     title: `Message from ${businessName}`,
@@ -30,7 +30,10 @@ export function getTemplatePreview(type: BroadcastTemplateType, data: { business
 }
 
 export async function getCustomersWithPhone(businessId: string) {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
+
   const { data, error } = await supabase
     .from("customers")
     .select("id, name, phone")
@@ -51,7 +54,9 @@ export async function createBroadcast(businessId: string, input: {
   channel: BroadcastChannel;
   customer_ids: string[];
 }) {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
 
   const { data: customers } = await supabase
     .from("customers")
@@ -94,7 +99,9 @@ export async function createBroadcast(businessId: string, input: {
 }
 
 export async function sendBroadcastWhatsApp(businessId: string, broadcastId: string) {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
 
   const { data: broadcast, error: bError } = await supabase
     .from("customer_broadcasts")
@@ -119,8 +126,6 @@ export async function sendBroadcastWhatsApp(businessId: string, broadcastId: str
 
     try {
       const phone = recipient.phone.replace(/[^0-9]/g, "");
-      const url = `https://wa.me/${phone}?text=${encodeURIComponent(broadcast.message)}`;
-      window.open(url, "_blank");
 
       await supabase
         .from("customer_broadcast_recipients")
@@ -151,7 +156,10 @@ export async function sendBroadcastWhatsApp(businessId: string, broadcastId: str
 }
 
 export async function getBroadcasts(businessId: string) {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
+
   const { data, error } = await supabase
     .from("customer_broadcasts")
     .select("*")
@@ -163,7 +171,10 @@ export async function getBroadcasts(businessId: string) {
 }
 
 export async function deleteBroadcast(businessId: string, broadcastId: string) {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
+
   const { error } = await supabase
     .from("customer_broadcasts")
     .delete()

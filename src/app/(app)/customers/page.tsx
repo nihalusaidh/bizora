@@ -44,8 +44,9 @@ export default function CustomersPage() {
     if (!businessId) return;
     setLoading(true);
     try {
-      const data = await getCustomers(businessId, search);
-      setCustomers(data);
+      const result = await getCustomers(businessId, search) as any;
+      if (result?.error) { console.error(result.error); }
+      setCustomers(result?.data ?? result ?? []);
     } catch (err) {
       console.error("Failed to load customers:", err);
     } finally {
@@ -184,7 +185,7 @@ export default function CustomersPage() {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-8 w-8"
+                    className="h-10 w-10"
                     onClick={(e) => {
                       e.preventDefault();
                       setMenuOpen(menuOpen === customer.id ? null : customer.id);

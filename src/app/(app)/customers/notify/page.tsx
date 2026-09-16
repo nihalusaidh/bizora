@@ -99,9 +99,11 @@ function NotifyCustomersPage() {
     if (!businessId) return;
     setLoading(true);
     try {
-      const data = await getCustomersWithPhone(businessId);
+      const result = await getCustomersWithPhone(businessId) as any;
+      if (result?.error) { setLoading(false); return; }
+      const data = Array.isArray(result) ? result : [];
       setCustomers(data);
-      setSelectedIds(new Set(data.map((c) => c.id)));
+      setSelectedIds(new Set(data.map((c: any) => c.id)));
     } catch (err) {
       console.error(err);
     } finally {
@@ -173,9 +175,11 @@ function NotifyCustomersPage() {
         template_type: selectedTemplate,
         channel: "whatsapp",
         customer_ids: Array.from(selectedIds),
-      });
-      const result = await sendBroadcastWhatsApp(businessId, broadcast.id);
-      setSentCount(result.sentCount);
+      }) as any;
+      if (broadcast?.error) { setSending(false); return; }
+      const result = await sendBroadcastWhatsApp(businessId, broadcast.data?.id ?? broadcast.id) as any;
+      if (result?.error) { setSending(false); return; }
+      setSentCount(result.data?.sentCount ?? result.sentCount ?? 0);
       setSent(true);
     } catch (err) {
       alert(err instanceof Error ? err.message : "Failed");

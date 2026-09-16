@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/client";
+import { requireAuth, requireBusiness } from "@/lib/auth";
 
 export interface LoyaltySettings {
   id: string;
@@ -23,7 +23,9 @@ const DEFAULT_SETTINGS: Omit<LoyaltySettings, "id" | "business_id"> = {
 };
 
 export async function getLoyaltySettings(businessId: string): Promise<LoyaltySettings> {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return {} as LoyaltySettings;
+  const supabase = auth.supabase;
   const { data } = await supabase
     .from("loyalty_settings")
     .select("*")
@@ -45,7 +47,9 @@ export async function updateLoyaltySettings(
   businessId: string,
   updates: Partial<Omit<LoyaltySettings, "id" | "business_id">>
 ) {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
 
   const { data: existing } = await supabase
     .from("loyalty_settings")
@@ -70,13 +74,15 @@ export async function updateLoyaltySettings(
 }
 
 export async function earnPoints(businessId: string, invoiceId: string, customerId: string, amount: number) {
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
+
   const settings = await getLoyaltySettings(businessId);
   if (!settings.enabled) return { pointsEarned: 0, message: "Loyalty program is disabled" };
 
   const points = Math.floor(amount / settings.earn_rate) * settings.earn_points;
   if (points <= 0) return { pointsEarned: 0, message: "Amount too low to earn points" };
-
-  const supabase = createClient();
 
   const { error: insertError } = await supabase.from("loyalty_points").insert({
     business_id: businessId,
@@ -89,39 +95,33 @@ export async function earnPoints(businessId: string, invoiceId: string, customer
 
   if (insertError) throw new Error(insertError.message);
 
-  const { count } = await supabase
+  const { data: pointsData } = await supabase
     .from("loyalty_points")
-    .select("*", { count: "exact", head: true })
-    .eq("customer_id", customerId)
-    .eq("type", "earn");
+    .select("type, points")
+    .eq("customer_id", customerId);
 
-  const { count: redeemCount } = await supabase
-    .from("loyalty_points")
-    .select("*", { count: "exact", head: true })
-    .eq("customer_id", customerId)
-    .eq("type", "redeem");
-
-  const newBalance = (count || 0) - (redeemCount || 0);
+  const newBalance = (pointsData || []).reduce((sum, p) =>
+    p.type === "earn" ? sum + p.points : sum - p.points, 0
+  );
 
   return { pointsEarned: points, newBalance };
 }
 
 export async function getLoyaltyBalance(customerId: string) {
-  const supabase = createClient();
+  const auth = await requireAuth();
+  if (auth.error || !auth.supabase) return { error: auth.error };
+  const supabase = auth.supabase;
 
-  const { count: earned } = await supabase
+  const { data } = await supabase
     .from("loyalty_points")
-    .select("*", { count: "exact", head: true })
-    .eq("customer_id", customerId)
-    .eq("type", "earn");
+    .select("type, points")
+    .eq("customer_id", customerId);
 
-  const { count: redeemed } = await supabase
-    .from("loyalty_points")
-    .select("*", { count: "exact", head: true })
-    .eq("customer_id", customerId)
-    .eq("type", "redeem");
+  const balance = (data || []).reduce((sum, p) =>
+    p.type === "earn" ? sum + p.points : sum - p.points, 0
+  );
 
-  return (earned || 0) - (redeemed || 0);
+  return balance;
 }
 
 export async function redeemPoints(
@@ -130,6 +130,10 @@ export async function redeemPoints(
   points: number,
   invoiceId: string
 ) {
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
+
   const settings = await getLoyaltySettings(businessId);
   if (!settings.enabled) throw new Error("Loyalty program is disabled");
 
@@ -137,14 +141,13 @@ export async function redeemPoints(
     throw new Error(`Minimum ${settings.min_redeem_points} points required to redeem`);
   }
 
-  const balance = await getLoyaltyBalance(customerId);
+  const balance = await getLoyaltyBalance(customerId) as number;
   if (balance < points) {
     throw new Error(`Insufficient points. You have ${balance} points.`);
   }
 
   const discount = points * settings.redeem_rate;
 
-  const supabase = createClient();
   const { error } = await supabase.from("loyalty_points").insert({
     business_id: businessId,
     customer_id: customerId,
@@ -160,7 +163,9 @@ export async function redeemPoints(
 }
 
 export async function getLoyaltyHistory(customerId: string) {
-  const supabase = createClient();
+  const auth = await requireAuth();
+  if (auth.error || !auth.supabase) return { error: auth.error };
+  const supabase = auth.supabase;
   const { data, error } = await supabase
     .from("loyalty_points")
     .select("*")

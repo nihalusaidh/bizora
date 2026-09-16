@@ -1,8 +1,10 @@
-import { createClient } from "@/lib/supabase/client";
+import { requireBusiness } from "@/lib/auth";
 import { supplierSchema, type SupplierInput } from "@/lib/validators/inventory";
 
 export async function getSuppliers(businessId: string) {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
   const { data, error } = await supabase
     .from("suppliers")
     .select("*")
@@ -15,7 +17,9 @@ export async function getSuppliers(businessId: string) {
 }
 
 export async function getSupplier(businessId: string, supplierId: string) {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
   const { data, error } = await supabase
     .from("suppliers")
     .select("*")
@@ -33,7 +37,9 @@ export async function createSupplier(businessId: string, input: SupplierInput) {
     throw new Error(parsed.error.issues[0].message);
   }
 
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
   const { data, error } = await supabase
     .from("suppliers")
     .insert({ ...parsed.data, business_id: businessId })
@@ -49,7 +55,9 @@ export async function updateSupplier(
   supplierId: string,
   input: Partial<SupplierInput>
 ) {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
   const { data, error } = await supabase
     .from("suppliers")
     .update(input)
@@ -63,7 +71,9 @@ export async function updateSupplier(
 }
 
 export async function deleteSupplier(businessId: string, supplierId: string) {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
   const { error } = await supabase
     .from("suppliers")
     .update({ is_active: false })

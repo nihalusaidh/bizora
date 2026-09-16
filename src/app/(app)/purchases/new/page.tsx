@@ -48,7 +48,7 @@ export default function NewPurchaseOrderPage() {
           getSuppliers(businessId),
           getProducts(businessId) as Promise<{ data: Array<{ id: string; name: string; sku: string | null; cost_price: number }>; count: number | null }>,
         ]);
-        setSuppliers(supData);
+        setSuppliers(supData as any);
         setProducts(prodResult.data);
       } catch (err) {
         console.error("Failed to load:", err);

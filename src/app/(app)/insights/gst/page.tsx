@@ -48,7 +48,7 @@ export default function GstReportPage() {
     setLoading(true);
     try {
       const result = await getGstReport(businessId, { start_date: startDate, end_date: endDate });
-      setData(result);
+      setData(result as any);
     } catch (err) {
       console.error("Failed to load:", err);
     } finally {

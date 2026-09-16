@@ -18,8 +18,9 @@ export default function ExpenseCategoriesPage() {
     async function load() {
       if (!businessId) return;
       try {
-        const data = await getExpenseCategories(businessId);
-        setCategories(data);
+        const result = await getExpenseCategories(businessId) as any;
+        if (result?.error) { console.error(result.error); }
+        setCategories(result?.data ?? result ?? []);
       } catch (err) {
         console.error("Failed to load:", err);
       } finally {

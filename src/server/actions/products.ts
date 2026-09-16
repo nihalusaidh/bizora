@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/client";
+import { requireBusiness } from "@/lib/auth";
 import { productSchema, productVariantSchema, type ProductInput, type ProductVariantInput } from "@/lib/validators/inventory";
 
 export async function getProducts(
@@ -11,11 +11,13 @@ export async function getProducts(
     offset?: number;
   }
 ) {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
   let query = supabase
     .from("products")
     .select("*, category:categories(id, name), supplier:suppliers(id, name)")
-    .eq("business_id", businessId)
+    .eq("business_id", auth.businessId)
     .eq("is_active", true);
 
   if (options?.search) {
@@ -53,11 +55,13 @@ export async function getProducts(
 }
 
 export async function getProduct(businessId: string, productId: string) {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
   const { data, error } = await supabase
     .from("products")
     .select("*, category:categories(id, name), supplier:suppliers(id, name), variants:product_variants(*)")
-    .eq("business_id", businessId)
+    .eq("business_id", auth.businessId)
     .eq("id", productId)
     .single();
 
@@ -71,10 +75,12 @@ export async function createProduct(businessId: string, input: ProductInput) {
     throw new Error(parsed.error.issues[0].message);
   }
 
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
   const { data, error } = await supabase
     .from("products")
-    .insert({ ...parsed.data, business_id: businessId })
+    .insert({ ...parsed.data, business_id: auth.businessId })
     .select()
     .single();
 
@@ -87,11 +93,13 @@ export async function updateProduct(
   productId: string,
   input: Partial<ProductInput>
 ) {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
   const { data, error } = await supabase
     .from("products")
     .update(input)
-    .eq("business_id", businessId)
+    .eq("business_id", auth.businessId)
     .eq("id", productId)
     .select()
     .single();
@@ -101,18 +109,22 @@ export async function updateProduct(
 }
 
 export async function deleteProduct(businessId: string, productId: string) {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
   const { error } = await supabase
     .from("products")
     .update({ is_active: false })
-    .eq("business_id", businessId)
+    .eq("business_id", auth.businessId)
     .eq("id", productId);
 
   if (error) throw new Error(error.message);
 }
 
 export async function getProductVariants(businessId: string, productId: string) {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
   const { data, error } = await supabase
     .from("product_variants")
     .select("*")
@@ -134,7 +146,9 @@ export async function createVariant(
     throw new Error(parsed.error.issues[0].message);
   }
 
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
   const { data, error } = await supabase
     .from("product_variants")
     .insert({ ...parsed.data, product_id: productId })
@@ -150,7 +164,9 @@ export async function updateVariant(
   variantId: string,
   input: Partial<ProductVariantInput>
 ) {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
   const { data, error } = await supabase
     .from("product_variants")
     .update(input)
@@ -163,7 +179,9 @@ export async function updateVariant(
 }
 
 export async function deleteVariant(businessId: string, variantId: string) {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
   const { error } = await supabase
     .from("product_variants")
     .update({ is_active: false })

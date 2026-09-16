@@ -63,22 +63,25 @@ export default function ExpensesPage() {
     if (!businessId) return;
     setLoading(true);
     try {
-      const [expData, catData] = await Promise.all([
+      const [expResult, catResult] = await Promise.all([
         getExpenses(businessId, {
           search,
           category_id: categoryFilter === "all" ? undefined : categoryFilter,
         }),
         getExpenseCategories(businessId),
-      ]);
-      setExpenses(expData);
-      setCategories(catData);
+      ]) as any[];
+      if (expResult?.error) { console.error(expResult.error); }
+      if (catResult?.error) { console.error(catResult.error); }
+      setExpenses(expResult?.data ?? expResult ?? []);
+      setCategories(catResult?.data ?? catResult ?? []);
 
       // Calculate summary for current month
       const now = new Date();
       const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split("T")[0];
       const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split("T")[0];
-      const summ = await getExpenseSummary(businessId, startOfMonth, endOfMonth);
-      setSummary(summ);
+      const summResult = await getExpenseSummary(businessId, startOfMonth, endOfMonth) as any;
+      if (summResult?.error) { console.error(summResult.error); }
+      setSummary(summResult?.data ?? summResult ?? null);
     } catch (err) {
       console.error("Failed to load:", err);
     } finally {
@@ -244,7 +247,7 @@ export default function ExpensesPage() {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-8 w-8"
+                    className="h-10 w-10"
                     onClick={() => setEditingExpense(expense)}
                   >
                     <Edit className="h-4 w-4" />
@@ -252,7 +255,7 @@ export default function ExpensesPage() {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-8 w-8 text-destructive"
+                    className="h-10 w-10 text-destructive"
                     onClick={() => handleDelete(expense.id)}
                   >
                     <Trash2 className="h-4 w-4" />

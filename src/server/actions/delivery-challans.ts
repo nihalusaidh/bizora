@@ -1,7 +1,10 @@
-import { createClient } from "@/lib/supabase/client";
+import { requireBusiness } from "@/lib/auth";
 
 export async function getDeliveryChallans(businessId: string, status?: string) {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
+
   let query = supabase
     .from("delivery_challans")
     .select("*, customers(name, phone), invoices(invoice_number)")
@@ -18,7 +21,10 @@ export async function getDeliveryChallans(businessId: string, status?: string) {
 }
 
 export async function getDeliveryChallan(businessId: string, challanId: string) {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
+
   const { data, error } = await supabase
     .from("delivery_challans")
     .select("*, customers(name, phone, email, address), invoices(invoice_number, total, invoice_items(*)), delivery_challan_items(*)")
@@ -31,20 +37,10 @@ export async function getDeliveryChallan(businessId: string, challanId: string) 
 }
 
 export async function getNextChallanNumber(businessId: string) {
-  const supabase = createClient();
-  const { data, error } = await supabase
-    .from("delivery_challans")
-    .select("challan_number")
-    .eq("business_id", businessId)
-    .order("created_at", { ascending: false })
-    .limit(1)
-    .single();
-
-  if (error && error.code !== "PGRST116") throw new Error(error.message);
-  if (!data) return "DC-0001";
-
-  const lastNum = parseInt(data.challan_number.split("-")[1] || "0", 10);
-  return `DC-${String(lastNum + 1).padStart(4, "0")}`;
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const suffix = crypto.randomUUID().replace(/-/g, "").substring(0, 8).toUpperCase();
+  return `DC-${suffix}`;
 }
 
 export async function createDeliveryChallan(businessId: string, input: {
@@ -58,7 +54,10 @@ export async function createDeliveryChallan(businessId: string, input: {
   driver_phone?: string | null;
   notes?: string | null;
 }) {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
+
   const challanNumber = await getNextChallanNumber(businessId);
 
   const { data: challan, error: cError } = await supabase
@@ -97,7 +96,10 @@ export async function createDeliveryChallan(businessId: string, input: {
 }
 
 export async function updateChallanStatus(businessId: string, challanId: string, status: string) {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
+
   const { data, error } = await supabase
     .from("delivery_challans")
     .update({ status, updated_at: new Date().toISOString() })
@@ -111,7 +113,10 @@ export async function updateChallanStatus(businessId: string, challanId: string,
 }
 
 export async function deleteDeliveryChallan(businessId: string, challanId: string) {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
+
   const { error } = await supabase
     .from("delivery_challans")
     .delete()

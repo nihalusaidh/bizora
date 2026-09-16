@@ -1,7 +1,9 @@
-import { createClient } from "@/lib/supabase/client";
+import { requireBusiness } from "@/lib/auth";
 
 export async function getChartOfAccounts(businessId: string) {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
   const { data, error } = await supabase
     .from("chart_of_accounts")
     .select("*")
@@ -18,7 +20,9 @@ export async function createAccount(businessId: string, input: {
   account_type: "asset" | "liability" | "equity" | "revenue" | "expense";
   parent_account_id?: string;
 }) {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
   const { data, error } = await supabase
     .from("chart_of_accounts")
     .insert({ ...input, business_id: businessId })
@@ -29,7 +33,9 @@ export async function createAccount(businessId: string, input: {
 }
 
 export async function getJournalEntries(businessId: string, status?: string) {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
   let query = supabase
     .from("journal_entries")
     .select("*, journal_entry_lines(*)")
@@ -42,14 +48,10 @@ export async function getJournalEntries(businessId: string, status?: string) {
 }
 
 export async function getNextEntryNumber(businessId: string) {
-  const supabase = createClient();
-  const { data, error } = await supabase
-    .from("journal_entries").select("entry_number").eq("business_id", businessId)
-    .order("created_at", { ascending: false }).limit(1).single();
-  if (error && error.code !== "PGRST116") throw new Error(error.message);
-  if (!data) return "JE-0001";
-  const lastNum = parseInt(data.entry_number.split("-")[1] || "0", 10);
-  return `JE-${String(lastNum + 1).padStart(4, "0")}`;
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const suffix = crypto.randomUUID().replace(/-/g, "").substring(0, 8).toUpperCase();
+  return `JE-${suffix}`;
 }
 
 export async function createJournalEntry(businessId: string, input: {
@@ -59,7 +61,9 @@ export async function createJournalEntry(businessId: string, input: {
   reference_id?: string;
   lines: Array<{ account_name: string; account_type: "asset" | "liability" | "equity" | "revenue" | "expense"; debit?: number; credit?: number; description?: string }>;
 }) {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
   const entryNumber = await getNextEntryNumber(businessId);
 
   const totalDebit = input.lines.reduce((s, l) => s + (l.debit || 0), 0);
@@ -93,7 +97,9 @@ export async function createJournalEntry(businessId: string, input: {
 }
 
 export async function generateBalanceSheet(businessId: string) {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
 
   const { data: lines, error } = await supabase
     .from("journal_entry_lines")

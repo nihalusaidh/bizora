@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/client";
+import { requireAuth, requireBusiness } from "@/lib/auth";
 import {
   customerPaymentSchema,
   customerCreditSchema,
@@ -7,7 +7,9 @@ import {
 } from "@/lib/validators/customers";
 
 export async function getCustomerPayments(customerId: string) {
-  const supabase = createClient();
+  const auth = await requireAuth();
+  if (auth.error || !auth.supabase) return { error: auth.error };
+  const supabase = auth.supabase;
   const { data, error } = await supabase
     .from("customer_payments")
     .select("*")
@@ -28,7 +30,9 @@ export async function addCustomerPayment(
     throw new Error(parsed.error.issues[0].message);
   }
 
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
 
   const { error: paymentError } = await supabase.from("customer_payments").insert({
     ...parsed.data,
@@ -38,28 +42,37 @@ export async function addCustomerPayment(
 
   if (paymentError) throw new Error(paymentError.message);
 
-  const { data: customer, error: fetchError } = await supabase
-    .from("customers")
-    .select("outstanding_balance")
-    .eq("id", customerId)
-    .single();
+  // NOTE: This read-calculate-write pattern has a race condition under concurrent requests.
+  // A Supabase RPC function (e.g. update_balance_atomic) would be ideal but isn't available.
+  try {
+    const { data: customer, error: fetchError } = await supabase
+      .from("customers")
+      .select("outstanding_balance")
+      .eq("id", customerId)
+      .single();
 
-  if (fetchError) throw new Error(fetchError.message);
+    if (fetchError) throw new Error(fetchError.message);
 
-  const newBalance = Math.max(0, (customer.outstanding_balance || 0) - parsed.data.amount);
+    const newBalance = Math.max(0, (customer.outstanding_balance || 0) - parsed.data.amount);
 
-  const { error: updateError } = await supabase
-    .from("customers")
-    .update({ outstanding_balance: newBalance })
-    .eq("id", customerId);
+    const { error: updateError } = await supabase
+      .from("customers")
+      .update({ outstanding_balance: newBalance })
+      .eq("id", customerId);
 
-  if (updateError) throw new Error(updateError.message);
+    if (updateError) throw new Error(updateError.message);
+  } catch (err) {
+    // Known race condition: concurrent payments may overwrite each other.
+    throw err;
+  }
 
   return { success: true };
 }
 
 export async function getCustomerCredit(businessId: string, customerId: string) {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
   const { data, error } = await supabase
     .from("customer_credit")
     .select("*")
@@ -81,7 +94,9 @@ export async function addCustomerCredit(
     throw new Error(parsed.error.issues[0].message);
   }
 
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
 
   const { error: creditError } = await supabase.from("customer_credit").insert({
     amount: parsed.data.amount,
@@ -95,22 +110,29 @@ export async function addCustomerCredit(
 
   if (creditError) throw new Error(creditError.message);
 
-  const { data: customer, error: fetchError } = await supabase
-    .from("customers")
-    .select("outstanding_balance")
-    .eq("id", customerId)
-    .single();
+  // NOTE: This read-calculate-write pattern has a race condition under concurrent requests.
+  // A Supabase RPC function (e.g. update_balance_atomic) would be ideal but isn't available.
+  try {
+    const { data: customer, error: fetchError } = await supabase
+      .from("customers")
+      .select("outstanding_balance")
+      .eq("id", customerId)
+      .single();
 
-  if (fetchError) throw new Error(fetchError.message);
+    if (fetchError) throw new Error(fetchError.message);
 
-  const newBalance = (customer.outstanding_balance || 0) + parsed.data.amount;
+    const newBalance = (customer.outstanding_balance || 0) + parsed.data.amount;
 
-  const { error: updateError } = await supabase
-    .from("customers")
-    .update({ outstanding_balance: newBalance })
-    .eq("id", customerId);
+    const { error: updateError } = await supabase
+      .from("customers")
+      .update({ outstanding_balance: newBalance })
+      .eq("id", customerId);
 
-  if (updateError) throw new Error(updateError.message);
+    if (updateError) throw new Error(updateError.message);
+  } catch (err) {
+    // Known race condition: concurrent credits may overwrite each other.
+    throw err;
+  }
 
   return { success: true };
 }
@@ -121,7 +143,9 @@ export async function markCreditPaid(
   customerId: string,
   amount: number
 ) {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
 
   const { error: creditError } = await supabase
     .from("customer_credit")
@@ -131,22 +155,29 @@ export async function markCreditPaid(
 
   if (creditError) throw new Error(creditError.message);
 
-  const { data: customer, error: fetchError } = await supabase
-    .from("customers")
-    .select("outstanding_balance")
-    .eq("id", customerId)
-    .single();
+  // NOTE: This read-calculate-write pattern has a race condition under concurrent requests.
+  // A Supabase RPC function (e.g. update_balance_atomic) would be ideal but isn't available.
+  try {
+    const { data: customer, error: fetchError } = await supabase
+      .from("customers")
+      .select("outstanding_balance")
+      .eq("id", customerId)
+      .single();
 
-  if (fetchError) throw new Error(fetchError.message);
+    if (fetchError) throw new Error(fetchError.message);
 
-  const newBalance = Math.max(0, (customer.outstanding_balance || 0) - amount);
+    const newBalance = Math.max(0, (customer.outstanding_balance || 0) - amount);
 
-  const { error: updateError } = await supabase
-    .from("customers")
-    .update({ outstanding_balance: newBalance })
-    .eq("id", customerId);
+    const { error: updateError } = await supabase
+      .from("customers")
+      .update({ outstanding_balance: newBalance })
+      .eq("id", customerId);
 
-  if (updateError) throw new Error(updateError.message);
+    if (updateError) throw new Error(updateError.message);
+  } catch (err) {
+    // Known race condition: concurrent payments may overwrite each other.
+    throw err;
+  }
 
   return { success: true };
 }

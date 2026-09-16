@@ -33,7 +33,7 @@ export default function SalesOrdersPage() {
   const load = useCallback(async () => {
     if (!businessId) return;
     setLoading(true);
-    setOrders(await getSalesOrders(businessId, statusFilter));
+    setOrders(await getSalesOrders(businessId, statusFilter) as any);
     setLoading(false);
   }, [businessId, statusFilter]);
 

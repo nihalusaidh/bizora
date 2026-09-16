@@ -1,28 +1,21 @@
-import { createClient } from "@/lib/supabase/client";
+import { requireBusiness } from "@/lib/auth";
 import { purchaseOrderSchema, type PurchaseOrderInput } from "@/lib/validators/purchase-orders";
 
 export async function getNextPoNumber(businessId: string) {
-  const supabase = createClient();
-  const { data, error } = await supabase
-    .from("purchase_orders")
-    .select("po_number")
-    .eq("business_id", businessId)
-    .order("created_at", { ascending: false })
-    .limit(1)
-    .single();
-
-  if (error && error.code !== "PGRST116") throw new Error(error.message);
-  if (!data) return "PO-0001";
-
-  const lastNum = parseInt(data.po_number.split("-")[1] || "0", 10);
-  return `PO-${String(lastNum + 1).padStart(4, "0")}`;
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const suffix = crypto.randomUUID().replace(/-/g, "").substring(0, 8).toUpperCase();
+  return `PO-${suffix}`;
 }
 
 export async function createPurchaseOrder(businessId: string, input: PurchaseOrderInput) {
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
+
   const parsed = purchaseOrderSchema.safeParse(input);
   if (!parsed.success) throw new Error(parsed.error.issues[0].message);
 
-  const supabase = createClient();
   const poNumber = await getNextPoNumber(businessId);
 
   let subtotal = 0;
@@ -80,7 +73,10 @@ export async function createPurchaseOrder(businessId: string, input: PurchaseOrd
 }
 
 export async function getPurchaseOrders(businessId: string, status?: string) {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
+
   let query = supabase
     .from("purchase_orders")
     .select("*, suppliers(name, phone)")
@@ -97,7 +93,10 @@ export async function getPurchaseOrders(businessId: string, status?: string) {
 }
 
 export async function getPurchaseOrder(businessId: string, poId: string) {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
+
   const { data, error } = await supabase
     .from("purchase_orders")
     .select("*, suppliers(id, name, phone, email, address, gst_number), purchase_order_items(*)")
@@ -114,7 +113,9 @@ export async function receivePurchaseOrderItems(
   poId: string,
   items: Array<{ id: string; received_quantity: number }>
 ) {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
 
   for (const item of items) {
     const { error } = await supabase
@@ -187,7 +188,10 @@ export async function updatePurchaseOrderStatus(
   status: string,
   amountPaid?: number
 ) {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
+
   const update: Record<string, unknown> = { status };
   if (amountPaid !== undefined) update.amount_paid = amountPaid;
 
@@ -204,7 +208,10 @@ export async function updatePurchaseOrderStatus(
 }
 
 export async function deletePurchaseOrder(businessId: string, poId: string) {
-  const supabase = createClient();
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
+  const supabase = auth.supabase;
+
   const { error } = await supabase
     .from("purchase_orders")
     .delete()
