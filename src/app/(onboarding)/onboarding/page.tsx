@@ -14,6 +14,7 @@ import { ImportStep } from "@/components/onboarding/import-step";
 import { ReadyStep } from "@/components/onboarding/ready-step";
 import { ProgressBar } from "@/components/onboarding/progress-bar";
 import { DemoMode } from "@/components/demo/demo-mode";
+import { isCapacitor } from "@/lib/platform";
 
 export default function OnboardingPage() {
   const router = useRouter();
@@ -99,8 +100,12 @@ export default function OnboardingPage() {
     );
   }
 
-  const totalSteps = 8;
+  const inApp = isCapacitor();
+  const totalSteps = inApp ? 7 : 8;
   const progress = ((step + 1) / totalSteps) * 100;
+
+  // In app mode, skip platform step (step 0) — displayStep shifts steps down by 1
+  const displayStep = inApp ? step + 1 : step;
 
   return (
     <div className="space-y-6">
@@ -112,7 +117,7 @@ export default function OnboardingPage() {
         </div>
       )}
 
-      {step === 0 && (
+      {!inApp && step === 0 && (
         <PlatformStep
           onSelect={(platform) => {
             if (platform === "desktop" || platform === "android") {
@@ -124,73 +129,73 @@ export default function OnboardingPage() {
         />
       )}
 
-      {step === 1 && (
+      {(inApp || step !== 0) && displayStep === 1 && (
         <>
           <DemoMode />
           <BusinessTypeStep
             value={data.business_type}
             onSelect={(type) => {
               updateData({ business_type: type });
-              setStep(2);
+              setStep(inApp ? 1 : 2);
             }}
           />
         </>
       )}
 
-      {step === 2 && (
+      {displayStep === 2 && (
         <BusinessNameStep
           value={data.business_name}
           onSubmit={(name) => {
             updateData({ business_name: name });
-            setStep(3);
+            setStep(inApp ? 2 : 3);
           }}
-          onBack={() => setStep(1)}
+          onBack={() => setStep(inApp ? 1 : 1)}
         />
       )}
 
-      {step === 3 && (
+      {displayStep === 3 && (
         <CurrencyStep
           currency={data.currency}
           currencySymbol={data.currency_symbol}
           onSelect={(currency, symbol) => {
             updateData({ currency, currency_symbol: symbol });
-            setStep(4);
+            setStep(inApp ? 3 : 4);
           }}
-          onBack={() => setStep(2)}
+          onBack={() => setStep(inApp ? 2 : 2)}
         />
       )}
 
-      {step === 4 && (
+      {displayStep === 4 && (
         <GstStep
           status={data.gst_status}
           gstin={data.gstin}
           onSelect={(status, gstin) => {
             updateData({ gst_status: status, gstin: gstin || "" });
-            setStep(5);
+            setStep(inApp ? 4 : 5);
           }}
-          onBack={() => setStep(3)}
+          onBack={() => setStep(inApp ? 3 : 3)}
         />
       )}
 
-      {step === 5 && (
+      {displayStep === 5 && (
         <BusinessSizeStep
           value={data.business_size}
           onSelect={(size) => {
             updateData({ business_size: size });
-            setStep(6);
+            setStep(inApp ? 5 : 6);
           }}
-          onBack={() => setStep(4)}
+          onBack={() => setStep(inApp ? 4 : 4)}
         />
       )}
 
-      {step === 6 && (
+      {displayStep === 6 && (
         <ImportStep
-          onNext={() => setStep(7)}
-          onBack={() => setStep(5)}
+          onNext={() => setStep(inApp ? 6 : 7)}
+          onBack={() => setStep(inApp ? 5 : 5)}
         />
       )}
 
-      {step === 7 && (
+      {displayStep === 7 && (
         <ReadyStep
           businessName={data.business_name}
           onComplete={handleComplete}

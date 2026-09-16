@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { isCapacitor } from "@/lib/platform";
 
 const navLinks = [
   { label: "Features", href: "/#features" },
@@ -13,9 +14,17 @@ const navLinks = [
 
 export default function PublicLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
   const isHome = pathname === "/";
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  // In native app mode, redirect public pages to login
+  useEffect(() => {
+    if (isCapacitor() && pathname !== "/login" && pathname !== "/signup" && pathname !== "/forgot-password" && pathname !== "/reset-password") {
+      router.replace("/login");
+    }
+  }, [pathname, router]);
 
   useEffect(() => {
     if (!isHome) return;
