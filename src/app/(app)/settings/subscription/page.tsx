@@ -9,7 +9,7 @@ import { Check, Sparkles, Gem, Crown, Star, Smartphone, CreditCard, Tag, Loader2
 import { useAppStore } from "@/lib/store";
 import { useBusiness } from "@/lib/store";
 import { PLAN_CONFIGS, getAvailablePlans } from "@/lib/entitlements";
-import { createClient } from "@/lib/supabase/client";
+import { applyCoupon } from "@/server/actions/subscription";
 
 type BillingCycle = "monthly" | "yearly";
 
@@ -21,8 +21,6 @@ function detectPlatform(): "mobile" | "web" | "desktop" {
 }
 
 const planIcons = { free: Star, gold: Crown, diamond: Gem };
-
-const COUPON_CODE = "bizora@abu";
 
 declare global {
   interface Window {
@@ -58,31 +56,19 @@ export default function SubscriptionPage() {
       setCouponLoading(true);
       setCouponError("");
 
-      // Simulate network delay
-      await new Promise((r) => setTimeout(r, 500));
+      const result = await applyCoupon(couponInput);
 
-      if (couponInput.trim().toLowerCase() === COUPON_CODE) {
+      if (result.error) {
+        setCouponError(result.error);
+      } else {
         setCouponApplied(true);
         setSelectedPlanForCoupon(planKey);
-
-        // Update Supabase
-        if (businessId) {
-          const supabase = createClient();
-          await supabase
-            .from("businesses")
-            .update({ plan: planKey, subscription_status: "active" })
-            .eq("id", businessId);
-        }
-
-        // Update local store
         setPlan(planKey as any);
-      } else {
-        setCouponError("Invalid coupon code");
       }
 
       setCouponLoading(false);
     },
-    [couponInput, businessId, setPlan]
+    [couponInput, setPlan]
   );
 
   const handleCheckout = useCallback(

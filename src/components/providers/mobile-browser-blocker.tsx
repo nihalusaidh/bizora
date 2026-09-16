@@ -30,19 +30,21 @@ function isMobileBrowser(): boolean {
 }
 
 export function MobileBrowserBlocker() {
-  const [blocked, setBlocked] = useState(false);
+  const [status, setStatus] = useState<"loading" | "blocked" | "allowed">("loading");
   const pathname = usePathname();
 
   useEffect(() => {
-    setBlocked(isMobileBrowser());
+    setStatus(isMobileBrowser() ? "blocked" : "allowed");
   }, []);
 
+  if (status === "loading") return null;
+
   // Allow certain paths even on mobile browser
-  if (blocked && ALLOWED_PATHS.some((p) => pathname.startsWith(p))) {
+  if (status === "blocked" && ALLOWED_PATHS.some((p) => pathname.startsWith(p))) {
     return null;
   }
 
-  if (!blocked) return null;
+  if (status !== "blocked") return null;
 
   const handleDownloadAPK = () => {
     window.open("/releases/bizora.apk", "_blank");

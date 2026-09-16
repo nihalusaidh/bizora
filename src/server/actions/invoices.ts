@@ -212,6 +212,42 @@ export async function deleteInvoice(businessId: string, invoiceId: string) {
   const auth = await requireBusiness();
   if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
   const supabase = auth.supabase;
+
+  const { data: items } = await supabase
+    .from("invoice_items")
+    .select("product_id, variant_id, quantity")
+    .eq("invoice_id", invoiceId);
+
+  if (items) {
+    for (const item of items) {
+      if (item.variant_id) {
+        const { data: variant } = await supabase
+          .from("product_variants")
+          .select("stock_quantity")
+          .eq("id", item.variant_id)
+          .single();
+        if (variant) {
+          await supabase
+            .from("product_variants")
+            .update({ stock_quantity: variant.stock_quantity + item.quantity })
+            .eq("id", item.variant_id);
+        }
+      } else if (item.product_id) {
+        const { data: product } = await supabase
+          .from("products")
+          .select("stock_quantity")
+          .eq("id", item.product_id)
+          .single();
+        if (product) {
+          await supabase
+            .from("products")
+            .update({ stock_quantity: product.stock_quantity + item.quantity })
+            .eq("id", item.product_id);
+        }
+      }
+    }
+  }
+
   const { error } = await supabase
     .from("invoices")
     .delete()

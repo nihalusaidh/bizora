@@ -13,6 +13,10 @@ import { useDebounce } from "@/lib/hooks";
 import { Search, Plus, Package, ScanBarcode } from "lucide-react";
 import { BarcodeScanner } from "@/components/billing/barcode-scanner";
 
+function sanitizeSearch(input: string): string {
+  return input.replace(/[%(),.\\]/g, "\\$&");
+}
+
 interface Product {
   id: string;
   name: string;
@@ -45,7 +49,8 @@ export default function BillingPage() {
       .order("name");
 
     if (debouncedSearch) {
-      query = query.or(`name.ilike.%${debouncedSearch}%,sku.ilike.%${debouncedSearch}%,barcode.ilike.%${debouncedSearch}%`);
+      const safe = sanitizeSearch(debouncedSearch);
+      query = query.or(`name.ilike.%${safe}%,sku.ilike.%${safe}%,barcode.ilike.%${safe}%`);
     }
 
     const { data } = await query.limit(50);
