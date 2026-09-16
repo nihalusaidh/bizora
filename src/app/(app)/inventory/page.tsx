@@ -9,6 +9,11 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { ExportButton } from "@/components/export/export-button";
 import { formatProductsForCsv } from "@/lib/export";
+
+function sanitizeSearch(input: string): string {
+  return input.replace(/[%(),.\\]/g, "\\$&");
+}
+
 import {
   Plus,
   Search,
@@ -66,7 +71,8 @@ export default function InventoryPage() {
         .order("created_at", { ascending: false });
 
       if (search) {
-        query = query.or(`name.ilike.%${search}%,sku.ilike.%${search}%,barcode.ilike.%${search}%`);
+        const q = sanitizeSearch(search);
+        query = query.or(`name.ilike.%${q}%,sku.ilike.%${q}%,barcode.ilike.%${q}%`);
       }
 
       const { data } = await query;
