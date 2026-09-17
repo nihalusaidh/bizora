@@ -87,21 +87,21 @@ export default function SettingsPage() {
 
       {settingsGroups.map((group) => (
         <div key={group.label}>
-          <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+          <h2 className="text-[13px] font-bold text-[#DC2626] uppercase tracking-wider mb-2">
             {group.label}
           </h2>
-          <div className="rounded-xl border divide-y">
+          <div className="rounded-xl border border-red-100 bg-white divide-y divide-red-50 overflow-hidden">
             {group.items.map((item) => (
               <Link key={item.name} href={item.href}>
-                <div className="flex items-center gap-3 p-4 transition-default hover:bg-muted/50 cursor-pointer">
-                  <div className="h-9 w-9 rounded-lg bg-muted flex items-center justify-center shrink-0">
-                    <item.icon className="h-4 w-4 text-muted-foreground" />
+                <div className="flex items-center gap-3 p-3 transition-default hover:bg-[#FEF2F2] cursor-pointer tap-effect">
+                  <div className="h-10 w-10 rounded-lg bg-[#FEF2F2] border border-red-100 flex items-center justify-center shrink-0">
+                    <item.icon className="h-4 w-4 text-[#DC2626]" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="text-sm font-medium">{item.name}</h3>
+                    <h3 className="text-sm font-bold">{item.name}</h3>
                     <p className="text-xs text-muted-foreground">{item.description}</p>
                   </div>
-                  <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
+                  <ChevronRight className="h-4 w-4 text-red-300 shrink-0" />
                 </div>
               </Link>
             ))}
@@ -111,15 +111,15 @@ export default function SettingsPage() {
 
       <button
         onClick={handleSignOut}
-        className="w-full rounded-xl border border-red-200 bg-red-50 p-4 text-left transition-default hover:bg-red-100 dark:border-red-900/50 dark:bg-red-950/50 dark:hover:bg-red-950"
+        className="w-full rounded-xl border border-red-200 bg-red-50 p-4 text-left transition-default hover:bg-red-100"
       >
         <div className="flex items-center gap-3">
-          <div className="h-9 w-9 rounded-lg bg-red-100 dark:bg-red-900/50 flex items-center justify-center shrink-0">
-            <Shield className="h-4 w-4 text-red-600 dark:text-red-400" />
+          <div className="h-9 w-9 rounded-lg bg-red-100 flex items-center justify-center shrink-0">
+            <Shield className="h-4 w-4 text-red-600" />
           </div>
           <div className="flex-1 min-w-0">
-            <h3 className="text-sm font-medium text-red-700 dark:text-red-300">Sign Out</h3>
-            <p className="text-xs text-red-500 dark:text-red-400">Log out of your account</p>
+            <h3 className="text-sm font-medium text-red-700">Sign Out</h3>
+            <p className="text-xs text-red-500">Log out of your account</p>
           </div>
         </div>
       </button>

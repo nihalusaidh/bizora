@@ -78,23 +78,24 @@ export default function SalesOrdersPage() {
           <Button onClick={() => router.push("/sales-orders/new")}><Plus className="mr-2 h-4 w-4" />Create Order</Button>
         </div>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-2">
+          <h2 className="text-[13px] font-bold uppercase tracking-wider text-[#DC2626]">Orders to fulfill</h2>
           {orders.map((o) => (
             <Link key={o.id} href={`/sales-orders/${o.id}`}>
-              <div className="rounded-xl border bg-card p-4 hover:bg-muted/50 transition-colors cursor-pointer">
+              <div className="rounded-xl border border-red-100 bg-white p-3 hover:border-[#DC2626] transition-colors cursor-pointer tap-effect">
                 <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-                    <ShoppingCart className="h-5 w-5 text-primary" />
+                  <div className="h-12 w-12 rounded-lg bg-[#FEF2F2] border border-red-100 flex items-center justify-center shrink-0">
+                    <ShoppingCart className="h-5 w-5 text-[#DC2626]" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="font-medium">{o.order_number}</span>
+                      <span className="font-bold text-sm">{o.order_number}</span>
                       <Badge className={STATUS_COLORS[o.status] || ""}>{o.status}</Badge>
                     </div>
-                    <div className="text-sm text-muted-foreground">{o.customers?.name || "Walk-in"}</div>
+                    <div className="text-xs text-muted-foreground">{o.customers?.name || "Walk-in"}</div>
                   </div>
                   <div className="text-right">
-                    <div className="font-bold">₹{o.total.toLocaleString()}</div>
+                    <div className="font-extrabold text-[#DC2626]">₹{o.total.toLocaleString()}</div>
                     {o.expected_date && <div className="text-xs text-muted-foreground">Due: {new Date(o.expected_date).toLocaleDateString()}</div>}
                   </div>
                   {o.status !== "delivered" && o.status !== "cancelled" && (

@@ -238,14 +238,14 @@ export default function SubscriptionPage() {
 
       {/* Coupon success message */}
       {couponApplied && (
-        <Card className="border-green-200 bg-green-50 dark:border-green-900/50 dark:bg-green-950/50">
+        <Card className="border-red-200 bg-[#FEF2F2]">
           <CardContent className="p-4 flex items-center gap-3">
-            <Check className="h-5 w-5 text-green-600" />
+            <Check className="h-5 w-5 text-[#DC2626]" />
             <div>
-              <p className="text-sm font-medium text-green-700 dark:text-green-300">
+              <p className="text-sm font-medium text-[#B91C1C]">
                 Coupon applied! You now have {PLAN_CONFIGS[selectedPlanForCoupon as keyof typeof PLAN_CONFIGS]?.name || "Diamond"} plan.
               </p>
-              <p className="text-xs text-green-600 dark:text-green-400">Your plan has been upgraded successfully.</p>
+              <p className="text-xs text-[#DC2626]">Your plan has been upgraded successfully.</p>
             </div>
           </CardContent>
         </Card>

@@ -40,7 +40,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased light`}
+      style={{ colorScheme: "light" }}
     >
       <head>
         <link rel="preconnect" href="https://nzfpgkloqwjrsbvdegsx.supabase.co" />

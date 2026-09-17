@@ -132,14 +132,14 @@ export default function ExpensesPage() {
         </div>
       </div>
 
-      {/* Monthly Summary */}
+      {/* Monthly Summary — EarnKaro red hero */}
       {summary && (
-        <div className="rounded-xl border bg-card p-4">
-          <div className="flex items-center gap-2 mb-3">
-            <BarChart3 className="h-4 w-4 text-muted-foreground" />
-            <span className="text-sm font-medium">This Month — {summary.count} expenses</span>
+        <div className="rounded-2xl bg-[#DC2626] text-white p-4 shadow-sm">
+          <div className="flex items-center gap-2 mb-1">
+            <BarChart3 className="h-4 w-4 text-white/70" />
+            <span className="text-[11px] font-bold uppercase tracking-wider text-white/70">This Month — {summary.count} expenses</span>
           </div>
-          <div className="text-3xl font-bold text-destructive mb-3">₹{summary.total.toLocaleString()}</div>
+          <div className="text-3xl font-extrabold financial-number">₹{summary.total.toLocaleString()}</div>
           {Object.keys(summary.byCategory).length > 0 && (
             <div className="flex flex-wrap gap-3">
               {Object.entries(summary.byCategory)

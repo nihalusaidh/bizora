@@ -101,15 +101,10 @@ export default function PurchasesPage() {
         </Button>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
-        <div className="rounded-xl border bg-card p-4 text-center">
-          <div className="text-2xl font-bold">₹{totalOrdered.toLocaleString()}</div>
-          <div className="text-xs text-muted-foreground">Total Ordered</div>
-        </div>
-        <div className="rounded-xl border bg-card p-4 text-center">
-          <div className="text-2xl font-bold text-[#DC2626]">₹{totalPending.toLocaleString()}</div>
-          <div className="text-xs text-muted-foreground">Amount Pending</div>
-        </div>
+      <div className="rounded-2xl bg-[#DC2626] text-white p-4 shadow-sm">
+        <p className="text-[11px] uppercase tracking-wider text-white/70 font-bold">Purchase orders</p>
+        <p className="text-3xl font-extrabold financial-number">₹{totalOrdered.toLocaleString()}</p>
+        <p className="text-xs text-white/75 mt-0.5">₹{totalPending.toLocaleString()} pending • {orders.length} orders</p>
       </div>
 
       <Select value={statusFilter} onValueChange={(v: string | null) => setStatusFilter(v ?? "all")}>

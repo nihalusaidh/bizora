@@ -125,15 +125,16 @@ export default function EstimatesPage() {
           </Button>
         </div>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-2">
+          <h2 className="text-[13px] font-bold uppercase tracking-wider text-[#DC2626]">Estimates to convert</h2>
           {estimates.map((est) => {
             const statusCfg = STATUS_CONFIG[est.status] || STATUS_CONFIG.draft;
             const StatusIcon = statusCfg.icon;
             return (
-              <div key={est.id} className="rounded-xl border bg-card p-4">
+              <div key={est.id} className="rounded-xl border border-red-100 bg-white p-3 tap-effect">
                 <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-                    <FileText className="h-5 w-5 text-primary" />
+                  <div className="h-12 w-12 rounded-lg bg-[#FEF2F2] border border-red-100 flex items-center justify-center shrink-0">
+                    <FileText className="h-5 w-5 text-[#DC2626]" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
@@ -153,7 +154,7 @@ export default function EstimatesPage() {
                     )}
                   </div>
                   <div className="text-right">
-                    <div className="font-bold">₹{est.total.toLocaleString()}</div>
+                    <div className="font-extrabold text-[#DC2626]">₹{est.total.toLocaleString()}</div>
                     <div className="text-xs text-muted-foreground">
                       {new Date(est.created_at).toLocaleDateString()}
                     </div>

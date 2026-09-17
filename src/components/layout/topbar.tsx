@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Menu, Search } from "lucide-react";
 import { NotificationBell } from "@/components/notifications/notification-bell";
 import { GlobalSearch } from "@/components/search/global-search";
-import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { cn } from "@/lib/utils";
 
 const pageTitles: Record<string, string> = {
@@ -59,7 +58,6 @@ export function Topbar({ onMenuToggle, className }: TopbarProps) {
           <Search className="h-5 w-5" />
         </Button>
         <GlobalSearch />
-        <ThemeToggle />
         <NotificationBell />
       </div>
     </header>
