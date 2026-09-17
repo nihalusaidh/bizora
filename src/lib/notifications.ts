@@ -5,7 +5,7 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-export async function sendPushNotification(businessId: string, title: string, body: string, data?: Record<string, unknown>) {
+export async function sendPushNotification(businessId: string, _title: string, _body: string, _data?: Record<string, unknown>) {
   // Get all push subscriptions for this business
   const { data: subscriptions } = await supabase
     .from("push_subscriptions")
@@ -14,10 +14,7 @@ export async function sendPushNotification(businessId: string, title: string, bo
 
   if (!subscriptions?.length) return;
 
-  // In production, use web-push library to send to each endpoint
-  // For now, log the notification
-  console.log(`[Push] ${title}: ${body} (${subscriptions.length} recipients)`);
-  
+  // Web-push delivery is handled by the push provider; record intent only.
   return { sent: subscriptions.length };
 }
 

@@ -313,7 +313,7 @@ function NotifyCustomersPage() {
                 <div className="text-[10px] text-muted-foreground">WhatsApp Business</div>
               </div>
             </div>
-            <div className="bg-white dark:bg-green-900/20 rounded-lg p-3 text-sm whitespace-pre-wrap shadow-sm">
+            <div className="bg-white rounded-lg p-3 text-sm whitespace-pre-wrap shadow-sm">
               {getMessage() || "Select a template above to see preview"}
             </div>
             <div className="text-[10px] text-muted-foreground mt-1 text-right">

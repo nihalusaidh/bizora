@@ -36,7 +36,7 @@ export function PlanGate({ feature, children, fallback }: PlanGateProps) {
 
       {/* Upgrade overlay */}
       <div className="absolute inset-0 flex items-center justify-center">
-        <div className="bg-white dark:bg-[#141414] border border-border rounded-2xl p-6 shadow-xl text-center max-w-xs mx-4">
+        <div className="bg-white border border-border rounded-2xl p-6 shadow-xl text-center max-w-xs mx-4">
           <div className="w-10 h-10 bg-[#DC2626]/10 rounded-xl flex items-center justify-center mx-auto mb-3">
             <Lock className="w-5 h-5 text-[#DC2626]" />
           </div>
@@ -72,7 +72,7 @@ export function PlanBadge() {
         plan === "gold"
           ? "bg-[#DC2626] text-white"
           : plan === "diamond"
-          ? "bg-[#0a0a0a] text-white dark:bg-white dark:text-[#0a0a0a]"
+          ? "bg-[#0a0a0a] text-white"
           : ""
       }
     >

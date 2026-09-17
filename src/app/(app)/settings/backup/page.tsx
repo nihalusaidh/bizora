@@ -97,6 +97,7 @@ export default function BackupPage() {
                   <Button variant="outline" size="sm" onClick={async () => {
                     try {
                       const res = await fetch(b.file_path);
+                      if (!res.ok) throw new Error("download failed");
                       const blob = await res.blob();
                       const url = URL.createObjectURL(blob);
                       const a = document.createElement("a");
@@ -104,7 +105,7 @@ export default function BackupPage() {
                       a.download = `bizora-backup-${new Date(b.created_at).toISOString().split("T")[0]}.json`;
                       a.click();
                       URL.revokeObjectURL(url);
-                    } catch { window.open(b.file_path, "_blank"); }
+                    } catch { alert("Backup download failed. The file link may have expired — create a new backup."); }
                   }}><Download className="h-4 w-4" /></Button>
                 )}
                 {b.status === "completed" && (

@@ -128,7 +128,7 @@ export default function PublicStorePage() {
             {filtered.map((p) => (
               <Card key={p.id} className="overflow-hidden">
                 {p.image_url ? (
-                  <img src={p.image_url} alt={p.name} className="h-32 w-full object-cover" />
+                  <img src={p.image_url} alt={p.name} loading="lazy" decoding="async" className="h-32 w-full object-cover" />
                 ) : (
                   <div className="h-32 w-full bg-muted flex items-center justify-center">
                     <Package className="h-8 w-8 text-muted-foreground" />

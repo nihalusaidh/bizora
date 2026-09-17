@@ -18,7 +18,7 @@ export async function sendInviteEmail(
         Hi there,<br/><br/>
         <strong>${inviterName}</strong> has invited you to join <strong>${businessName}</strong> as a <strong>${role}</strong> on Bizora.
       </p>
-      <a href="${APP_URL}/auth/signup" style="display: inline-block; background: #111; color: #fff; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600; margin-top: 16px;">
+      <a href="${APP_URL}/signup" style="display: inline-block; background: #111; color: #fff; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600; margin-top: 16px;">
         Accept Invitation
       </a>
       <p style="color: #999; font-size: 12px; margin-top: 24px;">

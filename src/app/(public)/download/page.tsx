@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Smartphone, Globe, Monitor, ArrowRight, Lock, Download, CheckCircle } from "lucide-react";
 import Link from "next/link";
 import { useAppStore } from "@/lib/store";
-import { canDownloadDesktop, getAvailablePlans, PLAN_CONFIGS } from "@/lib/entitlements";
+import { canDownloadDesktop, PLAN_CONFIGS } from "@/lib/entitlements";
 import { Badge } from "@/components/ui/badge";
 
 function detectPlatform(): "mobile" | "web" | "desktop" {
@@ -18,26 +18,27 @@ function detectPlatform(): "mobile" | "web" | "desktop" {
 export default function DownloadPage() {
   const plan = useAppStore((s) => s.plan);
   const platform = detectPlatform();
-  const availablePlans = getAvailablePlans(platform);
   const desktopEnabled = canDownloadDesktop(plan);
   const config = PLAN_CONFIGS[plan];
-  const [isCapacitor, setIsCapacitor] = useState(false);
+  const [apkError, setApkError] = useState("");
 
-  useEffect(() => {
-    setIsCapacitor(!!(window as any).Capacitor);
-  }, []);
-
-  const handleDownloadAPK = () => {
-    const a = document.createElement("a");
-    a.href = "/api/download/apk";
-    a.download = "bizora.apk";
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-  };
-
-  const handleDownloadEXE = () => {
-    window.open("/releases/bizora.exe", "_blank");
+  const handleDownloadAPK = async () => {
+    setApkError("");
+    try {
+      const res = await fetch("/api/download/apk");
+      if (!res.ok) throw new Error("download failed");
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "bizora.apk";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch {
+      setApkError("APK download failed. Please try again.");
+    }
   };
 
   return (
@@ -86,6 +87,7 @@ export default function DownloadPage() {
                 Download APK
               </button>
             </div>
+            {apkError && <p className="mt-2 text-xs font-bold text-[#DC2626]">{apkError}</p>}
             <p className="mt-2 text-xs text-neutral-400">v1.0.0 • ~15MB</p>
           </div>
 
@@ -121,13 +123,12 @@ export default function DownloadPage() {
             </p>
             <div className="mt-6 w-full">
               {desktopEnabled ? (
-                <button
-                  onClick={handleDownloadEXE}
-                  className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#DC2626] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#b91c1c] transition-colors"
-                >
-                  <Download className="h-4 w-4" />
-                  Download for Windows
-                </button>
+                <div className="rounded-lg border border-red-200 bg-[#FEF2F2] px-4 py-2.5 text-center">
+                  <p className="text-sm font-bold text-[#B91C1C]">Windows app coming soon</p>
+                  <Link href="/login" className="text-xs font-bold text-[#DC2626] hover:underline">
+                    Use the Web app for now →
+                  </Link>
+                </div>
               ) : (
                 <Link
                   href="/settings/subscription"
@@ -139,7 +140,7 @@ export default function DownloadPage() {
               )}
             </div>
             <p className="mt-2 text-xs text-neutral-400">
-              {desktopEnabled ? "v1.0.0 • ~50MB" : "Requires Gold plan"}
+              {desktopEnabled ? "Windows build in progress" : "Requires Gold plan"}
             </p>
           </div>
         </div>

@@ -31,6 +31,7 @@ function isMobileBrowser(): boolean {
 
 export function MobileBrowserBlocker() {
   const [status, setStatus] = useState<"loading" | "blocked" | "allowed">("loading");
+  const [apkError, setApkError] = useState("");
   const pathname = usePathname();
 
   useEffect(() => {
@@ -46,13 +47,23 @@ export function MobileBrowserBlocker() {
 
   if (status !== "blocked") return null;
 
-  const handleDownloadAPK = () => {
-    const a = document.createElement("a");
-    a.href = "/api/download/apk";
-    a.download = "bizora.apk";
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+  const handleDownloadAPK = async () => {
+    setApkError("");
+    try {
+      const res = await fetch("/api/download/apk");
+      if (!res.ok) throw new Error("download failed");
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "bizora.apk";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch {
+      setApkError("Download failed. Please try again.");
+    }
   };
 
   return (
@@ -90,6 +101,7 @@ export function MobileBrowserBlocker() {
       <p className="mt-3 text-xs text-neutral-500">
         Free download • Works offline • Premium ready
       </p>
+      {apkError && <p className="mt-2 text-xs font-bold text-[#EF4444]">{apkError}</p>}
 
       {/* Features */}
       <div className="mt-10 grid grid-cols-3 gap-6 max-w-sm">
@@ -110,7 +122,7 @@ export function MobileBrowserBlocker() {
       {/* Help link */}
       <p className="mt-10 text-xs text-neutral-600">
         Need help?{" "}
-        <a href="https://bizora-sigma.vercel.app/help" className="text-[#DC2626] hover:underline">
+        <a href="/faq" className="text-[#DC2626] hover:underline">
           Contact support
         </a>
       </p>

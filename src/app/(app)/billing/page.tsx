@@ -144,6 +144,8 @@ export default function BillingPage() {
                 <img
                   src={product.image_url}
                   alt={product.name}
+                  loading="lazy"
+                  decoding="async"
                   className="h-16 w-16 rounded-lg object-cover shrink-0"
                 />
               ) : (

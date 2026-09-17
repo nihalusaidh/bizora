@@ -262,6 +262,8 @@ export default function InventoryPage() {
                       <img
                         src={product.image_url}
                         alt={product.name}
+                        loading="lazy"
+                        decoding="async"
                         className="h-16 w-16 rounded-lg object-cover shrink-0"
                       />
                     ) : (
@@ -305,6 +307,8 @@ export default function InventoryPage() {
                     <img
                       src={product.image_url}
                       alt={product.name}
+                      loading="lazy"
+                      decoding="async"
                       className="h-12 w-12 rounded-lg object-cover"
                     />
                   ) : (

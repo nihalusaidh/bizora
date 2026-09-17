@@ -52,9 +52,6 @@ export function useSyncManager() {
     isSyncingRef.current = true;
     try {
       const result = await processSyncQueue(processItem);
-      if (result.processed > 0) {
-        console.log(`Synced ${result.processed} offline changes`);
-      }
       if (result.failed > 0) {
         console.warn(`${result.failed} sync items failed`);
       }

@@ -84,7 +84,7 @@ export default function CataloguePage() {
             {products.map((p) => (
               <div key={p.id} className="flex items-center gap-3 rounded-xl border bg-card p-3">
                 {p.image_url ? (
-                  <img src={p.image_url} alt={p.name} className="h-12 w-12 rounded-lg object-cover" />
+                  <img src={p.image_url} alt={p.name} loading="lazy" decoding="async" className="h-12 w-12 rounded-lg object-cover" />
                 ) : (
                   <div className="h-12 w-12 rounded-lg bg-muted flex items-center justify-center"><Package className="h-5 w-5 text-muted-foreground" /></div>
                 )}

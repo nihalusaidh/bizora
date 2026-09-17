@@ -59,16 +59,16 @@ function CustomTooltip({ active, payload, label, formatValue }: CustomTooltipPro
   if (!active || !payload?.length) return null;
 
   return (
-    <div className="rounded-lg border border-border bg-[#0a0a0a] px-3 py-2 text-xs shadow-lg dark:bg-[#fafafa]">
-      {label && <p className="mb-1 font-medium text-[#fafafa] dark:text-[#0a0a0a]">{label}</p>}
+    <div className="rounded-lg border border-border bg-[#0a0a0a] px-3 py-2 text-xs shadow-lg">
+      {label && <p className="mb-1 font-medium text-[#fafafa]">{label}</p>}
       {payload.map((entry, i) => (
         <div key={i} className="flex items-center gap-2">
           <div
             className="h-2 w-2 rounded-full"
             style={{ backgroundColor: entry.color }}
           />
-          <span className="text-[#a3a3a3] dark:text-[#525252]">{entry.name}:</span>
-          <span className="font-semibold text-[#fafafa] dark:text-[#0a0a0a]">
+          <span className="text-[#a3a3a3]">{entry.name}:</span>
+          <span className="font-semibold text-[#fafafa]">
             {formatValue ? formatValue(entry.value) : entry.value.toLocaleString()}
           </span>
         </div>
@@ -125,7 +125,7 @@ export function BizoraChart({
     : { content: () => null };
 
   const gridProps = showGrid
-    ? { strokeDasharray: "3 3", stroke: "#e5e5e5", className: "dark:stroke-[#262626]" }
+    ? { strokeDasharray: "3 3", stroke: "#e5e5e5" }
     : {};
 
   const series: DataSeries[] = dataKeys?.length

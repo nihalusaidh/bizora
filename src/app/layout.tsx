@@ -46,7 +46,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         <link rel="preconnect" href="https://nzfpgkloqwjrsbvdegsx.supabase.co" />
         <link rel="dns-prefetch" href="https://nzfpgkloqwjrsbvdegsx.supabase.co" />
-        <script src="https://checkout.razorpay.com/v1/checkout.js" defer />
+        <link rel="preconnect" href="https://checkout.razorpay.com" />
       </head>
       <body className="min-h-full flex flex-col">
         <TooltipProvider>{children}</TooltipProvider>
