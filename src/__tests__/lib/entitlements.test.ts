@@ -6,6 +6,7 @@ import {
   getAvailablePlans,
   getPlanFeatures,
   getUpgradeRequired,
+  resolvePlan,
 } from "@/lib/entitlements";
 
 describe("Entitlements", () => {
@@ -80,6 +81,24 @@ describe("Entitlements", () => {
 
     it("returns gold for gold features on free plan", () => {
       expect(getUpgradeRequired("free", "business-intelligence")).toBe("gold");
+    });
+  });
+
+  describe("resolvePlan", () => {
+    it("keeps active gold", () => {
+      const future = new Date(Date.now() + 86400000).toISOString();
+      expect(resolvePlan("gold", future)).toBe("gold");
+    });
+    it("keeps gold with no expiry", () => expect(resolvePlan("gold", null)).toBe("gold"));
+    it("expires paid plan to free", () => {
+      const past = new Date(Date.now() - 86400000).toISOString();
+      expect(resolvePlan("gold", past)).toBe("free");
+      expect(resolvePlan("diamond", past)).toBe("free");
+    });
+    it("unknown plan falls back to free", () => {
+      expect(resolvePlan("platinum", null)).toBe("free");
+      expect(resolvePlan(null, null)).toBe("free");
+      expect(resolvePlan(undefined, undefined)).toBe("free");
     });
   });
 

@@ -144,6 +144,22 @@ export function getPlanFeatures(plan: PlanTier): string[] {
   return PLAN_CONFIGS[plan].features;
 }
 
+const VALID_PLANS: PlanTier[] = ["free", "gold", "diamond"];
+
+/** Effective plan from DB row — unknown/expired paid plans fall back to free. */
+export function resolvePlan(plan: unknown, expiresAt: unknown): PlanTier {
+  if (plan !== "gold" && plan !== "diamond") return "free";
+  if (typeof expiresAt === "string" && expiresAt) {
+    const exp = new Date(expiresAt).getTime();
+    if (!Number.isNaN(exp) && exp < Date.now()) return "free";
+  }
+  return plan;
+}
+
+export function isValidPlanTier(p: unknown): p is PlanTier {
+  return VALID_PLANS.includes(p as PlanTier);
+}
+
 export function getUpgradeRequired(
   currentPlan: PlanTier,
   feature: string

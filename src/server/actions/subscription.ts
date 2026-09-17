@@ -25,3 +25,17 @@ export async function applyCoupon(couponCode: string) {
   if (error) return { error: error.message };
   return { success: true, plan: coupon.plan };
 }
+
+/** Source of truth for the current plan — used by the app to auto-detect upgrades bought on the website. */
+export async function getCurrentPlan() {
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error || "Not authenticated" };
+  const { data, error } = await auth.supabase
+    .from("businesses")
+    .select("plan, plan_expires_at")
+    .eq("id", auth.businessId)
+    .single();
+  if (error || !data) return { error: error?.message || "Business not found" };
+  const { resolvePlan } = await import("@/lib/entitlements");
+  return { plan: resolvePlan((data as { plan: unknown }).plan, (data as { plan_expires_at: unknown }).plan_expires_at) };
+}
