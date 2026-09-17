@@ -99,8 +99,8 @@ export default function SubscriptionPage() {
         setCouponError(result.error);
       } else {
         setCouponApplied(true);
-        setSelectedPlanForCoupon(planKey);
-        setPlan(planKey as any);
+        setSelectedPlanForCoupon(result.plan || planKey);
+        setPlan((result.plan || planKey) as any);
       }
 
       setCouponLoading(false);
@@ -112,8 +112,12 @@ export default function SubscriptionPage() {
     (planKey: string, amount: number) => {
       if (!businessId || !business) return;
 
+      const keyId = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "";
+      if (!keyId) { alert("Payment is not configured yet. Please contact support or use a coupon code."); return; }
+      if (typeof window === "undefined" || !window.Razorpay) { alert("Payment service is loading. Please try again in a moment."); return; }
+
       const options = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "",
+        key: keyId,
         amount: amount * 100,
         currency: "INR",
         name: "BIZORA",
@@ -184,7 +188,7 @@ export default function SubscriptionPage() {
       </Card>
 
       {/* Coupon Code Section */}
-      {currentPlan === "free" && (
+      {currentPlan === "free" && !couponApplied && (
         <Card className="border-[#DC2626]/30 bg-gradient-to-br from-[#DC2626]/5 to-transparent">
           <CardContent className="p-4">
             <div className="flex items-center gap-2 mb-3">
@@ -228,6 +232,21 @@ export default function SubscriptionPage() {
             {couponError && (
               <p className="text-xs text-destructive mt-2">{couponError}</p>
             )}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Coupon success message */}
+      {couponApplied && (
+        <Card className="border-green-200 bg-green-50 dark:border-green-900/50 dark:bg-green-950/50">
+          <CardContent className="p-4 flex items-center gap-3">
+            <Check className="h-5 w-5 text-green-600" />
+            <div>
+              <p className="text-sm font-medium text-green-700 dark:text-green-300">
+                Coupon applied! You now have {PLAN_CONFIGS[selectedPlanForCoupon as keyof typeof PLAN_CONFIGS]?.name || "Diamond"} plan.
+              </p>
+              <p className="text-xs text-green-600 dark:text-green-400">Your plan has been upgraded successfully.</p>
+            </div>
           </CardContent>
         </Card>
       )}

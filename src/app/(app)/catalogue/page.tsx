@@ -26,7 +26,7 @@ export default function CataloguePage() {
   const [loading, setLoading] = useState(true);
   const [catalogueEnabled, setCatalogueEnabled] = useState(true);
 
-  const storeUrl = businessId ? `${typeof window !== "undefined" ? window.location.origin : ""}/store/${businessId}` : "";
+  const storeUrl = business?.name ? `${typeof window !== "undefined" ? window.location.origin : ""}/shop/${business.name.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "")}` : "";
 
   const load = useCallback(async () => {
     if (!businessId) return;

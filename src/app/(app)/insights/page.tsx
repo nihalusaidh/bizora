@@ -102,6 +102,12 @@ const insightCards: InsightCard[] = [
     href: "/insights/revenue",
   },
   {
+    title: "Expense Report",
+    description: "Track where your money goes",
+    icon: <Receipt className="h-5 w-5" />,
+    href: "/insights/expenses",
+  },
+  {
     title: "P&L Statement",
     description: "Profit and loss breakdown and margins",
     icon: <Receipt className="h-5 w-5" />,

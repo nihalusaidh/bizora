@@ -31,7 +31,7 @@ export default function BalanceSheetPage() {
   const load = useCallback(async () => {
     if (!businessId) return;
     setLoading(true);
-    try { const result = await generateBalanceSheet(businessId) as any; setData(result?.data ?? result); }
+      try { const result = await generateBalanceSheet(businessId) as any; setData(result && !result.error ? (result.data ?? result) : null); }
     catch (err) { console.error(err); }
     finally { setLoading(false); }
   }, [businessId]);

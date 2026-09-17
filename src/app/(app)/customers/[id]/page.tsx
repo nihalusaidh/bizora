@@ -16,6 +16,7 @@ import { getCustomerPayments } from "@/server/actions/khata";
 import { getCustomerCredit, markCreditPaid } from "@/server/actions/khata";
 import { getLoyaltyBalance } from "@/server/actions/loyalty";
 import { useBusiness } from "@/lib/store";
+import { createClient } from "@/lib/supabase/client";
 import { PaymentReminder } from "@/components/billing/payment-reminder";
 import {
   ArrowLeft, Edit, Trash2, Phone, Mail, MapPin,
@@ -101,11 +102,15 @@ export default function CustomerDetailPage() {
 
   const handleSendReminder = async () => {
     if (!businessId || !customerId) return;
-    const latestPendingCredit = credits.find(c => c.status === "pending" && c.type === "credit");
-    if (!latestPendingCredit) return;
+    if (!customer?.email) { alert("Customer has no email address"); return; }
     setSendingReminder(true);
     try {
-      await sendPaymentReminder(businessId, customerId, latestPendingCredit.id);
+      const supabase = createClient();
+      const { data: unpaidInvoices } = await supabase
+        .from("invoices").select("id").eq("business_id", businessId).eq("customer_id", customerId).eq("status", "partial").order("created_at", { ascending: false }).limit(1);
+      const latestInvoice = unpaidInvoices?.[0];
+      if (!latestInvoice) { alert("No pending invoices to send reminder for"); setSendingReminder(false); return; }
+      await sendPaymentReminder(businessId, customerId, latestInvoice.id);
       alert("Payment reminder sent successfully!");
     } catch (err) {
       console.error("Failed to send reminder:", err);

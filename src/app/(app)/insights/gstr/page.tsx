@@ -32,7 +32,7 @@ export default function GstrReportPage() {
     setLoading(true);
     try {
       const result = await generateGstr1(businessId, Number(month), Number(year));
-      setData(result);
+      if (result && !('error' in result)) setData(result);
     } catch (err) {
       console.error("Failed to generate GSTR-1:", err);
     } finally {

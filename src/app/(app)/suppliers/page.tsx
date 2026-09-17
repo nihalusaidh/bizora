@@ -63,12 +63,14 @@ export default function SuppliersPage() {
   );
 
   const handleDelete = async (supplierId: string) => {
+    if (!confirm("Delete this supplier?")) return;
     if (!businessId) return;
     const supabase = createClient();
     await supabase
       .from("suppliers")
       .update({ is_active: false })
-      .eq("id", supplierId);
+      .eq("id", supplierId)
+      .eq("business_id", businessId);
 
     setSuppliers(suppliers.filter((s) => s.id !== supplierId));
   };

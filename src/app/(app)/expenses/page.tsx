@@ -71,8 +71,8 @@ export default function ExpensesPage() {
       ]) as any[];
       if (expResult?.error) { console.error(expResult.error); }
       if (catResult?.error) { console.error(catResult.error); }
-      setExpenses(expResult?.data ?? expResult ?? []);
-      setCategories(catResult?.data ?? catResult ?? []);
+      setExpenses(Array.isArray(expResult) ? expResult : []);
+      setCategories(Array.isArray(catResult) ? catResult : []);
 
       // Calculate summary for current month
       const now = new Date();
@@ -80,7 +80,7 @@ export default function ExpensesPage() {
       const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split("T")[0];
       const summResult = await getExpenseSummary(businessId, startOfMonth, endOfMonth) as any;
       if (summResult?.error) { console.error(summResult.error); }
-      setSummary(summResult?.data ?? summResult ?? null);
+      setSummary(summResult && !summResult.error ? summResult : null);
     } catch (err) {
       console.error("Failed to load:", err);
     } finally {

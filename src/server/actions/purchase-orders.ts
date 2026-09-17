@@ -117,6 +117,19 @@ export async function receivePurchaseOrderItems(
   if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
   const supabase = auth.supabase;
 
+  // Fetch current received quantities BEFORE updating (to compute delta for stock)
+  const itemIds = items.map((i) => i.id);
+  const { data: currentItems } = await supabase
+    .from("purchase_order_items")
+    .select("id, product_id, received_quantity")
+    .in("id", itemIds);
+
+  const previousReceived: Record<string, number> = {};
+  (currentItems || []).forEach((ci) => {
+    previousReceived[ci.id] = Number(ci.received_quantity) || 0;
+  });
+
+  // Update received quantities
   for (const item of items) {
     const { error } = await supabase
       .from("purchase_order_items")
@@ -153,28 +166,26 @@ export async function receivePurchaseOrderItems(
 
     if (statusError) throw new Error(statusError.message);
 
-    // Increase stock for all items with received quantities (full or partial receipt)
-    const { data: receivedItems } = await supabase
-      .from("purchase_order_items")
-      .select("product_id, received_quantity")
-      .eq("purchase_order_id", poId)
-      .not("product_id", "is", null)
-      .gt("received_quantity", 0);
+    // Increase stock only for the DELTA (new received - old received)
+    for (const item of items) {
+      const delta = item.received_quantity - (previousReceived[item.id] || 0);
+      if (delta <= 0) continue;
 
-    if (receivedItems) {
-      for (const item of receivedItems) {
-        const { data: product } = await supabase
+      // Find product_id from the fetched data
+      const matched = (currentItems || []).find((ci) => ci.id === item.id);
+      if (!matched?.product_id) continue;
+
+      const { data: product } = await supabase
+        .from("products")
+        .select("stock_quantity")
+        .eq("id", matched.product_id)
+        .single();
+
+      if (product) {
+        await supabase
           .from("products")
-          .select("stock_quantity")
-          .eq("id", item.product_id)
-          .single();
-
-        if (product) {
-          await supabase
-            .from("products")
-            .update({ stock_quantity: (product.stock_quantity || 0) + Number(item.received_quantity) })
-            .eq("id", item.product_id);
-        }
+          .update({ stock_quantity: (product.stock_quantity || 0) + delta })
+          .eq("id", matched.product_id);
       }
     }
   }

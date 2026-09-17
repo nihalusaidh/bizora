@@ -58,7 +58,7 @@ export default function ResetPasswordPage() {
 
     setSuccess(true);
     setLoading(false);
-    setTimeout(() => router.push("/dashboard"), 3000);
+    setTimeout(() => router.push("/login"), 3000);
   };
 
   if (hasSession === null) {
@@ -107,7 +107,7 @@ export default function ResetPasswordPage() {
         <CardContent className="text-center space-y-4">
           <CheckCircle className="h-12 w-12 text-emerald-500 mx-auto" />
           <p className="text-muted-foreground">
-            Your password has been updated successfully. Redirecting to dashboard...
+            Your password has been updated successfully. Redirecting to login...
           </p>
         </CardContent>
       </Card>

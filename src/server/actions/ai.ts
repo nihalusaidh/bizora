@@ -29,7 +29,7 @@ export async function getChatSessions(businessId: string): Promise<ChatSession[]
   const { data, error } = await supabase
     .from("ai_chat_sessions" as never)
     .select("*")
-    .eq("business_id", businessId)
+    .eq("business_id", auth.businessId)
     .order("updated_at", { ascending: false })
     .limit(20);
 
@@ -59,7 +59,7 @@ export async function createChatSession(businessId: string, title?: string): Pro
 
   const { data, error } = await supabase
     .from("ai_chat_sessions" as never)
-    .insert({ business_id: businessId, title: title || "New Chat" } as never)
+    .insert({ business_id: auth.businessId, title: title || "New Chat" } as never)
     .select()
     .single();
 
@@ -186,7 +186,7 @@ export async function sendChatMessage(
     .eq("session_id", sessionId)
     .order("created_at", { ascending: true });
 
-  const businessContext = await getBusinessContext(businessId);
+  const businessContext = await getBusinessContext(auth.businessId);
 
   const contents: ChatMessage[] = ((history || []) as unknown as Array<{ role: string; content: string }>).map((m) => ({
     role: m.role === "user" ? "user" : "model",
@@ -247,7 +247,7 @@ export async function getQuickInsights(businessId: string): Promise<string[]> {
   const auth = await requireBusiness();
   if (auth.error || !auth.supabase || !auth.businessId) throw new Error(auth.error || "Not authenticated");
 
-  const businessContext = await getBusinessContext(businessId);
+  const businessContext = await getBusinessContext(auth.businessId);
 
   try {
     const response = await genai.models.generateContent({
