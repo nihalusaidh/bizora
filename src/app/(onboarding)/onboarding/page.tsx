@@ -147,9 +147,9 @@ export default function OnboardingPage() {
           value={data.business_name}
           onSubmit={(name) => {
             updateData({ business_name: name });
-            setStep(inApp ? 2 : 3);
+            setStep(step + 1);
           }}
-          onBack={() => setStep(inApp ? 1 : 1)}
+          onBack={() => setStep(step - 1)}
         />
       )}
 
@@ -159,9 +159,9 @@ export default function OnboardingPage() {
           currencySymbol={data.currency_symbol}
           onSelect={(currency, symbol) => {
             updateData({ currency, currency_symbol: symbol });
-            setStep(inApp ? 3 : 4);
+            setStep(step + 1);
           }}
-          onBack={() => setStep(inApp ? 2 : 2)}
+          onBack={() => setStep(step - 1)}
         />
       )}
 
@@ -171,9 +171,9 @@ export default function OnboardingPage() {
           gstin={data.gstin}
           onSelect={(status, gstin) => {
             updateData({ gst_status: status, gstin: gstin || "" });
-            setStep(inApp ? 4 : 5);
+            setStep(step + 1);
           }}
-          onBack={() => setStep(inApp ? 3 : 3)}
+          onBack={() => setStep(step - 1)}
         />
       )}
 
@@ -182,16 +182,16 @@ export default function OnboardingPage() {
           value={data.business_size}
           onSelect={(size) => {
             updateData({ business_size: size });
-            setStep(inApp ? 5 : 6);
+            setStep(step + 1);
           }}
-          onBack={() => setStep(inApp ? 4 : 4)}
+          onBack={() => setStep(step - 1)}
         />
       )}
 
       {displayStep === 6 && (
         <ImportStep
-          onNext={() => setStep(inApp ? 6 : 7)}
-          onBack={() => setStep(inApp ? 5 : 5)}
+          onNext={() => setStep(step + 1)}
+          onBack={() => setStep(step - 1)}
         />
       )}
 

@@ -1,4 +1,5 @@
 import { requireAuth } from "@/lib/auth";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 export async function createBusiness(data: {
   name: string;
@@ -10,12 +11,14 @@ export async function createBusiness(data: {
   size: string;
 }) {
   const auth = await requireAuth();
-  if (auth.error || !auth.supabase) {
-    return { error: auth.error };
+  if (auth.error || !auth.supabase || !auth.user) {
+    return { error: auth.error || "Not authenticated" };
   }
-  const supabase = auth.supabase;
 
-  const { data: business, error: businessError } = await supabase
+  // Use admin client to bypass RLS for business creation
+  const admin = createAdminClient();
+
+  const { data: business, error: businessError } = await admin
     .from("businesses")
     .insert({
       name: data.name,
@@ -25,7 +28,7 @@ export async function createBusiness(data: {
       gst_status: data.gst_status,
       gstin: data.gstin,
       size: data.size,
-      owner_id: auth.user!.id,
+      owner_id: auth.user.id,
     })
     .select()
     .single();
@@ -34,10 +37,10 @@ export async function createBusiness(data: {
     return { error: businessError?.message || "Failed to create business" };
   }
 
-  const { error: membershipError } = await supabase
+  const { error: membershipError } = await admin
     .from("memberships")
     .insert({
-      user_id: auth.user!.id,
+      user_id: auth.user.id,
       business_id: business.id,
       role: "owner",
     });
