@@ -14,7 +14,7 @@ import { Search, Plus, Package, ScanBarcode } from "lucide-react";
 import { BarcodeScanner } from "@/components/billing/barcode-scanner";
 
 function sanitizeSearch(input: string): string {
-  return input.replace(/[%(),.\\]/g, "\\$&");
+  return input.replace(/[%_(),.\\]/g, "\\$&");
 }
 
 interface Product {

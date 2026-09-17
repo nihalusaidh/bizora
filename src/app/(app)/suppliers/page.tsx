@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
@@ -27,7 +27,7 @@ export default function SuppliersPage() {
   const [businessId, setBusinessId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
 
-  useState(() => {
+  useEffect(() => {
     const fetchData = async () => {
       const supabase = createClient();
       const { data: { user } } = await supabase.auth.getUser();
@@ -54,7 +54,7 @@ export default function SuppliersPage() {
       setLoading(false);
     };
     fetchData();
-  });
+  }, []);
 
   const filtered = suppliers.filter((s) =>
     s.name.toLowerCase().includes(search.toLowerCase()) ||

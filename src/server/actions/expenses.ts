@@ -2,7 +2,7 @@ import { requireBusiness } from "@/lib/auth";
 import { expenseSchema, type ExpenseInput } from "@/lib/validators/expenses";
 
 function sanitizeSearch(input: string): string {
-  return input.replace(/[%(),.\\]/g, "\\$&");
+  return input.replace(/[%_(),.\\]/g, "\\$&");
 }
 
 export async function getExpenses(
@@ -88,13 +88,15 @@ export async function updateExpense(
   const auth = await requireBusiness();
   if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
   const supabase = auth.supabase;
+  const updateData: Record<string, unknown> = { ...input };
+  if (input.category_id !== undefined) updateData.category_id = input.category_id || null;
+  if (input.is_recurring !== undefined) {
+    updateData.recurring_period = input.is_recurring ? input.recurring_period : null;
+  }
+
   const { data, error } = await supabase
     .from("expenses")
-    .update({
-      ...input,
-      category_id: input.category_id || null,
-      recurring_period: input.is_recurring ? input.recurring_period : null,
-    })
+    .update(updateData)
     .eq("business_id", auth.businessId)
     .eq("id", expenseId)
     .select()

@@ -2,7 +2,7 @@ import { requireBusiness } from "@/lib/auth";
 import { customerSchema, type CustomerInput } from "@/lib/validators/customers";
 
 function sanitizeSearch(input: string): string {
-  return input.replace(/[%(),.\\]/g, "\\$&");
+  return input.replace(/[%_(),.\\]/g, "\\$&");
 }
 
 export async function getCustomers(businessId: string, search?: string) {

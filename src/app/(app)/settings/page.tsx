@@ -11,14 +11,14 @@ const settingsGroups = [
     label: "Business",
     items: [
       { name: "Business Profile", description: "Name, address, GST details", href: "/onboarding", icon: Building2 },
-      { name: "Invoice Settings", description: "Templates, numbering, terms", href: "/settings", icon: FileText },
+      { name: "Invoice Settings", description: "Templates, numbering, terms", href: "/settings/invoice-footer", icon: FileText },
     ],
   },
   {
     label: "Billing",
     items: [
-      { name: "Payment Methods", description: "Cash, UPI, card settings", href: "/settings", icon: CreditCard },
-      { name: "Printer Setup", description: "Thermal printer configuration", href: "/settings", icon: Printer },
+      { name: "Payment Methods", description: "Cash, UPI, card settings", href: "/billing", icon: CreditCard },
+      { name: "Printer Setup", description: "Thermal printer configuration", href: "/settings/invoice-footer", icon: Printer },
       { name: "Invoice Footer", description: "Bank details, terms & conditions on invoices", href: "/settings/invoice-footer", icon: FileText },
     ],
   },

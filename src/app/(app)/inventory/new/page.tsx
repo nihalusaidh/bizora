@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
@@ -14,7 +14,7 @@ export default function NewProductPage() {
   const [loading, setLoading] = useState(true);
 
   // Fetch categories and suppliers on mount
-  useState(() => {
+  useEffect(() => {
     const fetchData = async () => {
       const supabase = createClient();
       const { data: { user } } = await supabase.auth.getUser();
@@ -40,7 +40,7 @@ export default function NewProductPage() {
       setLoading(false);
     };
     fetchData();
-  });
+  }, []);
 
   return (
     <div className="space-y-6">
@@ -75,7 +75,7 @@ function NewProductFormWrapper({
   const router = useRouter();
   const [businessId, setBusinessId] = useState<string | null>(null);
 
-  useState(() => {
+  useEffect(() => {
     const getBusinessId = async () => {
       const supabase = createClient();
       const { data: { user } } = await supabase.auth.getUser();
@@ -92,7 +92,7 @@ function NewProductFormWrapper({
       }
     };
     getBusinessId();
-  });
+  }, []);
 
   if (!businessId) {
     return (

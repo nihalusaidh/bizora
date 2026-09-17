@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
@@ -24,7 +24,7 @@ export default function CategoriesPage() {
   const [editCategory, setEditCategory] = useState<Category | null>(null);
   const [businessId, setBusinessId] = useState<string | null>(null);
 
-  useState(() => {
+  useEffect(() => {
     const fetchData = async () => {
       const supabase = createClient();
       const { data: { user } } = await supabase.auth.getUser();
@@ -51,9 +51,10 @@ export default function CategoriesPage() {
       setLoading(false);
     };
     fetchData();
-  });
+  }, []);
 
   const handleDelete = async (categoryId: string) => {
+    if (!confirm("Delete this category?")) return;
     if (!businessId) return;
     const supabase = createClient();
     await supabase

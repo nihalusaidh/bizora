@@ -46,7 +46,7 @@ export default function CustomersPage() {
     try {
       const result = await getCustomers(businessId, search) as any;
       if (result?.error) { console.error(result.error); }
-      setCustomers(result?.data ?? result ?? []);
+      setCustomers(Array.isArray(result) ? result : []);
     } catch (err) {
       console.error("Failed to load customers:", err);
     } finally {

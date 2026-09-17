@@ -21,7 +21,7 @@ export async function getTeamMembers(businessId: string) {
 
   const { data, error } = await supabase
     .from("memberships")
-    .select("user_id, role, created_at, profiles(id, full_name, phone, avatar_url)")
+    .select("user_id, role, created_at, profiles(id, full_name, phone, avatar_url, email)")
     .eq("business_id", businessId)
     .order("created_at", { ascending: true });
 
@@ -36,7 +36,7 @@ export async function getTeamMembers(businessId: string) {
       role: m.role,
       created_at: m.created_at,
       profiles: profile || null,
-      email: "",
+      email: (profile as any)?.email || "",
     });
   }
 

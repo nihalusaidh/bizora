@@ -12,8 +12,8 @@ import { ArrowLeft, Download, Package, Users, Receipt, CreditCard, Building2 } f
 const EXPORTS = [
   { key: "products", label: "Products", icon: Package, columns: ["name", "sku", "barcode", "cost_price", "selling_price", "stock_quantity", "gst_rate", "hsn_sac"] },
   { key: "customers", label: "Customers", icon: Users, columns: ["name", "phone", "email", "address", "city", "gstin", "credit_limit"] },
-  { key: "invoices", label: "Invoices", icon: Receipt, columns: ["invoice_number", "customer_name", "subtotal", "gst_amount", "total", "status", "invoice_date"] },
-  { key: "expenses", label: "Expenses", icon: CreditCard, columns: ["description", "amount", "category_name", "expense_date", "payment_method"] },
+  { key: "invoices", label: "Invoices", icon: Receipt, columns: ["invoice_number", "subtotal", "discount_amount", "tax_amount", "total", "amount_paid", "status", "payment_method", "created_at"] },
+  { key: "expenses", label: "Expenses", icon: CreditCard, columns: ["description", "amount", "vendor", "expense_date", "payment_method", "is_recurring"] },
   { key: "suppliers", label: "Suppliers", icon: Building2, columns: ["name", "phone", "email", "address", "gstin"] },
 ];
 

@@ -353,7 +353,7 @@ export function ProductForm({
             </div>
           </div>
 
-          {costPrice && sellingPrice && (
+          {parseFloat(costPrice) > 0 && parseFloat(sellingPrice) > 0 && (
             <div className="rounded-lg bg-muted/50 p-3 text-sm">
               <span className="text-muted-foreground">Margin: </span>
               <span className="font-medium">

@@ -11,7 +11,7 @@ import { ExportButton } from "@/components/export/export-button";
 import { formatProductsForCsv } from "@/lib/export";
 
 function sanitizeSearch(input: string): string {
-  return input.replace(/[%(),.\\]/g, "\\$&");
+  return input.replace(/[%_(),.\\]/g, "\\$&");
 }
 
 import {

@@ -155,12 +155,22 @@ export async function convertOrderToInvoice(businessId: string, orderId: string)
 
   if (iErr) throw new Error(iErr.message);
 
-  const items = order.sales_order_items.map((item: Record<string, unknown>) => ({
-    invoice_id: invoice.id, product_id: item.product_id, name: item.name, sku: item.sku,
-    quantity: item.quantity, unit: "pcs", unit_price: item.unit_price, cost_price: null,
-    discount_percent: item.discount_percent || 0, discount_amount: 0, tax_rate: item.tax_rate || 0,
-    tax_amount: 0, total: item.total,
-  }));
+  const items = order.sales_order_items.map((item: Record<string, unknown>) => {
+    const unitPrice = Number(item.unit_price) || 0;
+    const qty = Number(item.quantity) || 0;
+    const discountPct = Number(item.discount_percent) || 0;
+    const taxRate = Number(item.tax_rate) || 0;
+    const base = unitPrice * qty;
+    const discountAmt = base * (discountPct / 100);
+    const taxable = base - discountAmt;
+    const taxAmt = taxable * (taxRate / 100);
+    return {
+      invoice_id: invoice.id, product_id: item.product_id, name: item.name, sku: item.sku,
+      quantity: item.quantity, unit: "pcs", unit_price: unitPrice, cost_price: null,
+      discount_percent: discountPct, discount_amount: discountAmt, tax_rate: taxRate,
+      tax_amount: taxAmt, total: taxable + taxAmt,
+    };
+  });
 
   await supabase.from("invoice_items").insert(items);
   await supabase.from("sales_orders").update({ status: "dispatched", updated_at: new Date().toISOString() }).eq("id", orderId);

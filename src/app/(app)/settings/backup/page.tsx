@@ -94,9 +94,18 @@ export default function BackupPage() {
               </div>
               <div className="flex gap-2">
                 {b.file_path && (
-                  <a href={b.file_path} download>
-                    <Button variant="outline" size="sm"><Download className="h-4 w-4" /></Button>
-                  </a>
+                  <Button variant="outline" size="sm" onClick={async () => {
+                    try {
+                      const res = await fetch(b.file_path);
+                      const blob = await res.blob();
+                      const url = URL.createObjectURL(blob);
+                      const a = document.createElement("a");
+                      a.href = url;
+                      a.download = `bizora-backup-${new Date(b.created_at).toISOString().split("T")[0]}.json`;
+                      a.click();
+                      URL.revokeObjectURL(url);
+                    } catch { window.open(b.file_path, "_blank"); }
+                  }}><Download className="h-4 w-4" /></Button>
                 )}
                 {b.status === "completed" && (
                   <Button variant="outline" size="sm" onClick={() => handleRestore(b.id)} disabled={restoring === b.id}>

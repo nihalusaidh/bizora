@@ -153,27 +153,27 @@ export async function receivePurchaseOrderItems(
 
     if (statusError) throw new Error(statusError.message);
 
-    if (allReceived) {
-      const { data: fullItems } = await supabase
-        .from("purchase_order_items")
-        .select("product_id, received_quantity")
-        .eq("purchase_order_id", poId)
-        .not("product_id", "is", null);
+    // Increase stock for all items with received quantities (full or partial receipt)
+    const { data: receivedItems } = await supabase
+      .from("purchase_order_items")
+      .select("product_id, received_quantity")
+      .eq("purchase_order_id", poId)
+      .not("product_id", "is", null)
+      .gt("received_quantity", 0);
 
-      if (fullItems) {
-        for (const item of fullItems) {
-          const { data: product } = await supabase
+    if (receivedItems) {
+      for (const item of receivedItems) {
+        const { data: product } = await supabase
+          .from("products")
+          .select("stock_quantity")
+          .eq("id", item.product_id)
+          .single();
+
+        if (product) {
+          await supabase
             .from("products")
-            .select("stock_quantity")
-            .eq("id", item.product_id)
-            .single();
-
-          if (product) {
-            await supabase
-              .from("products")
-              .update({ stock_quantity: product.stock_quantity + Number(item.received_quantity) })
-              .eq("id", item.product_id);
-          }
+            .update({ stock_quantity: (product.stock_quantity || 0) + Number(item.received_quantity) })
+            .eq("id", item.product_id);
         }
       }
     }

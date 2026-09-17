@@ -86,10 +86,10 @@ export async function getDailyClosingData(businessId: string, date?: string) {
   // Fetch low stock items
   const { data: lowStock } = await supabase
     .from("products")
-    .select("name, min_stock")
+    .select("name, stock_quantity, min_stock")
     .eq("business_id", auth.businessId)
     .eq("is_active", true)
-    .order("created_at", { ascending: true })
+    .order("stock_quantity", { ascending: true })
     .limit(10);
 
   // Calculate metrics from active (non-returned) invoices
@@ -153,16 +153,15 @@ export async function getDailyClosingData(businessId: string, date?: string) {
   // Low stock items
   const lowStockItems = (lowStock || []).map((p) => ({
     name: p.name,
-    stock: p.min_stock || 0,
+    stock: p.stock_quantity ?? 0,
     unit: "pc",
   }));
 
   // Profit estimate
   const revenue = totalSales;
   const costOfGoods = activeInvoices.reduce((sum, i) => {
-    // We don't have cost_price in the invoice summary, estimate at 60% of sales
-    // This is a rough estimate; real implementation would use invoice_items cost_price
-    return sum;
+    // Rough estimate: 60% of sales as COGS
+    return sum + Number(i.total) * 0.6;
   }, 0);
 
   const netProfit = revenue - totalExpenses - costOfGoods;

@@ -2,7 +2,7 @@ import { requireBusiness } from "@/lib/auth";
 import { productSchema, productVariantSchema, type ProductInput, type ProductVariantInput } from "@/lib/validators/inventory";
 
 function sanitizeSearch(input: string): string {
-  return input.replace(/[%(),.\\]/g, "\\$&");
+  return input.replace(/[%_(),.\\]/g, "\\$&");
 }
 
 export async function getProducts(
