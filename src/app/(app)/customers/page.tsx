@@ -92,23 +92,14 @@ export default function CustomersPage() {
         </div>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-3 gap-4">
-        <div className="rounded-xl border bg-card p-4 text-center">
-          <Users className="h-5 w-5 mx-auto text-muted-foreground mb-1" />
-          <div className="text-2xl font-bold">{customers.length}</div>
-          <div className="text-xs text-muted-foreground">Total Customers</div>
+      {/* Stats — EarnKaro earnings strip */}
+      <div className="rounded-2xl bg-[#DC2626] text-white p-4 flex items-center justify-between shadow-sm">
+        <div>
+          <p className="text-[11px] uppercase tracking-wider text-white/70 font-bold">Outstanding to collect</p>
+          <p className="text-3xl font-extrabold financial-number">₹{totalOutstanding.toLocaleString()}</p>
+          <p className="text-xs text-white/75 mt-0.5">{customers.length} customers • ₹{totalSpend.toLocaleString()} total spend</p>
         </div>
-        <div className="rounded-xl border bg-card p-4 text-center">
-          <IndianRupee className="h-5 w-5 mx-auto text-muted-foreground mb-1" />
-          <div className="text-2xl font-bold text-[#DC2626]">₹{totalOutstanding.toLocaleString()}</div>
-          <div className="text-xs text-muted-foreground">Outstanding</div>
-        </div>
-        <div className="rounded-xl border bg-card p-4 text-center">
-          <IndianRupee className="h-5 w-5 mx-auto text-muted-foreground mb-1" />
-          <div className="text-2xl font-bold text-foreground">₹{totalSpend.toLocaleString()}</div>
-          <div className="text-xs text-muted-foreground">Total Spend</div>
-        </div>
+        <IndianRupee className="h-8 w-8 text-white/70" />
       </div>
 
       {/* Search */}

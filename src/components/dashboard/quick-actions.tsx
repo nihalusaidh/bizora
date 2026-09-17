@@ -13,19 +13,22 @@ const quickActions = [
 
 export function QuickActions() {
   return (
-    <div className="rounded-xl border border-border bg-card p-4">
-      <h3 className="text-sm font-semibold mb-3">Quick actions</h3>
-      <div className="grid grid-cols-2 gap-2">
+    <div className="rounded-2xl border border-red-100 bg-white p-4">
+      <div className="flex items-center justify-between mb-3">
+        <h3 className="text-[13px] font-bold uppercase tracking-wider text-[#DC2626]">Quick actions</h3>
+        <span className="text-[11px] font-bold text-[#DC2626]">Earn more →</span>
+      </div>
+      <div className="flex gap-3 overflow-x-auto hide-scrollbar pb-1 md:grid md:grid-cols-2 md:overflow-visible">
         {quickActions.map((action) => (
           <Link
             key={action.label}
             href={action.href}
-            className="flex items-center gap-2.5 rounded-lg border border-border p-2.5 text-sm font-medium transition-default hover:bg-muted"
+            className="flex min-w-[92px] flex-col items-center gap-1.5 rounded-xl border border-red-100 bg-white p-3 text-center tap-effect md:flex-row md:text-left md:p-2.5"
           >
-            <div className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center text-foreground">
-              <action.icon className="h-4 w-4" />
+            <div className="h-11 w-11 rounded-full bg-[#FEF2F2] border border-red-100 flex items-center justify-center text-[#DC2626] md:h-8 md:w-8 md:rounded-lg">
+              <action.icon className="h-5 w-5 md:h-4 md:w-4" />
             </div>
-            <span className="text-xs">{action.label}</span>
+            <span className="text-[11px] font-bold leading-tight md:text-xs">{action.label}</span>
           </Link>
         ))}
       </div>

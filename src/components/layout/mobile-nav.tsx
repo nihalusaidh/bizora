@@ -43,16 +43,36 @@ export function MobileNav({ open, onClose, bottomNav }: MobileNavProps) {
 
   if (bottomNav) {
     return (
-      <nav className="border-t border-border bg-background safe-area-bottom">
-        <div className="flex items-center justify-around px-2 py-3">
+      <nav className="border-t border-red-100 bg-white safe-area-bottom shadow-[0_-4px_16px_rgba(220,38,38,0.06)]">
+        <div className="flex items-center justify-around px-2 py-2">
           {bottomNavItems.map((item) => {
             const active = isActive(item.href);
+            const isFab = item.name === "Billing";
+            if (isFab) {
+              return (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className="flex flex-col items-center gap-0.5 -mt-6"
+                >
+                  <span className={cn(
+                    "flex h-14 w-14 items-center justify-center rounded-full shadow-lg",
+                    active ? "bg-[#B91C1C] text-white" : "bg-[#DC2626] text-white"
+                  )}>
+                    <item.icon className="h-6 w-6" strokeWidth={2.5} />
+                  </span>
+                  <span className={cn("text-[10px] font-bold", active ? "text-[#DC2626]" : "text-muted-foreground")}>
+                    {item.name}
+                  </span>
+                </Link>
+              );
+            }
             return (
               <Link
                 key={item.name}
                 href={item.href}
                 className={cn(
-                  "flex flex-col items-center gap-0.5 rounded-lg px-3 py-3 min-h-[44px] text-[10px] font-medium transition-colors",
+                  "flex flex-col items-center gap-0.5 rounded-lg px-3 py-3 min-h-[44px] text-[10px] font-bold transition-colors",
                   active ? "text-[#DC2626]" : "text-muted-foreground"
                 )}
               >

@@ -135,20 +135,27 @@ export default function InsightsPage() {
         <p className="text-muted-foreground">Things worth your attention</p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="rounded-2xl bg-[#DC2626] text-white p-4 shadow-sm">
+        <p className="text-[11px] uppercase tracking-wider text-white/70 font-bold">Insights</p>
+        <p className="text-xl font-extrabold">Earn more, plug leaks</p>
+        <p className="text-xs text-white/75 mt-0.5">Reports grouped like top deals — tap to open</p>
+      </div>
+
+      <div className="space-y-2">
         {insightCards.map((card) => {
           const content = (
-            <CardContent className="p-4">
-              <div className="flex items-start gap-3">
-                <div className="h-9 w-9 rounded-lg bg-muted flex items-center justify-center shrink-0 text-muted-foreground">
+            <CardContent className="p-3">
+              <div className="flex items-center gap-3">
+                <div className="h-12 w-12 rounded-lg bg-[#FEF2F2] border border-red-100 flex items-center justify-center shrink-0 text-[#DC2626]">
                   {card.icon}
                 </div>
-                <div className="min-w-0">
-                  <h3 className="text-sm font-semibold">{card.title}</h3>
-                  <p className="text-xs text-muted-foreground mt-0.5">
+                <div className="min-w-0 flex-1">
+                  <h3 className="text-sm font-bold">{card.title}</h3>
+                  <p className="text-xs text-muted-foreground mt-0.5 truncate">
                     {card.description}
                   </p>
                 </div>
+                <span className="text-xs font-extrabold text-[#DC2626] shrink-0">Open →</span>
               </div>
             </CardContent>
           );
@@ -156,7 +163,7 @@ export default function InsightsPage() {
           if (card.href) {
             return (
               <Link key={card.title} href={card.href}>
-                <Card className="hover:shadow-md transition-default cursor-pointer h-full">
+                <Card className="border-red-100 bg-white hover:border-[#DC2626] hover:shadow-sm transition-default cursor-pointer h-full">
                   {content}
                 </Card>
               </Link>
@@ -164,7 +171,7 @@ export default function InsightsPage() {
           }
 
           return (
-            <Card key={card.title} className="hover:shadow-md transition-default h-full">
+            <Card key={card.title} className="border-red-100 bg-white h-full">
               {content}
             </Card>
           );

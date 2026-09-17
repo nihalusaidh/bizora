@@ -245,44 +245,47 @@ export default function InventoryPage() {
           )}
         </div>
       ) : viewMode === "grid" ? (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <h2 className="text-[13px] font-bold uppercase tracking-wider text-[#DC2626]">My products</h2>
+            <span className="text-[11px] font-bold text-[#DC2626]">{products.length} items →</span>
+          </div>
           {products.map((product, i) => (
             <Link key={product.id} href={`/inventory/${product.id}`}>
               <Card
-                className="card-premium cursor-pointer h-full"
+                className="card-premium cursor-pointer h-full border-red-100 bg-white"
                 style={{ animationDelay: `${i * 40}ms` }}
               >
-                <CardContent className="p-4">
-                  <div className="flex items-start gap-3">
+                <CardContent className="p-3">
+                  <div className="flex items-center gap-3">
                     {product.image_url ? (
                       <img
                         src={product.image_url}
                         alt={product.name}
-                        className="h-16 w-16 rounded-lg object-cover transition-transform duration-200 group-hover:scale-105"
+                        className="h-16 w-16 rounded-lg object-cover shrink-0"
                       />
                     ) : (
-                      <div className="h-16 w-16 rounded-lg bg-muted flex items-center justify-center">
-                        <Package className="h-6 w-6 text-muted-foreground" />
+                      <div className="h-16 w-16 rounded-lg bg-[#FEF2F2] border border-red-100 flex items-center justify-center shrink-0">
+                        <Package className="h-6 w-6 text-[#DC2626]/60" />
                       </div>
                     )}
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-medium truncate">{product.name}</h3>
-                      <p className="text-sm text-muted-foreground">
+                      <h3 className="font-bold text-sm truncate">{product.name}</h3>
+                      <p className="text-[11px] font-bold text-[#DC2626]">
                         {product.category?.name || "Uncategorized"}
                       </p>
                       {product.sku && (
-                        <p className="text-xs text-muted-foreground mt-1">SKU: {product.sku}</p>
+                        <p className="text-[10px] text-muted-foreground mt-0.5">SKU: {product.sku}</p>
                       )}
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className="font-extrabold text-base text-[#DC2626]">₹{product.selling_price.toLocaleString("en-IN")}</span>
+                        {product.cost_price > 0 && (
+                          <Badge variant="outline" className="border-red-200 text-[#B91C1C] bg-[#FEF2F2]">
+                            {((product.selling_price - product.cost_price) / product.cost_price * 100).toFixed(0)}% margin
+                          </Badge>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                  <div className="h-px bg-border my-3" />
-                  <div className="flex items-center justify-between">
-                    <span className="font-bold text-lg">₹{product.selling_price.toLocaleString("en-IN")}</span>
-                    {product.cost_price > 0 && (
-                      <Badge variant="outline">
-                        {((product.selling_price - product.cost_price) / product.cost_price * 100).toFixed(0)}% margin
-                      </Badge>
-                    )}
                   </div>
                 </CardContent>
               </Card>

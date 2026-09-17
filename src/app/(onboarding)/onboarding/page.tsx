@@ -62,33 +62,49 @@ export default function OnboardingPage() {
   };
 
   const handleComplete = async () => {
+    setError("");
+    if (!data.business_type) {
+      setError("Please choose your business type.");
+      setStep(inApp ? 1 : 2);
+      return;
+    }
+    if (!data.business_name.trim()) {
+      setError("Please enter your business name.");
+      setStep(step > 0 ? step : 1);
+      return;
+    }
     setLoading(true);
-    const supabase = createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      setError("Not authenticated. Please sign in again.");
+    try {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        setError("Not authenticated. Please sign in again.");
+        setLoading(false);
+        return;
+      }
+
+      const result = await createBusiness({
+        name: data.business_name.trim(),
+        type: data.business_type,
+        currency: data.currency,
+        currency_symbol: data.currency_symbol,
+        gst_status: data.gst_status,
+        gstin: data.gst_status === "registered" ? data.gstin : null,
+        size: data.business_size,
+      });
+
+      if (result.error || !result.data) {
+        setError(result.error || "Failed to create business. Please try again.");
+        setLoading(false);
+        return;
+      }
+
+      // Use window.location.href for full page reload so server components re-fetch
+      window.location.href = "/dashboard";
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Something went wrong. Please try again.");
       setLoading(false);
-      return;
     }
-
-    const result = await createBusiness({
-      name: data.business_name,
-      type: data.business_type,
-      currency: data.currency,
-      currency_symbol: data.currency_symbol,
-      gst_status: data.gst_status,
-      gstin: data.gst_status === "registered" ? data.gstin : null,
-      size: data.business_size,
-    });
-
-    if (result.error) {
-      setError(result.error);
-      setLoading(false);
-      return;
-    }
-
-    // Use window.location.href for full page reload so server components re-fetch
-    window.location.href = "/dashboard";
   };
 
   if (checkingUser) {

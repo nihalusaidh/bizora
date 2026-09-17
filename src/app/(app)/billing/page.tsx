@@ -128,40 +128,49 @@ export default function BillingPage() {
           }
         />
       ) : (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <h2 className="text-[13px] font-bold uppercase tracking-wider text-[#DC2626]">Top deals today</h2>
+            <span className="text-[11px] font-bold text-[#DC2626]">{products.length} items →</span>
+          </div>
           {products.map((product, i) => (
             <button
               key={product.id}
               onClick={() => router.push(`/billing?add=${product.id}`)}
-              className="group rounded-xl border bg-card p-3 text-left tap-effect premium-fade-up"
+              className="group flex w-full items-center gap-3 rounded-xl border border-red-100 bg-white p-3 text-left tap-effect premium-fade-up"
               style={{ animationDelay: `${i * 30}ms` }}
             >
               {product.image_url ? (
                 <img
                   src={product.image_url}
                   alt={product.name}
-                  className="h-20 w-full object-cover rounded-lg mb-2 transition-transform duration-200 group-hover:scale-105"
+                  className="h-16 w-16 rounded-lg object-cover shrink-0"
                 />
               ) : (
-                <div className="h-20 w-full bg-muted rounded-lg mb-2 flex items-center justify-center transition-all duration-200 group-hover:bg-muted/80">
-                  <Package className="h-8 w-8 text-muted-foreground/50 transition-transform duration-200 group-hover:scale-110" />
+                <div className="h-16 w-16 rounded-lg bg-[#FEF2F2] border border-red-100 flex items-center justify-center shrink-0">
+                  <Package className="h-7 w-7 text-[#DC2626]/60" />
                 </div>
               )}
-              <h3 className="text-sm font-semibold truncate">{product.name}</h3>
-              <div className="flex items-center justify-between mt-1">
-                <span className="text-sm font-bold">₹{product.selling_price.toLocaleString("en-IN")}</span>
-                <Badge
-                  variant={product.stock_quantity <= 5 ? "destructive" : "secondary"}
-                  className="text-[10px]"
-                >
-                  {product.stock_quantity} in stock
-                </Badge>
+              <div className="flex-1 min-w-0">
+                <h3 className="text-sm font-bold truncate">{product.name}</h3>
+                {product.category && (
+                  <span className="text-[11px] font-bold text-[#DC2626]">
+                    {(product.category as { name: string }).name}
+                  </span>
+                )}
+                <div className="flex items-center gap-2 mt-0.5">
+                  <span className="text-base font-extrabold text-[#DC2626]">₹{product.selling_price.toLocaleString("en-IN")}</span>
+                  <Badge
+                    variant={product.stock_quantity <= 5 ? "destructive" : "secondary"}
+                    className="text-[10px]"
+                  >
+                    {product.stock_quantity} left
+                  </Badge>
+                </div>
               </div>
-              {product.category && (
-                <span className="text-[10px] text-muted-foreground mt-1 block">
-                  {(product.category as { name: string }).name}
-                </span>
-              )}
+              <span className="shrink-0 rounded-full border border-[#DC2626] px-3 py-1.5 text-xs font-extrabold text-[#DC2626]">
+                + ADD
+              </span>
             </button>
           ))}
         </div>
