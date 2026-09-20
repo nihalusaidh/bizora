@@ -199,3 +199,83 @@ export async function generateGstr1(businessId: string, month: number, year: num
     },
   };
 }
+
+export interface Gstr3bSummary {
+  period: string;
+  outward_taxable: number;
+  outward_cgst: number;
+  outward_sgst: number;
+  outward_igst: number;
+  outward_count: number;
+  itc_cgst: number;
+  itc_sgst: number;
+  itc_igst: number;
+  itc_count: number;
+  net_cgst: number;
+  net_sgst: number;
+}
+
+/**
+ * GSTR-3B ready reckoner (not a filing): outward tax from sales invoices,
+ * ITC estimate from received purchase orders in the same month.
+ */
+export async function generateGstr3b(businessId: string, month: number, year: number): Promise<Gstr3bSummary> {
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) throw new Error(auth.error || "Not authenticated");
+  const supabase = auth.supabase;
+
+  const startIso = new Date(year, month - 1, 1).toISOString();
+  const endIso = new Date(year, month, 0, 23, 59, 59).toISOString();
+
+  const [{ data: invoices }, { data: purchases }] = await Promise.all([
+    supabase
+      .from("invoices")
+      .select("total, tax_amount")
+      .eq("business_id", auth.businessId)
+      .gte("created_at", startIso)
+      .lte("created_at", endIso)
+      .in("status", ["paid", "partial", "sent"]),
+    supabase
+      .from("purchase_orders")
+      .select("tax_amount, received_date, created_at")
+      .eq("business_id", auth.businessId)
+      .eq("status", "received"),
+  ]);
+
+  let outwardTaxable = 0;
+  let outwardTax = 0;
+  for (const inv of invoices || []) {
+    const tax = Number(inv.tax_amount) || 0;
+    outwardTax += tax;
+    outwardTaxable += (Number(inv.total) || 0) - tax;
+  }
+
+  let itcTax = 0;
+  let itcCount = 0;
+  for (const po of purchases || []) {
+    const dt = (po.received_date as string) || (po.created_at as string);
+    if (!dt) continue;
+    const d = new Date(dt);
+    if (d.getFullYear() === year && d.getMonth() === month - 1) {
+      itcTax += Number(po.tax_amount) || 0;
+      itcCount += 1;
+    }
+  }
+
+  const outwardCgst = outwardTax / 2;
+  const itcCgst = itcTax / 2;
+  return {
+    period: `${String(month).padStart(2, "0")}-${year}`,
+    outward_taxable: outwardTaxable,
+    outward_cgst: outwardCgst,
+    outward_sgst: outwardCgst,
+    outward_igst: 0,
+    outward_count: (invoices || []).length,
+    itc_cgst: itcCgst,
+    itc_sgst: itcCgst,
+    itc_igst: 0,
+    itc_count: itcCount,
+    net_cgst: Math.max(0, outwardCgst - itcCgst),
+    net_sgst: Math.max(0, outwardCgst - itcCgst),
+  };
+}

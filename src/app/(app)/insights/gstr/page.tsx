@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { StatCard } from "@/components/reports/stat-card";
-import { generateGstr1, type Gstr1Report } from "@/server/actions/gstr";
+import { generateGstr1, generateGstr3b, type Gstr1Report, type Gstr3bSummary } from "@/server/actions/gstr";
 import { useBusiness } from "@/lib/store";
 import { ArrowLeft, Download, Printer, FileText, Loader2 } from "lucide-react";
 
@@ -25,14 +25,19 @@ export default function GstrReportPage() {
   const [month, setMonth] = useState(String(new Date().getMonth() + 1));
   const [year, setYear] = useState(String(currentYear));
   const [data, setData] = useState<Gstr1Report | null>(null);
+  const [summary3b, setSummary3b] = useState<Gstr3bSummary | null>(null);
   const [loading, setLoading] = useState(false);
 
   const handleGenerate = useCallback(async () => {
     if (!businessId) return;
     setLoading(true);
     try {
-      const result = await generateGstr1(businessId, Number(month), Number(year));
+      const [result, reckoner] = await Promise.all([
+        generateGstr1(businessId, Number(month), Number(year)),
+        generateGstr3b(businessId, Number(month), Number(year)).catch(() => null),
+      ]);
       if (result && !('error' in result)) setData(result);
+      if (reckoner) setSummary3b(reckoner);
     } catch (err) {
       console.error("Failed to generate GSTR-1:", err);
     } finally {
@@ -171,6 +176,29 @@ export default function GstrReportPage() {
             <StatCard label="IGST" value={data.document_summary.total_igst.toLocaleString()} prefix="₹" />
             <StatCard label="Invoice Value" value={data.document_summary.total_invoice_value.toLocaleString()} prefix="₹" variant="success" />
           </div>
+
+          {summary3b && (
+            <div className="rounded-2xl bg-[#DC2626] text-white p-4 shadow-sm">
+              <p className="text-[11px] uppercase tracking-wider text-white/70 font-bold">
+                GSTR-3B ready reckoner • {summary3b.period}
+              </p>
+              <div className="grid grid-cols-3 gap-2 mt-2 text-center">
+                <div className="rounded-xl bg-white/15 p-2">
+                  <p className="text-[10px] text-white/70">Outward tax</p>
+                  <p className="font-extrabold">₹{(summary3b.outward_cgst + summary3b.outward_sgst).toLocaleString("en-IN")}</p>
+                </div>
+                <div className="rounded-xl bg-white/15 p-2">
+                  <p className="text-[10px] text-white/70">ITC ({summary3b.itc_count} bills)</p>
+                  <p className="font-extrabold">₹{(summary3b.itc_cgst + summary3b.itc_sgst).toLocaleString("en-IN")}</p>
+                </div>
+                <div className="rounded-xl bg-white p-2">
+                  <p className="text-[10px] text-[#DC2626]/70 font-bold">Net payable</p>
+                  <p className="font-extrabold text-[#DC2626]">₹{(summary3b.net_cgst + summary3b.net_sgst).toLocaleString("en-IN")}</p>
+                </div>
+              </div>
+              <p className="text-[10px] text-white/60 mt-2">Reckoner only — verify with your CA before filing.</p>
+            </div>
+          )}
 
           <Tabs defaultValue="b2b">
             <TabsList className="w-full">

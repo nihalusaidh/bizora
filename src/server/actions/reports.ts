@@ -217,3 +217,96 @@ export async function getDashboardStats(businessId: string) {
     avgInvoice: thisMonthRevenue.avgInvoiceValue ?? 0,
   };
 }
+
+export interface DayBookEntry {
+  id: string;
+  kind: "in" | "out";
+  label: string;
+  detail: string;
+  amount: number;
+  time: string;
+}
+
+export interface DayBook {
+  date: string;
+  moneyIn: number;
+  moneyOut: number;
+  net: number;
+  entries: DayBookEntry[];
+}
+
+/** Vyapar-style Day Book: every rupee in/out for one date, single chronological ledger. */
+export async function getDayBook(businessId: string, date: string): Promise<DayBook> {
+  const auth = await requireBusiness();
+  if (auth.error || !auth.supabase || !auth.businessId) throw new Error(auth.error || "Not authenticated");
+  const supabase = auth.supabase;
+  const start = `${date}T00:00:00`;
+  const end = `${date}T23:59:59`;
+
+  const [{ data: invoices }, { data: payments }, { data: expenses }] = await Promise.all([
+    supabase
+      .from("invoices")
+      .select("id, invoice_number, total, amount_paid, created_at, customers(name)")
+      .eq("business_id", auth.businessId)
+      .neq("status", "cancelled")
+      .gte("created_at", start)
+      .lte("created_at", end)
+      .order("created_at", { ascending: true }),
+    supabase
+      .from("customer_payments")
+      .select("id, amount, created_at, customers(name)")
+      .eq("business_id", auth.businessId)
+      .gte("created_at", start)
+      .lte("created_at", end)
+      .order("created_at", { ascending: true }),
+    supabase
+      .from("expenses")
+      .select("id, description, amount, vendor, expense_date")
+      .eq("business_id", auth.businessId)
+      .eq("is_active", true)
+      .gte("expense_date", date)
+      .lte("expense_date", date)
+      .order("created_at", { ascending: true }),
+  ]);
+
+  const entries: DayBookEntry[] = [];
+  for (const inv of invoices || []) {
+    const paid = Number(inv.amount_paid) || 0;
+    if (paid <= 0) continue;
+    const cust = Array.isArray(inv.customers) ? inv.customers[0] : inv.customers;
+    entries.push({
+      id: `inv-${inv.id}`,
+      kind: "in",
+      label: `Bill ${inv.invoice_number}`,
+      detail: (cust as { name?: string } | null)?.name || "Walk-in",
+      amount: paid,
+      time: inv.created_at,
+    });
+  }
+  for (const p of payments || []) {
+    const cust = Array.isArray(p.customers) ? p.customers[0] : p.customers;
+    entries.push({
+      id: `pay-${p.id}`,
+      kind: "in",
+      label: "Khata collection",
+      detail: (cust as { name?: string } | null)?.name || "Customer",
+      amount: Number(p.amount) || 0,
+      time: p.created_at,
+    });
+  }
+  for (const e of expenses || []) {
+    entries.push({
+      id: `exp-${e.id}`,
+      kind: "out",
+      label: e.description,
+      detail: e.vendor || "Expense",
+      amount: Number(e.amount) || 0,
+      time: e.expense_date,
+    });
+  }
+  entries.sort((a, b) => a.time.localeCompare(b.time));
+
+  const moneyIn = entries.filter((e) => e.kind === "in").reduce((s, e) => s + e.amount, 0);
+  const moneyOut = entries.filter((e) => e.kind === "out").reduce((s, e) => s + e.amount, 0);
+  return { date, moneyIn, moneyOut, net: moneyIn - moneyOut, entries };
+}

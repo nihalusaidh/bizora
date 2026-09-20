@@ -96,6 +96,12 @@ const insightCards: InsightCard[] = [
     href: "/insights/daily-closing",
   },
   {
+    title: "Day Book",
+    description: "Every rupee in & out, day by day",
+    icon: <BookOpen className="h-5 w-5" />,
+    href: "/insights/daybook",
+  },
+  {
     title: "Revenue Report",
     description: "Daily and monthly sales trends",
     icon: <TrendingUp className="h-5 w-5" />,

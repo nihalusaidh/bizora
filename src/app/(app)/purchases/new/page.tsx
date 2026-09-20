@@ -11,8 +11,10 @@ import { Separator } from "@/components/ui/separator";
 import { createPurchaseOrder } from "@/server/actions/purchase-orders";
 import { getProducts } from "@/server/actions/products";
 import { getSuppliers } from "@/server/actions/suppliers";
+import { scanPurchaseBill } from "@/server/actions/ocr";
 import { useBusiness } from "@/lib/store";
-import { ArrowLeft, Plus, Minus, Trash2, Loader2 } from "lucide-react";
+import { ArrowLeft, Plus, Minus, Trash2, Loader2, Camera, ScanLine, X } from "lucide-react";
+import { useRef } from "react";
 
 interface CartItem {
   productId: string | null;
@@ -38,6 +40,10 @@ export default function NewPurchaseOrderPage() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [scanPreview, setScanPreview] = useState<string | null>(null);
+  const [scanning, setScanning] = useState(false);
+  const [scanInfo, setScanInfo] = useState("");
+  const photoRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     async function load() {
@@ -83,6 +89,60 @@ export default function NewPurchaseOrderPage() {
       }]);
     }
     setSearch("");
+  };
+
+  const handlePhoto = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 4 * 1024 * 1024) {
+      setError("Photo must be under 4MB.");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => setScanPreview(reader.result as string);
+    reader.readAsDataURL(file);
+    e.target.value = "";
+  };
+
+  const analyzePhoto = async () => {
+    if (!scanPreview || !businessId || scanning) return;
+    setScanning(true);
+    setError("");
+    setScanInfo("");
+    try {
+      const [mime, b64] = scanPreview.split(",");
+      const mimeType = /data:(.*);base64/.exec(mime)?.[1] || "image/jpeg";
+      const bill = await scanPurchaseBill({ mimeType, data: b64 });
+      if (bill.items.length === 0) {
+        setError("No items found on this bill. Try a clearer photo.");
+        return;
+      }
+      setCart((prev) => [
+        ...prev,
+        ...bill.items.map((it) => ({
+          productId: null,
+          name: it.name,
+          sku: null,
+          quantity: it.quantity,
+          unit: "pc",
+          unitCost: it.unit_price,
+          taxRate: it.tax_rate,
+        })),
+      ]);
+      // Auto-match supplier by name
+      if (bill.supplier && !selectedSupplier) {
+        const match = suppliers.find((s) => s.name.toLowerCase().includes(bill.supplier!.toLowerCase().slice(0, 12)) || bill.supplier!.toLowerCase().includes(s.name.toLowerCase()));
+        if (match) setSelectedSupplier(match.id);
+      }
+      setScanInfo(
+        `${bill.items.length} items added${bill.supplier ? ` • ${bill.supplier}` : ""}${bill.total ? ` • Bill ₹${bill.total.toLocaleString("en-IN")}` : ""}`
+      );
+      setScanPreview(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Scan failed");
+    } finally {
+      setScanning(false);
+    }
   };
 
   const addCustomItem = () => {
@@ -188,6 +248,43 @@ export default function NewPurchaseOrderPage() {
               <Input placeholder="PO notes" value={notes} onChange={(e) => setNotes(e.target.value)} />
             </div>
           </div>
+        </CardContent>
+      </Card>
+
+      {/* Scan bill photo — Vyapar OCR parity, AI standout */}
+      <Card className="border-red-100 bg-white">
+        <CardContent className="p-4">
+          {scanPreview ? (
+            <div className="space-y-3">
+              <div className="relative">
+                <img src={scanPreview} alt="Bill preview" className="w-full max-h-56 object-contain rounded-lg bg-muted" />
+                <button
+                  onClick={() => setScanPreview(null)}
+                  aria-label="Remove photo"
+                  className="absolute top-2 right-2 h-8 w-8 rounded-full bg-black/60 text-white flex items-center justify-center"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+              <Button variant="red" className="w-full" onClick={analyzePhoto} disabled={scanning}>
+                {scanning ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ScanLine className="mr-2 h-4 w-4" />}
+                {scanning ? "Reading bill..." : "Read bill & fill items"}
+              </Button>
+            </div>
+          ) : (
+            <button onClick={() => photoRef.current?.click()} className="flex w-full items-center gap-3 text-left tap-effect">
+              <div className="h-12 w-12 rounded-xl bg-[#FEF2F2] border border-red-100 flex items-center justify-center shrink-0">
+                <Camera className="h-6 w-6 text-[#DC2626]" />
+              </div>
+              <div className="flex-1">
+                <p className="text-sm font-extrabold">Scan supplier bill photo</p>
+                <p className="text-xs text-muted-foreground">AI fills items, prices & GST automatically</p>
+              </div>
+              <span className="rounded-full border border-[#DC2626] px-3 py-1.5 text-xs font-extrabold text-[#DC2626] shrink-0">SCAN</span>
+            </button>
+          )}
+          {scanInfo && <p className="text-xs font-bold text-[#DC2626] bg-[#FEF2F2] border border-red-200 rounded-lg p-2 mt-3">✓ {scanInfo} — verify before saving.</p>}
+          <input ref={photoRef} type="file" accept="image/*" capture="environment" onChange={handlePhoto} className="hidden" />
         </CardContent>
       </Card>
 
