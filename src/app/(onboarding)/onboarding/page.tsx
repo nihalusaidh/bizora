@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { friendlySetupError } from "@/lib/errors";
 import { createBusiness } from "@/server/actions/business";
 import { PlatformStep } from "@/components/onboarding/platform-step";
 import { BusinessTypeStep } from "@/components/onboarding/business-type-step";
@@ -117,7 +118,7 @@ export default function OnboardingPage() {
       // Use window.location.href for full page reload so server components re-fetch
       window.location.href = "/dashboard";
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Something went wrong. Please try again.");
+      setError(friendlySetupError(e));
       setLoading(false);
     }
   };

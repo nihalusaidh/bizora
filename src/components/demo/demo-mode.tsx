@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { createClient } from "@/lib/supabase/client";
+import { friendlySetupError } from "@/lib/errors";
 import { createBusiness } from "@/server/actions/business";
 import { createProduct } from "@/server/actions/products";
 import { createCustomer } from "@/server/actions/customers";
@@ -105,7 +106,7 @@ export function DemoMode() {
 
       window.location.href = "/dashboard";
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Could not start demo. Please try again.");
+      setError(friendlySetupError(e, "Could not start demo. Please try again."));
       setLoading(false);
     }
   };
