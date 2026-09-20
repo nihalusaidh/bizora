@@ -5,21 +5,28 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Zap } from "lucide-react";
 
 interface BusinessNameStepProps {
   value: string;
   onSubmit: (name: string) => void;
+  onExpress?: (name: string) => void;
   onBack: () => void;
 }
 
-export function BusinessNameStep({ value, onSubmit, onBack }: BusinessNameStepProps) {
+export function BusinessNameStep({ value, onSubmit, onExpress, onBack }: BusinessNameStepProps) {
   const [name, setName] = useState(value);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (name.trim().length >= 2) {
       onSubmit(name.trim());
+    }
+  };
+
+  const handleExpress = () => {
+    if (name.trim().length >= 2) {
+      onExpress?.(name.trim());
     }
   };
 
@@ -52,6 +59,23 @@ export function BusinessNameStep({ value, onSubmit, onBack }: BusinessNameStepPr
               Continue
             </Button>
           </div>
+          {onExpress && (
+            <Button
+              type="button"
+              variant="red"
+              className="w-full"
+              disabled={name.trim().length < 2}
+              onClick={handleExpress}
+            >
+              <Zap className="mr-2 h-4 w-4" />
+              Express setup — finish in 10 seconds
+            </Button>
+          )}
+          {onExpress && (
+            <p className="text-center text-xs text-muted-foreground">
+              Uses recommended defaults (INR, unregistered, small). Change anytime in Settings.
+            </p>
+          )}
         </CardContent>
       </form>
     </Card>

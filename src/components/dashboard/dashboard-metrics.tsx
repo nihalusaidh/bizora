@@ -24,31 +24,32 @@ export function DashboardMetrics({ businessId }: DashboardMetricsProps) {
     const today = new Date().toISOString().split("T")[0];
     const monthStart = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString();
 
-    // Today's invoices
-    const { data: todayInvoices } = await supabase
-      .from("invoices")
-      .select("total, amount_paid, status")
-      .eq("business_id", businessId)
-      .gte("created_at", today);
+    // All four queries in parallel — one round-trip wave, not four waterfalls.
+    const [todayRes, monthRes, productsRes, customersRes] = await Promise.all([
+      supabase
+        .from("invoices")
+        .select("total, amount_paid, status")
+        .eq("business_id", businessId)
+        .gte("created_at", today),
+      supabase
+        .from("invoices")
+        .select("total, subtotal, tax_amount, discount_amount")
+        .eq("business_id", businessId)
+        .gte("created_at", monthStart),
+      supabase
+        .from("products")
+        .select("id, cost_price, selling_price")
+        .eq("business_id", businessId),
+      supabase
+        .from("customers")
+        .select("outstanding_balance")
+        .eq("business_id", businessId),
+    ]);
 
-    // Month's data for profit estimate
-    const { data: monthInvoices } = await supabase
-      .from("invoices")
-      .select("total, subtotal, tax_amount, discount_amount")
-      .eq("business_id", businessId)
-      .gte("created_at", monthStart);
-
-    // Products for cost calculation
-    const { data: products } = await supabase
-      .from("products")
-      .select("id, cost_price, selling_price")
-      .eq("business_id", businessId);
-
-    // Outstanding from customers
-    const { data: customers } = await supabase
-      .from("customers")
-      .select("outstanding_balance")
-      .eq("business_id", businessId);
+    const todayInvoices = todayRes.data;
+    const monthInvoices = monthRes.data;
+    const products = productsRes.data;
+    const customers = customersRes.data;
 
     const todaySales = todayInvoices?.reduce((sum, i) => sum + Number(i.total), 0) || 0;
     const todayBills = todayInvoices?.length || 0;

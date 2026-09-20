@@ -165,6 +165,11 @@ export default function OnboardingPage() {
             updateData({ business_name: name });
             setStep(step + 1);
           }}
+          onExpress={(name) => {
+            updateData({ business_name: name });
+            // Jump straight to Ready with smart defaults already in state.
+            setStep(inApp ? 6 : 7);
+          }}
           onBack={() => setStep(step - 1)}
         />
       )}

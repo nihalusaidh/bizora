@@ -62,6 +62,7 @@ export function ProductForm({
   const [gstRate, setGstRate] = useState(product?.gst_rate?.toString() || "0");
   const [hsnSac, setHsnSac] = useState(product?.hsn_sac || "");
   const [minStock, setMinStock] = useState(product?.min_stock?.toString() || "0");
+  const [stockQty, setStockQty] = useState((product as any)?.stock_quantity?.toString() || "0");
   const [supplierId, setSupplierId] = useState(product?.supplier_id || "");
   const [hasVariants, setHasVariants] = useState(product?.has_variants || false);
   const [batchNumber, setBatchNumber] = useState((product as any)?.batch_number || "");
@@ -92,6 +93,7 @@ export function ProductForm({
         gst_rate: parseFloat(gstRate) || 0,
         hsn_sac: hsnSac || null,
         min_stock: parseInt(minStock) || 0,
+        stock_quantity: parseInt(stockQty) || 0,
         supplier_id: supplierId || null,
         has_variants: hasVariants,
         is_active: true,
@@ -339,6 +341,16 @@ export function ProductForm({
                 placeholder="e.g. 6109"
                 value={hsnSac}
                 onChange={(e) => setHsnSac(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="stockQty">Opening Stock</Label>
+              <Input
+                id="stockQty"
+                type="number"
+                min="0"
+                value={stockQty}
+                onChange={(e) => setStockQty(e.target.value)}
               />
             </div>
             <div className="space-y-2">

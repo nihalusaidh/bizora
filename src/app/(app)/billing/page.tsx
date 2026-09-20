@@ -12,6 +12,8 @@ import { useBusiness } from "@/lib/store";
 import { useDebounce } from "@/lib/hooks";
 import { Search, Plus, Package, ScanBarcode } from "lucide-react";
 import { BarcodeScanner } from "@/components/billing/barcode-scanner";
+import { PosCart } from "@/components/billing/pos-cart";
+import { Suspense } from "react";
 
 function sanitizeSearch(input: string): string {
   return input.replace(/[%_(),.\\]/g, "\\$&");
@@ -103,6 +105,13 @@ export default function BillingPage() {
           className="pl-9 h-11"
         />
       </div>
+
+      {/* Fast POS cart: ?add= checkout, repeat last bill, sticky cart bar */}
+      {businessId && (
+        <Suspense>
+          <PosCart businessId={businessId} />
+        </Suspense>
+      )}
 
       {/* Products Grid */}
       {loading ? (

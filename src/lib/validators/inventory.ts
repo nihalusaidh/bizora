@@ -21,6 +21,7 @@ export const productSchema = z.object({
   gst_rate: z.coerce.number().min(0).max(100).default(0),
   hsn_sac: z.string().max(20).optional().nullable(),
   min_stock: z.coerce.number().int().min(0).default(0),
+  stock_quantity: z.coerce.number().int().min(0).default(0),
   supplier_id: z.string().uuid().optional().nullable(),
   image_url: z.string().url().optional().nullable(),
   has_variants: z.boolean().default(false),
