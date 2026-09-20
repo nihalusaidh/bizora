@@ -8,14 +8,6 @@ import { Crown, RefreshCw, X } from "lucide-react";
 
 const SYNC_INTERVAL_MS = 60_000;
 
-function isDemoMode(): boolean {
-  try {
-    return localStorage.getItem("bizora-demo") === "true";
-  } catch {
-    return false;
-  }
-}
-
 /**
  * Watches the server-side plan and auto-applies upgrades bought on the
  * website — no reinstall needed. Shows an EarnKaro-style banner when the
@@ -29,7 +21,6 @@ export function PlanSyncProvider({ children }: { children: React.ReactNode }) {
   planRef.current = plan;
 
   const sync = useCallback(async () => {
-    if (isDemoMode()) return;
     if (typeof document !== "undefined" && document.hidden) return;
     try {
       const result = await getCurrentPlan();

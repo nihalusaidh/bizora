@@ -11,9 +11,6 @@ export function BusinessProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const loadBusiness = async () => {
-      try {
-        if (localStorage.getItem("bizora-demo") === "true") return;
-      } catch {}
       const supabase = createClient();
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
@@ -37,6 +34,13 @@ export function BusinessProvider({ children }: { children: React.ReactNode }) {
         setBusiness(business as never);
         const b = business as { plan?: unknown; plan_expires_at?: unknown };
         setPlan(resolvePlan(b.plan, b.plan_expires_at));
+        // One-time cleanup of the legacy fake-demo flag from older installs.
+        try {
+          if (localStorage.getItem("bizora-demo") === "true") {
+            localStorage.removeItem("bizora-demo");
+            localStorage.removeItem("bizora-demo-data");
+          }
+        } catch {}
       }
     };
 

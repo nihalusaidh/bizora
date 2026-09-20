@@ -26,9 +26,16 @@ export function useServiceWorker(): ServiceWorkerState {
       .then((reg) => {
         setRegistration(reg);
 
-        // Check for updates periodically
-        const checkUpdate = () => reg.update();
-        const interval = setInterval(checkUpdate, 60 * 60 * 1000); // hourly
+        // Check for updates periodically + every time the app comes forward,
+        // so installed APK/desktop picks up new deploys without reinstall.
+        const checkUpdate = () => reg.update().catch(() => {});
+        const interval = setInterval(checkUpdate, 30 * 60 * 1000); // 30 min
+        const onVisible = () => {
+          if (!document.hidden) checkUpdate();
+        };
+        const onFocus = () => checkUpdate();
+        document.addEventListener("visibilitychange", onVisible);
+        window.addEventListener("focus", onFocus);
 
         // Listen for new service worker
         reg.addEventListener("updatefound", () => {
@@ -42,7 +49,11 @@ export function useServiceWorker(): ServiceWorkerState {
           });
         });
 
-        return () => clearInterval(interval);
+        return () => {
+          clearInterval(interval);
+          document.removeEventListener("visibilitychange", onVisible);
+          window.removeEventListener("focus", onFocus);
+        };
       })
       .catch(() => {});
 

@@ -33,28 +33,43 @@ export default function OnboardingPage() {
   });
 
   useEffect(() => {
+    let cancelled = false;
     const checkUser = async () => {
-      const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        router.push("/login");
-        return;
+      try {
+        const supabase = createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (cancelled) return;
+        if (!user) {
+          router.push("/login");
+          return;
+        }
+
+        const timeout = new Promise<null>((resolve) => setTimeout(() => resolve(null), 10000));
+        const lookup = supabase
+          .from("memberships")
+          .select("business_id")
+          .eq("user_id", user.id)
+          .limit(1);
+        const result = await Promise.race([lookup, timeout]);
+        if (cancelled) return;
+
+        if (result && Array.isArray((result as { data?: unknown }).data) && ((result as { data: unknown[] }).data.length > 0)) {
+          router.push("/dashboard");
+          return;
+        }
+        if (result === null) {
+          setError("Setup check timed out. Check your connection, then retry.");
+        }
+        setCheckingUser(false);
+      } catch {
+        if (!cancelled) {
+          setError("Could not verify your account. Check your connection, then retry.");
+          setCheckingUser(false);
+        }
       }
-
-      const { data: memberships } = await supabase
-        .from("memberships")
-        .select("business_id")
-        .eq("user_id", user.id)
-        .limit(1);
-
-      if (memberships && memberships.length > 0) {
-        router.push("/dashboard");
-        return;
-      }
-
-      setCheckingUser(false);
     };
     checkUser();
+    return () => { cancelled = true; };
   }, [router]);
 
   const updateData = (updates: Partial<typeof data>) => {

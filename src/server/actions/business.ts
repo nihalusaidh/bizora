@@ -12,7 +12,15 @@ export async function createBusiness(data: {
 }) {
   const auth = await requireAuth();
   if (auth.error || !auth.supabase || !auth.user) {
-    return { error: auth.error || "Not authenticated" };
+    return { error: "Not signed in. Please log in again, then retry setup." };
+  }
+
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    return { error: "Server is misconfigured (missing database keys). Contact support." };
+  }
+
+  if (!data.name?.trim() || !data.type?.trim()) {
+    return { error: "Business name and type are required." };
   }
 
   // Use admin client to bypass RLS for business creation

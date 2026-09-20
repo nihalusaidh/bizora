@@ -5,22 +5,11 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { useAppStore } from "@/lib/store";
+import { createClient } from "@/lib/supabase/client";
+import { createBusiness } from "@/server/actions/business";
+import { createProduct } from "@/server/actions/products";
+import { createCustomer } from "@/server/actions/customers";
 import { Database, Package, Users, BarChart3, Sparkles } from "lucide-react";
-
-const demoBusiness = {
-  id: "demo-business-001",
-  name: "Sharma Electronics",
-  industry: "Electronics Retail",
-  business_type: "retail",
-  monthly_revenue: 450000,
-  address: "42 MG Road, Jaipur, Rajasthan",
-  phone: "+919876543210",
-  email: "demo@sharmaelectronics.com",
-  gst_status: "registered",
-  gstin: "08AABCS1234A1Z5",
-  created_at: new Date().toISOString(),
-};
 
 const demoProducts = [
   { id: "p1", name: "Samsung Galaxy S24", sku: "SAM-S24", selling_price: 74999, cost_price: 62000, stock_quantity: 15, min_stock: 5, category: { name: "Smartphones" } },
@@ -43,24 +32,82 @@ const demoCustomers = [
 
 export function DemoMode() {
   const router = useRouter();
-  const { setBusiness, setPlan } = useAppStore();
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const startDemo = async () => {
     setLoading(true);
+    setError("");
+    try {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        router.push("/signup");
+        return;
+      }
 
-    // Set demo business in store
-    setBusiness(demoBusiness as never);
-    setPlan("gold");
+      // Real demo business so /dashboard (server-checked) loads.
+      const result = await createBusiness({
+        name: "Sharma Electronics (Demo)",
+        type: "electronics",
+        currency: "INR",
+        currency_symbol: "₹",
+        gst_status: "registered",
+        gstin: "08AABCS1234A1Z5",
+        size: "small",
+      });
+      if (result.error || !result.data) {
+        setError(result.error || "Could not start demo. Please try again.");
+        setLoading(false);
+        return;
+      }
+      const businessId = (result.data as { id: string }).id;
 
-    // Store demo flag
-    localStorage.setItem("bizora-demo", "true");
-    localStorage.setItem("bizora-demo-data", JSON.stringify({
-      products: demoProducts,
-      customers: demoCustomers,
-    }));
+      // Best-effort seed: 8 products + 5 customers. Setup succeeds even if seeding fails.
+      try {
+        await Promise.all(
+          demoProducts.map((p) =>
+            createProduct(businessId, {
+              name: p.name,
+              sku: p.sku,
+              barcode: null,
+              category_id: null,
+              brand: null,
+              cost_price: p.cost_price,
+              selling_price: p.selling_price,
+              gst_rate: 18,
+              hsn_sac: null,
+              min_stock: p.min_stock,
+              stock_quantity: p.stock_quantity,
+              supplier_id: null,
+              has_variants: false,
+              is_active: true,
+            }).catch(() => null)
+          )
+        );
+        await Promise.all(
+          demoCustomers.map((c) =>
+            createCustomer(businessId, {
+              name: c.name,
+              phone: c.phone || null,
+              email: c.email || null,
+              address: null,
+              gst_number: null,
+              notes: null,
+              preferred_delivery: "ask",
+              is_active: true,
+            }).catch(() => null)
+          )
+        );
+      } catch {
+        // Seed failure is non-fatal — empty business still works.
+      }
 
-    router.push("/dashboard");
+      window.location.href = "/dashboard";
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Could not start demo. Please try again.");
+      setLoading(false);
+    }
   };
 
   return (
@@ -85,8 +132,9 @@ export function DemoMode() {
             </div>
             <Button onClick={startDemo} disabled={loading} size="sm">
               <Database className="mr-2 h-3.5 w-3.5" />
-              {loading ? "Loading..." : "Start demo"}
+              {loading ? "Setting up demo..." : "Start demo"}
             </Button>
+            {error && <p className="text-xs font-bold text-[#DC2626] mt-2">{error}</p>}
           </div>
         </div>
       </CardContent>
