@@ -57,8 +57,10 @@ export async function createBusiness(data: {
     return { data: business };
   } catch (e) {
     const msg = e instanceof Error ? e.message : "Something went wrong";
-    // Never leak raw client errors like "supabaseKey is required".
-    if (/supabaseKey is required|supabaseUrl is required|API key/i.test(msg)) {
+    // Pass through our own friendly config errors; never leak raw
+    // client errors like "supabaseKey is required".
+    if (msg.startsWith("Server is misconfigured")) return { error: msg };
+    if (/supabaseKey is required|supabaseUrl is required/i.test(msg)) {
       return { error: "Server is misconfigured (database key missing). Contact support." };
     }
     return { error: msg };
