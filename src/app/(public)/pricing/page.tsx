@@ -36,7 +36,7 @@ const GOLD_FEATURES = [
 ];
 
 const DIAMOND_FEATURES = [
-  "Everything in Gold",
+  "Everything in Pro",
   "Business Simulator",
   "Business Twin",
   "Opportunity Radar",
@@ -188,12 +188,12 @@ export default function PricingPage() {
           variant="free"
         />
         <PricingCard
-          name="Gold"
+          name="Pro"
           price="₹399"
           period="/month"
           subtitle="Understand Your Business"
           features={GOLD_FEATURES}
-          cta="Get Gold"
+          cta="Get Pro"
           href="/signup?plan=gold"
           variant="gold"
         />

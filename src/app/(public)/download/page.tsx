@@ -140,12 +140,12 @@ export default function DownloadPage() {
                   className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-neutral-200 bg-neutral-100 px-4 py-2.5 text-sm font-medium text-neutral-500 hover:bg-neutral-200 transition-colors"
                 >
                   <Lock className="h-3.5 w-3.5" />
-                  Upgrade to Gold
+                  Upgrade to Pro
                 </Link>
               )}
             </div>
             <p className="mt-2 text-xs text-neutral-400">
-              {desktopEnabled ? "Windows build in progress" : "Requires Gold plan"}
+              {desktopEnabled ? "Windows build in progress" : "Requires Pro plan"}
             </p>
           </div>
         </div>
@@ -178,7 +178,7 @@ export default function DownloadPage() {
               Mobile Plans
             </p>
             <p className="text-xs text-neutral-500 leading-relaxed">
-              On mobile, only Free and Gold plans are available. Diamond plan
+              On mobile, only Free and Pro plans are available. Diamond plan
               features (multi-branch, API access, white-label) are best used on
               desktop or web.
             </p>

@@ -10,15 +10,15 @@ const faqs = [
   },
   {
     q: "Is Bizora free?",
-    a: "Yes. Bizora offers a free plan that includes basic billing, inventory, customers, expenses, and reports. You can upgrade to Gold or Diamond for advanced features.",
+    a: "Yes. Bizora offers a free plan that includes basic billing, inventory, customers, expenses, and reports. You can upgrade to Pro for advanced features.",
   },
   {
-    q: "What does Gold cost?",
-    a: "Gold costs ₹399/month. It includes unlimited core usage, AI Copilot, business health, forecasting, and advanced intelligence features.",
+    q: "What does Pro cost?",
+    a: "Pro costs ₹399/month, purchased on our website. It includes unlimited core usage, AI Copilot, business health, forecasting, and advanced intelligence features.",
   },
   {
     q: "What does Diamond cost?",
-    a: "Diamond costs ₹699/month. It includes everything in Gold plus business simulator, multi-branch, advanced automation, and growth tools.",
+    a: "Diamond (₹699/month) launches later. It will include everything in Pro plus business simulator, multi-branch, advanced automation, and growth tools.",
   },
   {
     q: "Can I use Bizora offline?",

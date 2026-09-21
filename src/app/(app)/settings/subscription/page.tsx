@@ -6,11 +6,12 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Check, Sparkles, Gem, Crown, Star, Smartphone, CreditCard, Tag, Loader2 } from "lucide-react";
+import { Check, Sparkles, Gem, Crown, Star, Smartphone, CreditCard, Tag, Loader2, ExternalLink } from "lucide-react";
 import { useAppStore } from "@/lib/store";
 import { useBusiness } from "@/lib/store";
 import { PLAN_CONFIGS, getAvailablePlans } from "@/lib/entitlements";
 import { applyCoupon } from "@/server/actions/subscription";
+import { isCapacitor } from "@/lib/platform";
 
 type BillingCycle = "monthly" | "yearly";
 
@@ -41,6 +42,47 @@ export default function SubscriptionPage() {
   const { business, businessId } = useBusiness();
   const platform = detectPlatform();
   const availablePlans = getAvailablePlans(platform);
+  const [isNativeApp] = useState(() => isCapacitor());
+
+  // Purchases happen on the website only — the app shows plan status and
+  // hands off to the site in a Custom Tab. PlanSync auto-applies on return.
+  const openSiteCheckout = async () => {
+    const url = `${window.location.origin}/settings/subscription`;
+    try {
+      const { Browser } = await import("@capacitor/browser");
+      await Browser.open({ url, presentationStyle: "popover" });
+    } catch {
+      window.open(url, "_blank");
+    }
+  };
+
+  if (isNativeApp) {
+    return (
+      <div className="space-y-6 animate-fade-in max-w-2xl">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">Subscription</h1>
+          <p className="text-muted-foreground">Your current plan</p>
+        </div>
+        <Card>
+          <CardContent className="p-6 text-center space-y-4">
+            <Badge variant={currentPlan === "free" ? "secondary" : "default"} className={
+              currentPlan === "gold" ? "bg-[#DC2626] text-white" :
+              currentPlan === "diamond" ? "bg-[#0a0a0a] text-white" : ""
+            }>
+              {PLAN_CONFIGS[currentPlan].name} Plan
+            </Badge>
+            <p className="text-sm text-muted-foreground">
+              Upgrades are handled securely on our website. Your app updates itself the moment you pay — no reinstall.
+            </p>
+            <Button variant="red" className="w-full gap-2" onClick={openSiteCheckout}>
+              <ExternalLink className="h-4 w-4" />
+              Upgrade to Pro on website
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   const handleCouponActivate = useCallback(
     async (planKey: string) => {
@@ -195,7 +237,7 @@ export default function SubscriptionPage() {
                   </Button>
                 </div>
                 {!selectedPlanForCoupon && (
-                  <p className="text-xs text-muted-foreground mt-2">Tap “Use Coupon” under Gold or Diamond first, then enter your code.</p>
+                  <p className="text-xs text-muted-foreground mt-2">Tap “Use Coupon” under Pro first, then enter your code.</p>
                 )}
               </>
             )}
@@ -227,7 +269,7 @@ export default function SubscriptionPage() {
           <CardContent className="p-4 flex items-center gap-3">
             <Smartphone className="h-5 w-5 text-muted-foreground" />
             <p className="text-xs text-muted-foreground">
-              On mobile, only Free and Gold plans are available. Diamond plan
+              On mobile, only Free and Pro plans are available. Diamond plan
               features are best used on desktop or web.
             </p>
           </CardContent>
@@ -297,9 +339,9 @@ export default function SubscriptionPage() {
                     <h3 className="text-lg font-bold">{plan.name}</h3>
                   </div>
                   <p className="text-xs text-muted-foreground mb-3">
-                    {plan.name === "Free"
+                    {key === "free"
                       ? "Try Bizora"
-                      : plan.name === "Gold"
+                      : key === "gold"
                       ? "Understand Your Business"
                       : "Grow & Automate"}
                   </p>

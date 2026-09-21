@@ -40,7 +40,7 @@ export const PLAN_CONFIGS: Record<PlanTier, PlanConfig> = {
     desktopDownload: false,
   },
   gold: {
-    name: "Gold",
+    name: "Pro",
     monthlyPrice: 399,
     yearlyPrice: 3990,
     features: [
@@ -67,7 +67,7 @@ export const PLAN_CONFIGS: Record<PlanTier, PlanConfig> = {
     monthlyPrice: 699,
     yearlyPrice: 6990,
     features: [
-      "Everything in Gold",
+      "Everything in Pro",
       "Unlimited AI queries",
       "Multi-branch support",
       "Business Simulator",

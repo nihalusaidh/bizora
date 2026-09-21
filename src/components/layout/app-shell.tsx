@@ -7,6 +7,7 @@ import { MobileNav } from "./mobile-nav";
 import { PwaInstallPrompt } from "@/components/pwa/pwa-install-prompt";
 import { GlobalSearch } from "@/components/search/global-search";
 import { MobileBrowserBlocker } from "@/components/providers/mobile-browser-blocker";
+import { DesktopBlocker } from "@/components/providers/desktop-blocker";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -15,6 +16,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     <div className="flex h-screen overflow-hidden">
       {/* Mobile browser blocker */}
       <MobileBrowserBlocker />
+      {/* Desktop browsers: mobile-app only */}
+      <DesktopBlocker />
 
       {/* Desktop sidebar */}
       <div className="hidden lg:flex lg:w-64 lg:flex-col lg:border-r border-border">

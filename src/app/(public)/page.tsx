@@ -1,31 +1,11 @@
 "use client";
 
-import { Preloader } from "@/components/landing/preloader";
-import { ScrollProgress } from "@/components/landing/scroll-progress";
-import { Hero } from "@/components/landing/hero";
-import { StatsBar } from "@/components/landing/stats-bar";
-import { Features } from "@/components/landing/features";
-import { AiSection } from "@/components/landing/ai-section";
-import { OfflineSection } from "@/components/landing/offline-section";
-import { Platforms } from "@/components/landing/platforms";
-import { Pricing } from "@/components/landing/pricing";
-import { FinalCta } from "@/components/landing/final-cta";
-import { Footer } from "@/components/landing/footer";
+import { DiveExperience } from "@/components/landing/dive/DiveExperience";
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-white">
-      <Preloader />
-      <ScrollProgress />
-      <Hero />
-      <StatsBar />
-      <Features />
-      <AiSection />
-      <OfflineSection />
-      <Platforms />
-      <Pricing />
-      <FinalCta />
-      <Footer />
+    <div className="min-h-screen bg-[#0a0a0a]">
+      <DiveExperience />
     </div>
   );
 }
