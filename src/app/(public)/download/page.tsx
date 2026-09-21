@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Smartphone, Globe, Monitor, Lock, Download, CheckCircle } from "lucide-react";
 import Link from "next/link";
 import { useAppStore } from "@/lib/store";
@@ -21,6 +21,14 @@ export default function DownloadPage() {
   const desktopEnabled = canDownloadDesktop(plan);
   const config = PLAN_CONFIGS[plan];
   const [apkError, setApkError] = useState("");
+  const [shell, setShell] = useState("");
+  useEffect(() => {
+    const cap = !!(window as unknown as { Capacitor?: unknown }).Capacitor;
+    const standalone =
+      window.matchMedia?.("(display-mode: standalone)").matches ||
+      (window.navigator as unknown as { standalone?: boolean }).standalone === true;
+    setShell(cap ? "Installed BIZORA app" : standalone ? "Saved website shortcut" : "Browser");
+  }, []);
 
   const handleDownloadAPK = async () => {
     setApkError("");
@@ -180,6 +188,11 @@ export default function DownloadPage() {
         <p className="mt-12 text-sm text-neutral-400 italic">
           Continue billing even when your internet connection disappears.
         </p>
+        {shell && (
+          <p className="mt-3 text-[11px] text-neutral-300">
+            Opened in: {shell} • Install the Android app for the full experience.
+          </p>
+        )}
       </div>
     </section>
   );
