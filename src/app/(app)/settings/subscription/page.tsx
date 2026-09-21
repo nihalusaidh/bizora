@@ -329,6 +329,10 @@ export default function SubscriptionPage() {
                     <Button className="w-full" variant="outline" disabled>
                       Current Plan
                     </Button>
+                  ) : key === "diamond" ? (
+                    <Button className="w-full" variant="outline" disabled>
+                      Coming soon
+                    </Button>
                   ) : !isAvailable ? (
                     <Button className="w-full" variant="outline" disabled>
                       Not Available on Mobile
@@ -358,7 +362,7 @@ export default function SubscriptionPage() {
                         <CreditCard className="h-4 w-4" />
                         Pay & Upgrade
                       </Button>
-                      {!couponApplied && currentPlan === "free" && (
+                      {key !== "diamond" && !couponApplied && currentPlan === "free" && (
                         <Button
                           className="w-full gap-2"
                           variant="ghost"

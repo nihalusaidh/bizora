@@ -115,8 +115,16 @@ export default function OnboardingPage() {
         return;
       }
 
+      // Buyers coming from pricing (Gold) land straight on checkout.
+      let next = "/dashboard";
+      try {
+        if (localStorage.getItem("bizora-pending-plan") === "gold") {
+          localStorage.removeItem("bizora-pending-plan");
+          next = "/settings/subscription";
+        }
+      } catch {}
       // Use window.location.href for full page reload so server components re-fetch
-      window.location.href = "/dashboard";
+      window.location.href = next;
     } catch (e) {
       setError(friendlySetupError(e));
       setLoading(false);

@@ -2,7 +2,7 @@
   "name": "BIZORA - AI Business Operating System",
   "short_name": "BIZORA",
   "description": "AI-powered billing, inventory & business management for Indian shops",
-  "start_url": "/dashboard",
+  "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "background_color": "#ffffff",

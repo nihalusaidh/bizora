@@ -29,6 +29,7 @@ export default function SignupPage() {
     e.preventDefault();
     setLoading(true);
     setError("");
+    stashPendingPlan();
 
     if (password !== confirmPassword) {
       setError("Passwords don't match");
@@ -57,8 +58,16 @@ export default function SignupPage() {
     setLoading(false);
   };
 
+  const stashPendingPlan = () => {
+    try {
+      const plan = new URLSearchParams(window.location.search).get("plan");
+      if (plan === "gold") localStorage.setItem("bizora-pending-plan", "gold");
+    } catch {}
+  };
+
   const handleGoogleSignup = async () => {
     setError("");
+    stashPendingPlan();
     // Installed app: system browser + deep link back — never stuck in a browser tab.
     if (isCapacitor()) {
       setGoogleLoading(true);

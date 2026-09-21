@@ -142,18 +142,22 @@ function PricingCard({
         ))}
       </ul>
 
-      <Link
-        href={href}
-        className={`mt-8 block w-full rounded-xl py-3 text-center text-sm font-semibold transition-colors ${
-          isGold
-            ? "bg-[#DC2626] text-white hover:bg-red-700"
-            : isDiamond
-              ? "bg-white text-[#0a0a0a] hover:bg-neutral-200"
+      {isDiamond ? (
+        <span className="mt-8 block w-full rounded-xl py-3 text-center text-sm font-semibold bg-neutral-100 text-neutral-400 cursor-not-allowed">
+          Coming soon
+        </span>
+      ) : (
+        <Link
+          href={href}
+          className={`mt-8 block w-full rounded-xl py-3 text-center text-sm font-semibold transition-colors ${
+            isGold
+              ? "bg-[#DC2626] text-white hover:bg-red-700"
               : "border border-[#0a0a0a] bg-transparent text-[#0a0a0a] hover:bg-[#0a0a0a] hover:text-white"
-        }`}
-      >
-        {cta}
-      </Link>
+          }`}
+        >
+          {cta}
+        </Link>
+      )}
     </div>
   );
 }
@@ -197,10 +201,10 @@ export default function PricingPage() {
           name="Diamond"
           price="₹699"
           period="/month"
-          subtitle="Grow & Automate"
+          subtitle="Grow & Automate — launching soon"
           features={DIAMOND_FEATURES}
-          cta="Get Diamond"
-          href="/signup?plan=diamond"
+          cta="Coming soon"
+          href="/signup"
           variant="diamond"
         />
       </section>
