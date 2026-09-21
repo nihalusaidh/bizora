@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
@@ -23,6 +23,19 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   // No homepage inside the installed app — the link would bounce back here.
   const [isNative] = useState(() => isCapacitor());
+
+  // If a session already exists (or lands mid-visit), never sit on login —
+  // go straight to the dashboard. Covers stale shortcuts and slow middleware.
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) router.replace("/dashboard");
+    });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "SIGNED_IN") router.replace("/dashboard");
+    });
+    return () => subscription.unsubscribe();
+  }, [router]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();

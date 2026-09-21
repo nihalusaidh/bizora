@@ -48,11 +48,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="preconnect" href="https://nzfpgkloqwjrsbvdegsx.supabase.co" />
         <link rel="dns-prefetch" href="https://nzfpgkloqwjrsbvdegsx.supabase.co" />
         <link rel="preconnect" href="https://checkout.razorpay.com" />
-        {/* Installed app: skip the marketing landing before first paint —
-           the bridge redirect below is instant, no 4s website flash. */}
+        {/* Installed app: skip the marketing landing before first paint.
+           The native bridge can inject a tick after parsing, so poll briefly
+           and hide the page the instant the app is detected — no site flash. */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `try{if(window.Capacitor){var p=location.pathname;if(p==="/"||p==="/pricing"||p==="/download"||p==="/faq"||p==="/security"){location.replace("/login");}}}catch(e){}`,
+            __html: `try{(function(){function go(){if(window.Capacitor){var p=location.pathname;if(p==="/"||p==="/pricing"||p==="/download"||p==="/faq"||p==="/security"){try{document.documentElement.style.display="none";}catch(e){}location.replace("/login");}return true;}return false;}if(go())return;var t=0;var i=setInterval(function(){t++;if(go()||t>40){clearInterval(i);}},50);})();}catch(e){}`,
           }}
         />
       </head>
