@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { DeviceLinkCard } from "@/components/settings/device-link-card";
+import { GuestUpgradeCard } from "@/components/settings/guest-upgrade-card";
 import {
   Building2, Package, Users, Bell, CreditCard, Shield,
   ChevronRight, Printer, FileText, Gift, HelpCircle, FileDown
@@ -131,6 +132,7 @@ export default function SettingsPage() {
         </div>
       ))}
 
+      <GuestUpgradeCard />
       <DeviceLinkCard />
 
       <button

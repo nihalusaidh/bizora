@@ -20,6 +20,7 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [guestLoading, setGuestLoading] = useState(false);
   const [error, setError] = useState("");
   // No homepage inside the installed app — the link would bounce back here.
   const [isNative] = useState(() => isCapacitor());
@@ -58,6 +59,30 @@ export default function LoginPage() {
     setTimeout(() => {
       window.location.href = "/dashboard";
     }, 100);
+  };
+
+  // No-login entry: anonymous session, full app, saveable later in Settings.
+  const handleGuest = async () => {
+    setError("");
+    setGuestLoading(true);
+    try {
+      const supabase = createClient();
+      const { error: authError } = await supabase.auth.signInAnonymously();
+      if (authError) throw authError;
+      router.push("/onboarding");
+      setTimeout(() => {
+        window.location.href = "/onboarding";
+      }, 100);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "Guest entry failed.";
+      setError(
+        /anonymous.*(disabled|not allowed|not enabled)/i.test(msg)
+          ? "Guest entry is switched off on the server. Use email or Google for now."
+          : msg
+      );
+    } finally {
+      setGuestLoading(false);
+    }
   };
 
   const handleGoogleLogin = async () => {
@@ -178,6 +203,22 @@ export default function LoginPage() {
               </>
             ) : (
               "Sign In"
+            )}
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full"
+            disabled={guestLoading}
+            onClick={handleGuest}
+          >
+            {guestLoading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Opening...
+              </>
+            ) : (
+              "Skip login — explore as guest"
             )}
           </Button>
           <div className="text-sm text-center text-muted-foreground">
