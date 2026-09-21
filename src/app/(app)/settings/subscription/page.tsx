@@ -6,12 +6,11 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Check, Sparkles, Gem, Crown, Star, Smartphone, CreditCard, Tag, Loader2, ExternalLink } from "lucide-react";
+import { Check, Sparkles, Gem, Crown, Star, Smartphone, CreditCard, Tag, Loader2 } from "lucide-react";
 import { useAppStore } from "@/lib/store";
 import { useBusiness } from "@/lib/store";
 import { PLAN_CONFIGS, getAvailablePlans } from "@/lib/entitlements";
 import { applyCoupon } from "@/server/actions/subscription";
-import { isCapacitor } from "@/lib/platform";
 
 type BillingCycle = "monthly" | "yearly";
 
@@ -42,7 +41,6 @@ export default function SubscriptionPage() {
   const { business, businessId } = useBusiness();
   const platform = detectPlatform();
   const availablePlans = getAvailablePlans(platform);
-  const inApp = isCapacitor();
 
   const handleCouponActivate = useCallback(
     async (planKey: string) => {
@@ -123,41 +121,6 @@ export default function SubscriptionPage() {
     },
     [businessId, business, setPlan]
   );
-
-  // App mode: show simple upgrade view
-  if (inApp) {
-    return (
-      <div className="space-y-6 animate-fade-in max-w-2xl">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Subscription</h1>
-          <p className="text-muted-foreground">Your current plan</p>
-        </div>
-
-        <Card>
-          <CardContent className="p-6 text-center space-y-4">
-            <Badge variant={currentPlan === "free" ? "secondary" : "default"} className={
-              currentPlan === "gold" ? "bg-[#DC2626] text-white" :
-              currentPlan === "diamond" ? "bg-[#0a0a0a] text-white" : ""
-            }>
-              {PLAN_CONFIGS[currentPlan].name} Plan
-            </Badge>
-            <p className="text-sm text-muted-foreground">
-              To upgrade your plan or manage billing, visit the BIZORA website.
-            </p>
-            <a
-              href={`${typeof window !== "undefined" ? window.location.origin : ""}/settings/subscription`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#DC2626] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#b91c1c] transition-colors"
-            >
-              <ExternalLink className="h-4 w-4" />
-              Open in Browser
-            </a>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
 
   const yearlySavings = (plan: (typeof PLAN_CONFIGS)[keyof typeof PLAN_CONFIGS]) => {
     if (plan.yearlyPrice === 0) return 0;
