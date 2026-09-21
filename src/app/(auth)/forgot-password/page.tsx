@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { APP_NAME } from "@/lib/constants";
+import { isCapacitor } from "@/lib/platform";
 import { Loader2, ArrowLeft } from "lucide-react";
 
 export default function ForgotPasswordPage() {
@@ -15,6 +16,8 @@ export default function ForgotPasswordPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
+  // No homepage inside the installed app — the link would bounce back here.
+  const [isNative] = useState(() => isCapacitor());
 
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -62,9 +65,11 @@ export default function ForgotPasswordPage() {
 
   return (
     <div className="space-y-4">
-      <Link href="/" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
-        <span aria-hidden>←</span> Back to homepage
-      </Link>
+      {!isNative && (
+        <Link href="/" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
+          <span aria-hidden>←</span> Back to homepage
+        </Link>
+      )}
     <Card>
       <CardHeader className="text-center">
         <CardTitle className="text-2xl font-bold tracking-tight">

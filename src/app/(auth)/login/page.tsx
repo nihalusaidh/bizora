@@ -21,6 +21,8 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState("");
+  // No homepage inside the installed app — the link would bounce back here.
+  const [isNative] = useState(() => isCapacitor());
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -75,9 +77,11 @@ export default function LoginPage() {
 
   return (
     <div className="space-y-4">
-      <Link href="/" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
-        <span aria-hidden>←</span> Back to homepage
-      </Link>
+      {!isNative && (
+        <Link href="/" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
+          <span aria-hidden>←</span> Back to homepage
+        </Link>
+      )}
     <Card>
       <CardHeader className="text-center">
         <CardTitle className="text-2xl font-bold tracking-tight">
