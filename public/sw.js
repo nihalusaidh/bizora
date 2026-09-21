@@ -1,4 +1,4 @@
-const CACHE_VERSION = "bizora-v4";
+const CACHE_VERSION = "bizora-v5";
 const STATIC_CACHE = `${CACHE_VERSION}-static`;
 const DYNAMIC_CACHE = `${CACHE_VERSION}-dynamic`;
 const PAGES_CACHE = `${CACHE_VERSION}-pages`;

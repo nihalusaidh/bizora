@@ -23,6 +23,31 @@ export function AppBoot() {
       clearTimeout(timer);
     };
   }, []);
+
+  // Register + refresh the service worker on EVERY page (not just in-app),
+  // so stale installs and saved shortcuts pick up new builds within minutes
+  // instead of sitting on old cached screens.
+  useEffect(() => {
+    if (typeof window === "undefined" || !("serviceWorker" in navigator)) return;
+    let interval: ReturnType<typeof setInterval> | null = null;
+    let onVisible: (() => void) | null = null;
+    navigator.serviceWorker
+      .register("/sw.js")
+      .then((reg) => {
+        const check = () => reg.update().catch(() => {});
+        check();
+        interval = setInterval(check, 15 * 60 * 1000);
+        onVisible = () => {
+          if (!document.hidden) check();
+        };
+        document.addEventListener("visibilitychange", onVisible);
+      })
+      .catch(() => {});
+    return () => {
+      if (interval) clearInterval(interval);
+      if (onVisible) document.removeEventListener("visibilitychange", onVisible);
+    };
+  }, []);
   return null;
 }
 
