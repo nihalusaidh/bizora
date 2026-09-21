@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { DeviceLinkCard } from "@/components/settings/device-link-card";
 import {
   Building2, Package, Users, Bell, CreditCard, Shield,
   ChevronRight, Printer, FileText, Gift, HelpCircle, FileDown
@@ -129,6 +130,8 @@ export default function SettingsPage() {
           </div>
         </div>
       ))}
+
+      <DeviceLinkCard />
 
       <button
         onClick={handleSignOut}
