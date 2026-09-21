@@ -31,6 +31,12 @@ export async function middleware(request: NextRequest) {
 
   const pathname = request.nextUrl.pathname;
 
+  // API routes handle their own auth — never redirect them to login HTML.
+  if (pathname.startsWith("/api/")) {
+    return supabaseResponse;
+  }
+
+
   const isAuthPage =
     pathname.startsWith("/login") ||
     pathname.startsWith("/signup") ||
