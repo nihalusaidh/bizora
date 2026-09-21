@@ -1,3 +1,5 @@
+"use server";
+
 import { requireBusiness } from "@/lib/auth";
 import { expenseCategorySchema, type ExpenseCategoryInput } from "@/lib/validators/expenses";
 

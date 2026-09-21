@@ -1,3 +1,5 @@
+"use server";
+
 import { requireBusiness } from "@/lib/auth";
 import { categorySchema, type CategoryInput } from "@/lib/validators/inventory";
 

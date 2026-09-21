@@ -1,3 +1,5 @@
+"use server";
+
 import { requireBusiness } from "@/lib/auth";
 import { invoiceSchema, type InvoiceInput } from "@/lib/validators/invoices";
 

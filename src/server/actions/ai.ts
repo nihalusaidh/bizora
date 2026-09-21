@@ -1,3 +1,5 @@
+"use server";
+
 import { requireBusiness } from "@/lib/auth";
 import { genai, AI_MODEL, SYSTEM_PROMPT, type ChatMessage } from "@/lib/ai";
 

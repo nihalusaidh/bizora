@@ -5,6 +5,7 @@ import { DashboardMetrics } from "@/components/dashboard/dashboard-metrics";
 import { BusinessHealth } from "@/components/dashboard/business-health";
 import { TodaysActions } from "@/components/dashboard/todays-actions";
 import { QuickActions } from "@/components/dashboard/quick-actions";
+import { HeroGreeting } from "@/components/dashboard/greeting";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -28,8 +29,6 @@ export default async function DashboardPage() {
     .eq("id", memberships[0].business_id)
     .single();
 
-  const greeting = new Date().getHours() < 12 ? "Good morning" : new Date().getHours() < 17 ? "Good afternoon" : "Good evening";
-
   return (
     <div className="space-y-5 animate-fade-in pb-24 lg:pb-6">
       {/* EarnKaro-style red hero */}
@@ -39,9 +38,7 @@ export default async function DashboardPage() {
             {(business?.name || "B").slice(0, 1).toUpperCase()}
           </div>
           <div className="min-w-0">
-            <h1 className="text-lg font-extrabold leading-tight truncate">
-              {greeting}, {business?.name || "Seller"}!
-            </h1>
+            <HeroGreeting businessName={business?.name || "Seller"} />
             <p className="text-xs text-white/75 truncate">
               Today&apos;s earnings & priorities at a glance
             </p>

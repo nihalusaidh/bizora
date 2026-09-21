@@ -1,3 +1,5 @@
+"use server";
+
 import { requireAuth, requireBusiness } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 

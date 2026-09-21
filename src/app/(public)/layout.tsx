@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { isCapacitor } from "@/lib/platform";
+import { NativeBootScreen } from "@/components/providers/app-boot";
 
 const navLinks = [
   { label: "Features", href: "/#features" },
@@ -18,13 +19,19 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
   const isHome = pathname === "/";
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [isNative] = useState(() => isCapacitor());
 
   // In native app mode, redirect public pages to login
   useEffect(() => {
-    if (isCapacitor() && pathname !== "/login" && pathname !== "/signup" && pathname !== "/forgot-password" && pathname !== "/reset-password") {
+    if (isNative && pathname !== "/login" && pathname !== "/signup" && pathname !== "/forgot-password" && pathname !== "/reset-password") {
       router.replace("/login");
     }
-  }, [pathname, router]);
+  }, [pathname, router, isNative]);
+
+  // Never paint marketing chrome inside the installed app — boot screen only.
+  if (isNative) {
+    return <NativeBootScreen />;
+  }
 
   useEffect(() => {
     if (!isHome) return;

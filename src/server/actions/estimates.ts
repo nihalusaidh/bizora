@@ -1,3 +1,5 @@
+"use server";
+
 import { requireBusiness } from "@/lib/auth";
 
 export async function getEstimates(businessId: string, status?: string) {

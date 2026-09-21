@@ -1,3 +1,5 @@
+"use server";
+
 import { requireBusiness } from "@/lib/auth";
 import type { BroadcastTemplateType, BroadcastChannel } from "@/types/database";
 
@@ -24,7 +26,7 @@ const TEMPLATES: Record<BroadcastTemplateType, (data: { businessName: string; pr
   }),
 };
 
-export function getTemplatePreview(type: BroadcastTemplateType, data: { businessName: string; productName?: string; offerText?: string }) {
+export async function getTemplatePreview(type: BroadcastTemplateType, data: { businessName: string; productName?: string; offerText?: string }) {
   const template = TEMPLATES[type](data);
   return template;
 }

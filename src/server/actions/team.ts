@@ -1,3 +1,5 @@
+"use server";
+
 import { requireAuth, requireBusiness } from "@/lib/auth";
 import type { UserRole } from "@/types/database";
 

@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { AppBoot } from "@/components/providers/app-boot";
 import "./globals.css";
 import { APP_NAME, APP_DESCRIPTION } from "@/lib/constants";
 
@@ -47,8 +48,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="preconnect" href="https://nzfpgkloqwjrsbvdegsx.supabase.co" />
         <link rel="dns-prefetch" href="https://nzfpgkloqwjrsbvdegsx.supabase.co" />
         <link rel="preconnect" href="https://checkout.razorpay.com" />
+        {/* Installed app: skip the marketing landing before first paint —
+           the bridge redirect below is instant, no 4s website flash. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{if(window.Capacitor){var p=location.pathname;if(p==="/"||p==="/pricing"||p==="/download"||p==="/faq"||p==="/security"){location.replace("/login");}}}catch(e){}`,
+          }}
+        />
       </head>
       <body className="min-h-full flex flex-col">
+        <AppBoot />
         <TooltipProvider>{children}</TooltipProvider>
       </body>
     </html>

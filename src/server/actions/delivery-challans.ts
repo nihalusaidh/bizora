@@ -1,3 +1,5 @@
+"use server";
+
 import { requireBusiness } from "@/lib/auth";
 
 export async function getDeliveryChallans(businessId: string, status?: string) {

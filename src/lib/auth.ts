@@ -1,7 +1,9 @@
-import { createClient } from "@/lib/supabase/client";
+import { createClient } from "@/lib/supabase/server";
 
 export async function requireAuth() {
-  const supabase = createClient();
+  // Server client (request cookies) — requireAuth only runs inside
+  // server actions / routes, never in the browser.
+  const supabase = await createClient();
   const { data: { user }, error } = await supabase.auth.getUser();
 
   if (error || !user) {

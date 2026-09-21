@@ -1,3 +1,5 @@
+"use server";
+
 import { requireBusiness } from "@/lib/auth";
 
 export async function generateEinvoice(businessId: string, invoiceId: string, mode: "sandbox" | "production" = "sandbox") {

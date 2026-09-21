@@ -1,3 +1,5 @@
+"use server";
+
 import { requireBusiness } from "@/lib/auth";
 import { purchaseOrderSchema, type PurchaseOrderInput } from "@/lib/validators/purchase-orders";
 
