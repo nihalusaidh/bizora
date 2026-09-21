@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Smartphone, Globe, Monitor, ArrowRight, Lock, Download, CheckCircle } from "lucide-react";
+import { Smartphone, Globe, Monitor, Lock, Download, CheckCircle } from "lucide-react";
 import Link from "next/link";
 import { useAppStore } from "@/lib/store";
 import { canDownloadDesktop, PLAN_CONFIGS } from "@/lib/entitlements";
@@ -101,15 +101,12 @@ export default function DownloadPage() {
               Access from any browser. Install as PWA for offline use.
             </p>
             <div className="mt-6 w-full">
-              <Link
-                href="/login"
-                className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#DC2626] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#b91c1c] transition-colors"
-              >
-                Open Bizora
-                <ArrowRight className="h-4 w-4" />
-              </Link>
+              <div className="rounded-lg border border-red-200 bg-[#FEF2F2] px-4 py-2.5 text-center">
+                <p className="text-sm font-bold text-[#B91C1C]">Web app coming soon</p>
+                <p className="text-xs text-[#DC2626]">Mobile app is the way for now →</p>
+              </div>
             </div>
-            <p className="mt-2 text-xs text-neutral-400">No install required</p>
+            <p className="mt-2 text-xs text-neutral-400">Coming soon</p>
           </div>
 
           {/* Desktop */}

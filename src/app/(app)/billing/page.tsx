@@ -70,7 +70,7 @@ export default function BillingPage() {
   };
 
   return (
-    <div className="space-y-4 animate-fade-in">
+    <div className="space-y-4 animate-fade-in pb-28 lg:pb-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>

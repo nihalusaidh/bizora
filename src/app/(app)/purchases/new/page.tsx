@@ -238,7 +238,7 @@ export default function NewPurchaseOrderPage() {
               </SelectContent>
             </Select>
           </div>
-          <div className="grid grid-cols-2 gap-4 mt-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-3">
             <div className="space-y-2">
               <Label>Expected Date</Label>
               <Input type="date" value={expectedDate} onChange={(e) => setExpectedDate(e.target.value)} />
@@ -296,7 +296,7 @@ export default function NewPurchaseOrderPage() {
           onChange={(e) => setSearch(e.target.value)}
         />
         {search && filteredProducts.length > 0 && (
-          <Card className="absolute top-full left-0 right-0 z-10 mt-1">
+          <Card className="absolute top-full left-0 right-0 z-10 mt-1 max-h-64 overflow-y-auto">
             <CardContent className="p-2">
               {filteredProducts.map((p) => (
                 <button
@@ -331,8 +331,8 @@ export default function NewPurchaseOrderPage() {
           cart.map((item, index) => (
             <Card key={index}>
               <CardContent className="p-3">
-                <div className="grid grid-cols-12 gap-2 items-end">
-                  <div className="col-span-4">
+                <div className="grid grid-cols-12 gap-2">
+                  <div className="col-span-12 sm:col-span-4">
                     <Label className="text-xs">Name</Label>
                     <Input
                       value={item.name}
@@ -341,25 +341,25 @@ export default function NewPurchaseOrderPage() {
                       className="h-8"
                     />
                   </div>
-                  <div className="col-span-2">
+                  <div className="col-span-6 sm:col-span-2">
                     <Label className="text-xs">Qty</Label>
                     <div className="flex items-center gap-1">
-                      <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => updateItem(index, { quantity: Math.max(1, item.quantity - 1) })}>
+                      <Button variant="outline" size="icon" className="h-8 w-8 shrink-0" onClick={() => updateItem(index, { quantity: Math.max(1, item.quantity - 1) })}>
                         <Minus className="h-3 w-3" />
                       </Button>
                       <Input
                         type="number"
                         value={item.quantity}
                         onChange={(e) => updateItem(index, { quantity: parseInt(e.target.value) || 1 })}
-                        className="h-8 text-center"
+                        className="h-8 text-center min-w-0"
                         min="1"
                       />
-                      <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => updateItem(index, { quantity: item.quantity + 1 })}>
+                      <Button variant="outline" size="icon" className="h-8 w-8 shrink-0" onClick={() => updateItem(index, { quantity: item.quantity + 1 })}>
                         <Plus className="h-3 w-3" />
                       </Button>
                     </div>
                   </div>
-                  <div className="col-span-2">
+                  <div className="col-span-6 sm:col-span-2">
                     <Label className="text-xs">Unit Cost</Label>
                     <Input
                       type="number"
@@ -369,7 +369,7 @@ export default function NewPurchaseOrderPage() {
                       min="0"
                     />
                   </div>
-                  <div className="col-span-2">
+                  <div className="col-span-4 sm:col-span-2">
                     <Label className="text-xs">GST %</Label>
                     <Input
                       type="number"
@@ -380,10 +380,10 @@ export default function NewPurchaseOrderPage() {
                       max="100"
                     />
                   </div>
-                  <div className="col-span-1 text-right font-medium">
+                  <div className="col-span-5 sm:col-span-1 self-center text-sm font-bold">
                     ₹{(item.unitCost * item.quantity).toFixed(0)}
                   </div>
-                  <div className="col-span-1">
+                  <div className="col-span-3 sm:col-span-1 self-center justify-self-end">
                     <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => removeItem(index)}>
                       <Trash2 className="h-4 w-4" />
                     </Button>

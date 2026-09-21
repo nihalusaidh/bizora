@@ -61,7 +61,7 @@ export function PlanSyncProvider({ children }: { children: React.ReactNode }) {
   return (
     <>
       {upgradedTo && (
-        <div className="fixed top-0 inset-x-0 z-[9998] px-3 pt-3 safe-area-top">
+        <div className="fixed top-0 inset-x-0 z-[60] px-3 pt-3 safe-area-top">
           <div className="mx-auto max-w-lg rounded-2xl bg-[#DC2626] text-white p-4 shadow-xl animate-scale-in">
             <div className="flex items-center gap-3">
               <div className="h-11 w-11 rounded-xl bg-white/20 flex items-center justify-center shrink-0">

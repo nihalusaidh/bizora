@@ -212,7 +212,7 @@ export function PosCart({ businessId }: { businessId: string }) {
       {open && (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 animate-fade-in" onClick={() => setOpen(false)}>
           <div
-            className="w-full sm:max-w-lg bg-white rounded-t-2xl sm:rounded-2xl p-4 space-y-4 max-h-[88vh] overflow-y-auto animate-slide-up"
+            className="w-full sm:max-w-lg bg-white rounded-t-2xl sm:rounded-2xl p-4 pb-[max(1rem,env(safe-area-inset-bottom))] space-y-4 max-h-[88vh] overflow-y-auto animate-slide-up"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between">
@@ -234,12 +234,12 @@ export function PosCart({ businessId }: { businessId: string }) {
                     <span className="w-6 text-center text-sm font-bold">{i.quantity}</span>
                     <button onClick={() => setQty(i.productId, 1)} className="h-8 w-8 rounded-full bg-[#DC2626] text-white font-bold" aria-label="Increase">+</button>
                   </div>
-                  <span className="text-sm font-extrabold w-20 text-right">₹{(i.unitPrice * i.quantity).toLocaleString("en-IN")}</span>
+                  <span className="text-sm font-extrabold shrink-0 min-w-16 text-right">₹{(i.unitPrice * i.quantity).toLocaleString("en-IN")}</span>
                 </div>
               ))}
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-1">
                 <Label>Customer</Label>
                 <Select value={customerId} onValueChange={(v) => setCustomerId(v ?? "")}>
@@ -305,7 +305,7 @@ export function PosCart({ businessId }: { businessId: string }) {
             <p className="text-3xl font-extrabold text-[#DC2626] my-1">₹{done.total.toLocaleString("en-IN")}</p>
             <p className="text-xs text-muted-foreground mb-4">Invoice #{done.number}</p>
             <div className="grid grid-cols-2 gap-2">
-              <Link href={`/billing/invoices/${done.id}`}>
+              <Link href={`/billing/invoices/${done.id}`} className="block">
                 <Button variant="outline" className="w-full">Print / Share</Button>
               </Link>
               <Button variant="red" className="w-full" onClick={() => { setDone(null); setOpen(false); }}>

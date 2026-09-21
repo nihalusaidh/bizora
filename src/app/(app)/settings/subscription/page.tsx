@@ -169,21 +169,22 @@ export default function SubscriptionPage() {
                 </p>
               </div>
             ) : (
-              <div className="flex gap-2">
-                <Input
-                  placeholder="Enter coupon code"
-                  value={couponInput}
-                  onChange={(e) => {
-                    setCouponInput(e.target.value);
-                    setCouponError("");
-                  }}
-                  className="font-mono"
-                />
-                {selectedPlanForCoupon ? (
+              <>
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="Enter coupon code"
+                    value={couponInput}
+                    onChange={(e) => {
+                      setCouponInput(e.target.value);
+                      setCouponError("");
+                    }}
+                    className="font-mono flex-1 min-w-0"
+                  />
                   <Button
-                    onClick={() => handleCouponActivate(selectedPlanForCoupon)}
-                    disabled={couponLoading || !couponInput.trim()}
+                    onClick={() => selectedPlanForCoupon && handleCouponActivate(selectedPlanForCoupon)}
+                    disabled={couponLoading || !couponInput.trim() || !selectedPlanForCoupon}
                     className="gap-2 shrink-0"
+                    title={!selectedPlanForCoupon ? "Tap Use Coupon on a plan first" : "Activate coupon"}
                   >
                     {couponLoading ? (
                       <Loader2 className="h-4 w-4 animate-spin" />
@@ -192,8 +193,11 @@ export default function SubscriptionPage() {
                     )}
                     Activate
                   </Button>
-                ) : null}
-              </div>
+                </div>
+                {!selectedPlanForCoupon && (
+                  <p className="text-xs text-muted-foreground mt-2">Tap “Use Coupon” under Gold or Diamond first, then enter your code.</p>
+                )}
+              </>
             )}
             {couponError && (
               <p className="text-xs text-destructive mt-2">{couponError}</p>

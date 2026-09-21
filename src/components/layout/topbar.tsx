@@ -36,19 +36,19 @@ export function Topbar({ onMenuToggle, className }: TopbarProps) {
       .join(" / ");
 
   return (
-    <header className={cn("flex h-14 items-center gap-4 border-b border-border bg-background px-4 lg:px-6 pt-[env(safe-area-inset-top)]", className)}>
+    <header className={cn("flex h-14 items-center gap-3 border-b border-border bg-background px-4 lg:px-6", className)}>
       <Button
         variant="ghost"
         size="icon"
-        className="lg:hidden text-foreground hover:bg-muted"
+        className="lg:hidden shrink-0 text-foreground hover:bg-muted"
         onClick={onMenuToggle}
       >
         <Menu className="h-5 w-5" />
       </Button>
 
-      <h1 className="text-base font-semibold text-foreground">{title}</h1>
+      <h1 className="text-base font-semibold text-foreground truncate min-w-0 flex-1">{title}</h1>
 
-      <div className="ml-auto flex items-center gap-0.5">
+      <div className="ml-auto flex shrink-0 items-center gap-0.5">
         <Button
           variant="ghost"
           size="icon"
