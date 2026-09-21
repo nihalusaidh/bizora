@@ -106,17 +106,17 @@ export default function ExpensesPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Button variant="ghost" size="icon" onClick={() => router.push("/more")}>
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-3 justify-between">
+        <div className="flex items-center gap-3 min-w-0">
+          <Button variant="ghost" size="icon" onClick={() => router.push("/more")} className="shrink-0">
             <ArrowLeft className="h-5 w-5" />
           </Button>
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">Expenses</h1>
+          <div className="min-w-0">
+            <h1 className="text-2xl font-bold tracking-tight truncate">Expenses</h1>
             <p className="text-muted-foreground">{expenses.length} expenses</p>
           </div>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <ExportButton
             data={formatExpensesForCsv(expenses as unknown as Record<string, unknown>[])}
             filename={`expenses-${new Date().toISOString().split("T")[0]}`}
@@ -127,7 +127,8 @@ export default function ExpensesPage() {
           </Button>
           <Button onClick={() => setShowForm(true)}>
             <Plus className="mr-2 h-4 w-4" />
-            Add Expense
+            <span className="hidden sm:inline">Add Expense</span>
+            <span className="sm:hidden">Add</span>
           </Button>
         </div>
       </div>

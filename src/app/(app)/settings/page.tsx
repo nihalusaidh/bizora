@@ -73,7 +73,28 @@ const settingsGroups = [
 ];
 
 async function handleSignOut() {
-  await fetch("/auth/signout", { method: "POST" });
+  // Best-effort server sign-out; local sign-out always runs so the user
+  // is never trapped logged-in by a network hiccup or server error.
+  try {
+    await fetch("/auth/signout", { method: "POST" });
+  } catch {
+    // Fall through to local sign-out.
+  }
+  try {
+    const { createClient } = await import("@/lib/supabase/client");
+    await createClient().auth.signOut();
+  } catch {
+    // Storage may already be clear.
+  }
+  try {
+    const { useAppStore } = await import("@/lib/store");
+    useAppStore.getState().setBusiness(null);
+    useAppStore.getState().setPlan("free");
+    localStorage.removeItem("bizora-demo");
+    localStorage.removeItem("bizora-demo-data");
+  } catch {
+    // Non-fatal.
+  }
   window.location.href = "/login";
 }
 

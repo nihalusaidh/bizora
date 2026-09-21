@@ -53,6 +53,7 @@ export async function createBroadcast(businessId: string, input: {
   product_id?: string | null;
   channel: BroadcastChannel;
   customer_ids: string[];
+  image_url?: string | null;
 }) {
   const auth = await requireBusiness();
   if (auth.error || !auth.supabase || !auth.businessId) return { error: auth.error };
@@ -66,24 +67,38 @@ export async function createBroadcast(businessId: string, input: {
 
   const recipients = (customers || []).filter((c) => c.phone && c.phone.length >= 10);
 
-  const { data: broadcast, error: bError } = await supabase
-    .from("customer_broadcasts")
-    .insert({
-      business_id: auth.businessId,
-      title: input.title,
-      message: input.message,
-      template_type: input.template_type,
-      product_id: input.product_id || null,
-      channel: input.channel,
-      recipient_count: recipients.length,
-      sent_count: 0,
-      failed_count: 0,
-      status: "draft",
-    })
-    .select()
-    .single();
+  const baseRow = {
+    business_id: auth.businessId,
+    title: input.title,
+    message: input.message,
+    template_type: input.template_type,
+    product_id: input.product_id || null,
+    channel: input.channel,
+    recipient_count: recipients.length,
+    sent_count: 0,
+    failed_count: 0,
+    status: "draft",
+  };
 
-  if (bError) throw new Error(bError.message);
+  // image_url needs migration 015; fall back gracefully on older DBs.
+  let broadcast: Record<string, unknown> | null = null;
+  if (input.image_url) {
+    const attempt = await supabase
+      .from("customer_broadcasts")
+      .insert({ ...baseRow, image_url: input.image_url })
+      .select()
+      .single();
+    if (!attempt.error) broadcast = attempt.data as Record<string, unknown>;
+  }
+  if (!broadcast) {
+    const { data, error: bError } = await supabase
+      .from("customer_broadcasts")
+      .insert(baseRow)
+      .select()
+      .single();
+    if (bError) throw new Error(bError.message);
+    broadcast = data as Record<string, unknown>;
+  }
 
   const recipientRows = recipients.map((c) => ({
     broadcast_id: broadcast.id,

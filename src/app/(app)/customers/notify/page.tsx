@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, Suspense } from "react";
+import { useState, useEffect, useCallback, Suspense, useRef } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -10,13 +10,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
+import { createClient } from "@/lib/supabase/client";
 import { createBroadcast, getCustomersWithPhone, sendBroadcastWhatsApp } from "@/server/actions/broadcasts";
 import { useBusiness } from "@/lib/store";
 import type { BroadcastTemplateType } from "@/types/database";
 import {
   ArrowLeft, Send, Users, MessageCircle, Package,
   CheckSquare, Square, Loader2, Search, History,
-  Zap, Phone, ShoppingBag, Percent
+  Zap, Phone, ShoppingBag, Percent, Camera, ImagePlus,
+  Pencil, RotateCcw, X
 } from "lucide-react";
 
 interface Customer { id: string; name: string; phone: string | null; }
@@ -93,6 +95,13 @@ function NotifyCustomersPage() {
   const [offerText, setOfferText] = useState("");
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [sent, setSent] = useState(false);
+  const [photoUrl, setPhotoUrl] = useState<string | null>(null);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const [photoError, setPhotoError] = useState("");
+  const [messageOverride, setMessageOverride] = useState<string | null>(null);
+  const [editingMessage, setEditingMessage] = useState(false);
+  const galleryRef = useRef<HTMLInputElement>(null);
+  const cameraRef = useRef<HTMLInputElement>(null);
 
   const loadCustomers = useCallback(async () => {
     if (!businessId) return;
@@ -141,7 +150,7 @@ function NotifyCustomersPage() {
     }
   };
 
-  const getMessage = () => {
+  const getBaseMessage = () => {
     if (selectedTemplate === "custom") return customMessage;
     const tpl = QUICK_TEMPLATES.find((t) => t.type === selectedTemplate);
     if (!tpl) return "";
@@ -153,6 +162,50 @@ function NotifyCustomersPage() {
       msg = msg.replace("amazing deals", offerText);
     }
     return msg;
+  };
+
+  const getMessage = () => {
+    const base = messageOverride !== null ? messageOverride : getBaseMessage();
+    if (!base) return "";
+    // wa.me links are text-only — attach the photo as a tap-to-view link.
+    return photoUrl ? `${base}\n\n📷 Photo: ${photoUrl}` : base;
+  };
+
+  const selectTemplate = (type: BroadcastTemplateType) => {
+    setSelectedTemplate(type);
+    setMessageOverride(null);
+    setEditingMessage(false);
+  };
+
+  const uploadPhoto = async (file: File) => {
+    setPhotoError("");
+    if (!businessId) return;
+    if (file.size > 5 * 1024 * 1024) {
+      setPhotoError("Photo too large. Max 5MB.");
+      return;
+    }
+    setUploadingPhoto(true);
+    try {
+      const supabase = createClient();
+      const ext = file.name.split(".").pop() || "jpg";
+      const fileName = `broadcasts/${businessId}/${Date.now()}.${ext}`;
+      const { error: uploadError } = await supabase.storage
+        .from("product-images")
+        .upload(fileName, file, { upsert: true });
+      if (uploadError) throw uploadError;
+      const { data } = supabase.storage.from("product-images").getPublicUrl(fileName);
+      if (data?.publicUrl) setPhotoUrl(data.publicUrl);
+    } catch (err) {
+      setPhotoError(err instanceof Error ? err.message : "Photo upload failed");
+    } finally {
+      setUploadingPhoto(false);
+    }
+  };
+
+  const handlePhotoFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) uploadPhoto(file);
+    e.target.value = "";
   };
 
   const getTitle = () => {
@@ -174,6 +227,7 @@ function NotifyCustomersPage() {
         template_type: selectedTemplate,
         channel: "whatsapp",
         customer_ids: Array.from(selectedIds),
+        image_url: photoUrl,
       }) as any;
       if (broadcast?.error) { setSending(false); return; }
       const result = await sendBroadcastWhatsApp(businessId, broadcast.data?.id ?? broadcast.id) as any;
@@ -239,7 +293,7 @@ function NotifyCustomersPage() {
             {QUICK_TEMPLATES.map((t) => (
               <button
                 key={t.type}
-                onClick={() => setSelectedTemplate(t.type)}
+                onClick={() => selectTemplate(t.type)}
                 className={`rounded-lg border p-3 text-center transition-all ${
                   selectedTemplate === t.type ? "border-primary bg-primary/5 ring-1 ring-primary" : "hover:bg-muted/50"
                 }`}
@@ -291,17 +345,67 @@ function NotifyCustomersPage() {
               <Textarea
                 rows={5}
                 placeholder="Type your message here..."
-                value={customMessage}
-                onChange={(e) => setCustomMessage(e.target.value)}
+                value={editingMessage ? (messageOverride ?? "") : customMessage}
+                onChange={(e) => {
+                  setCustomMessage(e.target.value);
+                  if (editingMessage) setMessageOverride(e.target.value);
+                }}
               />
             </div>
           </CardContent>
         </Card>
       )}
 
-      {/* Message Preview */}
+      {/* Photo (optional) — gallery or camera, works on every template */}
       <Card>
-        <CardHeader><CardTitle className="text-base">Preview</CardTitle></CardHeader>
+        <CardHeader><CardTitle className="text-base">Photo (optional)</CardTitle></CardHeader>
+        <CardContent className="space-y-3">
+          {photoUrl ? (
+            <div className="relative">
+              <img src={photoUrl} alt="Message attachment" className="w-full h-44 object-cover rounded-lg" />
+              <button
+                onClick={() => setPhotoUrl(null)}
+                aria-label="Remove photo"
+                className="absolute top-2 right-2 h-8 w-8 rounded-full bg-black/60 text-white flex items-center justify-center"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 gap-2">
+              <Button variant="outline" onClick={() => galleryRef.current?.click()} disabled={uploadingPhoto || !businessId}>
+                {uploadingPhoto ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ImagePlus className="mr-2 h-4 w-4" />}
+                {uploadingPhoto ? "Uploading..." : "Gallery"}
+              </Button>
+              <Button variant="outline" onClick={() => cameraRef.current?.click()} disabled={uploadingPhoto || !businessId}>
+                <Camera className="mr-2 h-4 w-4" />
+                Camera
+              </Button>
+            </div>
+          )}
+          {photoError && <p className="text-xs text-[#DC2626]">{photoError}</p>}
+          <p className="text-xs text-muted-foreground">A tap-to-view photo link is attached to the WhatsApp message. Max 5MB.</p>
+          <input ref={galleryRef} type="file" accept="image/*" onChange={handlePhotoFile} className="hidden" />
+          <input ref={cameraRef} type="file" accept="image/*" capture="environment" onChange={handlePhotoFile} className="hidden" />
+        </CardContent>
+      </Card>
+
+      {/* Message Preview (editable) */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base flex items-center justify-between">
+            <span>Preview</span>
+            {!editingMessage ? (
+              <Button variant="ghost" size="sm" onClick={() => { setMessageOverride(getBaseMessage()); setEditingMessage(true); }} disabled={!getBaseMessage()}>
+                <Pencil className="mr-1 h-3.5 w-3.5" /> Edit text
+              </Button>
+            ) : (
+              <Button variant="ghost" size="sm" onClick={() => { setMessageOverride(null); setEditingMessage(false); }}>
+                <RotateCcw className="mr-1 h-3.5 w-3.5" /> Reset
+              </Button>
+            )}
+          </CardTitle>
+        </CardHeader>
         <CardContent>
           <div className="rounded-lg bg-green-500/5 border border-green-500/20 p-4">
             <div className="flex items-center gap-2 mb-2">
@@ -313,13 +417,28 @@ function NotifyCustomersPage() {
                 <div className="text-[10px] text-muted-foreground">WhatsApp Business</div>
               </div>
             </div>
-            <div className="bg-white rounded-lg p-3 text-sm whitespace-pre-wrap shadow-sm">
-              {getMessage() || "Select a template above to see preview"}
-            </div>
+            {photoUrl && (
+              <img src={photoUrl} alt="Attachment preview" className="w-full h-36 object-cover rounded-lg mb-2" />
+            )}
+            {editingMessage ? (
+              <Textarea
+                rows={6}
+                value={messageOverride ?? ""}
+                onChange={(e) => setMessageOverride(e.target.value)}
+                className="bg-white text-sm"
+              />
+            ) : (
+              <div className="bg-white rounded-lg p-3 text-sm whitespace-pre-wrap shadow-sm">
+                {getMessage() || "Select a template above to see preview"}
+              </div>
+            )}
             <div className="text-[10px] text-muted-foreground mt-1 text-right">
               {new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
             </div>
           </div>
+          {messageOverride !== null && !editingMessage && (
+            <p className="text-xs text-muted-foreground mt-2">Customized text — tap Edit text to change, Reset to restore the template.</p>
+          )}
         </CardContent>
       </Card>
 

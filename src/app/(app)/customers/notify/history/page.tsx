@@ -75,9 +75,13 @@ export default function BroadcastHistoryPage() {
               <Card key={b.id}>
                 <CardContent className="p-4">
                   <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-                      <Megaphone className="h-5 w-5 text-primary" />
-                    </div>
+                    {b.image_url ? (
+                      <img src={b.image_url} alt="" className="h-10 w-10 rounded-lg object-cover shrink-0" />
+                    ) : (
+                      <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                        <Megaphone className="h-5 w-5 text-primary" />
+                      </div>
+                    )}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
                         <span className="font-medium text-sm">{b.title}</span>
