@@ -1,8 +1,16 @@
+import { Capacitor } from "@capacitor/core";
 import { createClient } from "@/lib/supabase/client";
 import { isCapacitor } from "@/lib/platform";
 
 /** Custom scheme the Android app claims via AndroidManifest intent-filter. */
 export const NATIVE_AUTH_REDIRECT = "app.bizora.operating://auth/callback";
+
+/** Friendly error telling the user their installed APK is too old. */
+function outdatedAppError(): Error {
+  return new Error(
+    "Please update BIZORA from the Download page, then try again. (In-app sign-in needs the latest app version.)"
+  );
+}
 
 /**
  * Google sign-in that stays inside the installed app:
@@ -12,6 +20,12 @@ export const NATIVE_AUTH_REDIRECT = "app.bizora.operating://auth/callback";
  */
 export async function signInWithGoogleNative(): Promise<void> {
   if (!isCapacitor()) throw new Error("Native auth is only available in the app.");
+
+  // Old installed APKs lack the Browser/App plugins — fail fast with guidance
+  // instead of the raw "plugin is not implemented on android" error.
+  if (!Capacitor.isPluginAvailable("Browser") || !Capacitor.isPluginAvailable("App")) {
+    throw outdatedAppError();
+  }
 
   const [{ App }, { Browser }] = await Promise.all([
     import("@capacitor/app"),
@@ -75,6 +89,13 @@ export async function signInWithGoogleNative(): Promise<void> {
       reject(e instanceof Error ? e : new Error("Could not open browser."));
     });
   });
+}
+
+/** Map raw Capacitor bridge errors to the update prompt. */
+export function friendlyNativeError(e: unknown): Error {
+  const msg = e instanceof Error ? e.message : String(e ?? "");
+  if (/not implemented on/i.test(msg)) return outdatedAppError();
+  return e instanceof Error ? e : new Error("Google sign-in failed.");
 }
 
 /** Route after native OAuth: existing business → dashboard, new user → onboarding. */

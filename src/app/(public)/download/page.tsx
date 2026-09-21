@@ -88,7 +88,7 @@ export default function DownloadPage() {
               </button>
             </div>
             {apkError && <p className="mt-2 text-xs font-bold text-[#DC2626]">{apkError}</p>}
-            <p className="mt-2 text-xs text-neutral-400">v1.0.0 • ~15MB</p>
+            <p className="mt-2 text-xs text-neutral-400">v1.1.0 • ~15MB • in-app Google sign-in</p>
           </div>
 
           {/* Web */}
