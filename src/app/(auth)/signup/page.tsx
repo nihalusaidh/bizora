@@ -130,6 +130,10 @@ export default function SignupPage() {
   }
 
   return (
+    <div className="space-y-4">
+      <Link href="/" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
+        <span aria-hidden>←</span> Back to homepage
+      </Link>
     <Card className="max-w-md">
       <CardHeader className="text-center">
         <CardTitle className="text-2xl font-bold tracking-tight">
@@ -251,5 +255,6 @@ export default function SignupPage() {
         </CardFooter>
       </form>
     </Card>
+    </div>
   );
 }
